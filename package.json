@@ -6,6 +6,7 @@
   "main": "dist/themelio-wallet.umd.js",
   "module": "dist/themelio-wallet.es5.js",
   "typings": "dist/types/themelio-wallet.d.ts",
+  "type": "module",
   "files": [
     "dist"
   ],
@@ -117,6 +118,7 @@
   },
   "dependencies": {
     "bignumber.js": "^9.1.0",
+    "node-fetch": "^3.2.10",
     "typescript-is": "^0.19.0"
   }
 }

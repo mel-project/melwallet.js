@@ -21,6 +21,7 @@ export default {
   watch: {
     include: 'src/**',
   },
+  inlineDynamicImports: true,
   plugins: [
     // Allow json resolution
     json(),
