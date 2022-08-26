@@ -4,9 +4,6 @@ import type BigNumber from 'bignumber.js'
 
 export type Vec<T> = T[]
 
-export type BlockHeight = BigNumber
-export type CoinValue = BigNumber
-
 export type Obj<T> = { [key: string]: T }
 export type Association<K, V> = [K, V][]
 
@@ -32,11 +29,11 @@ export enum Denom {
 export interface Header {
   network: NetID
   previous: String
-  height: BlockHeight
+  height: BigNumber
   history_hash: String
   coins_hash: String
   transactions_hash: String
-  fee_pool: CoinValue
+  fee_pool: BigNumber
   fee_multiplier: BigNumber
   dosc_speed: BigNumber
   pools_hash: String
@@ -79,7 +76,7 @@ export interface CoinID {
 
 export interface CoinData {
   covhash: Address
-  value: CoinValue
+  value: BigNumber
   denom: Denom
   additional_data: Vec<BigNumber>
 }
@@ -89,7 +86,7 @@ export interface Transaction {
   kind: TxKind
   inputs: Vec<CoinID>
   outputs: Vec<CoinData>
-  fee: CoinValue
+  fee: BigNumber
   covenants: Vec<Covenant>
   data: string
   sigs: Vec<string>
@@ -119,13 +116,13 @@ export type MicroUnit = [number, string]
 
 export interface CoinDataHeight {
   coin_data: CoinData
-  height: BlockHeight
+  height: BigNumber
 }
 
 export interface CoinSpend {
   coinid: CoinID
   txhash: TxHash
-  height: BlockHeight
+  height: BigNumber
 }
 
 type Option<T> = T | undefined
@@ -154,13 +151,13 @@ export interface StakeDoc {
   /// Ending epoch. This is the epoch *after* the last epoch in which the syms are effective.
   e_post_end: BigNumber
   /// Number of syms staked.
-  syms_staked: CoinValue
+  syms_staked: BigNumber
 }
 
 export interface WalletSummary {
-  total_micromel: CoinValue
-  detailed_balance: Obj<CoinValue>
-  staked_microsym: CoinValue
+  total_micromel: BigNumber
+  detailed_balance: Obj<BigNumber>
+  staked_microsym: BigNumber
   network: NetID
   address: Address
   locked: Boolean

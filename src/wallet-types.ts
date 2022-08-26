@@ -12,7 +12,6 @@ import {
   StakeDoc,
   TransactionStatus,
   WalletSummary,
-  CoinValue,
 } from './themelio-types'
 import { CoinData, CoinID, WalletCoins } from './themelio-types'
 
@@ -21,7 +20,7 @@ export type Obj<T> = { [key: string]: T }
 
 export interface Wallet {
   get_name(): Promise<String>,
-  get_balances(): Promise<[Denom, CoinValue]>
+  get_balances(): Promise<[Denom, BigNumber]>
 
   get_coins(): Promise<WalletCoins>
 
@@ -31,9 +30,8 @@ export interface Wallet {
 
   export_sk(password: String | null): Promise<String>
 
-  send_faucet(wallet_name: string): Promise<TxHash>
+  // send_faucet(wallet_name: string): Pr omise<TxHash>
 
-  /// external functions
   // send_tx(tx: Transaction): Promise<TxHash>
 
   // prepare_stake_transaction(stake_doc: StakeDoc): Promise<Transaction>

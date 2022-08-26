@@ -17,7 +17,7 @@ import type {
   WalletCoins,
   WalletSummary,
 } from './themelio-types'
-import { WalletInfo, Wallet } from './wallet-types'
+import { Wallet } from './wallet-types'
 import fetch from 'node-fetch'
 import { assertType, is } from 'typescript-is'
  interface DaemonClient {
