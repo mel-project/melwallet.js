@@ -23,32 +23,51 @@ import { assertType, is } from 'typescript-is'
  interface DaemonClient {
   list_wallets(): Obj<WalletSummary>
   // summarize_wallet(wallet_name: string): Promise<WalletSummary | null>
-  get_wallet(wallet_name: string): Promise<WalletSummary | null>
+  get_wallet(wallet_name: string): Promise<ThemelioWallet | null>
   create_wallet(name: string, password: String | null, secret: String | null): void
   get_pool(pool: PoolKey): Promise<PoolState>
   get_summary(): Header
 }
 
+class MelwalletdClient implements DaemonClient{
+  readonly #endpoint: string;
+  constructor(endpoint: string){
+    this.#endpoint = endpoint;
+    
+  }
+
+  list_wallets(): Obj<WalletSummary> {
+    throw new Error('Method not implemented.')
+  }
+  get_wallet(wallet_name: string): Promise<ThemelioWallet | null> {
+    throw new Error('Method not implemented.')
+  }
+  create_wallet(name: string, password: String | null, secret: String | null): void {
+    throw new Error('Method not implemented.')
+  }
+  get_pool(pool: PoolKey): Promise<PoolState> {
+    throw new Error('Method not implemented.')
+  }
+  get_summary(): Header {
+    throw new Error('Method not implemented.')
+  }
+
+}
 
 class ThemelioWallet implements Wallet {
   name: string
   #endpoint: String
 
-  constructor(wallet_name: string) {
-    this.name = wallet_name
-    this.#endpoint = 'http://localhost:11773'
-    return this
-  }
   set_endpoint(endpoint: string) {
     this.#endpoint = endpoint
   }
-  // async summarize_wallet(): Promise<WalletSummary> {
-  //   let wallet = this
-  //   let summary = await fetch_wrapper(`${wallet.#endpoint}/wallets/${wallet.name}`)
-  //   console.log(summary)
-  //   if (is<WalletSummary>(summary)) return summary as any as WalletSummary
-  //   throw new Error('Failed to get wallet summary')
-  // }
+  async get_balances(): Promise<WalletSummary> {
+    let wallet = this
+    let summary = await fetch_wrapper(`${wallet.#endpoint}/wallets/${wallet.name}`)
+    console.log(summary)
+    if (is<WalletSummary>(summary)) return summary as any as WalletSummary
+    throw new Error('Failed to get wallet summary')
+  }
   async get_coins(): Promise<WalletCoins> {
     throw new Error('Method not implemented.')
   }
