@@ -1,26 +1,15 @@
 import type BigNumber from 'bignumber.js'
 
-export type bool = Boolean
 
-export type usize = BigNumber
-export type u256 = BigNumber
-export type u128 = BigNumber
-export type u64 = BigNumber
-export type u32 = number
-export type u8 = number
-
-export type f64 = BigNumber
-export type f32 = BigNumber
 
 export type Vec<T> = T[]
 
-export type BlockHeight = u64
-export type CoinValue = u128
+export type BlockHeight = BigNumber
+export type CoinValue = BigNumber
 
 export type Obj<T> = { [key: string]: T }
 export type Association<K, V> = [K, V][]
 
-export type HashVal = String
 
 export enum NetID {
   Testnet = 0x01,
@@ -42,23 +31,23 @@ export enum Denom {
 
 export interface Header {
   network: NetID
-  previous: HashVal
+  previous: String
   height: BlockHeight
-  history_hash: HashVal
-  coins_hash: HashVal
-  transactions_hash: HashVal
+  history_hash: String
+  coins_hash: String
+  transactions_hash: String
   fee_pool: CoinValue
-  fee_multiplier: u128
-  dosc_speed: u128
-  pools_hash: HashVal
-  stakes_hash: HashVal
+  fee_multiplier: BigNumber
+  dosc_speed: BigNumber
+  pools_hash: String
+  stakes_hash: String
 }
 export interface TransactionSummary {
   hash: String
   shorthash: String
-  height: u64
-  weight: u128
-  mel_moved: u128
+  height: BigNumber
+  weight: BigNumber
+  mel_moved: BigNumber
 }
 
 export interface PoolKey {
@@ -69,33 +58,33 @@ export interface PoolKey {
 // 2 million cached pooldataitems is 64 mb
 // 1 item is 256 bits
 export interface PoolDataItem {
-  date: u64
-  height: u64
-  price: f64
-  liquidity: f64
-  ergs_per_mel: f64
+  date: BigNumber
+  height: BigNumber
+  price: BigNumber
+  liquidity: BigNumber
+  ergs_per_mel: BigNumber
 }
 
 export interface PoolState {
-  lefts: u128
-  rights: u128
-  price_accum: u128
-  liqs: u128
+  lefts: BigNumber
+  rights: BigNumber
+  price_accum: BigNumber
+  liqs: BigNumber
 }
 
 export interface CoinID {
   txhash: TxHash
-  index: u8
+  index: BigNumber
 }
 
 export interface CoinData {
   covhash: Address
   value: CoinValue
   denom: Denom
-  additional_data: Vec<u8>
+  additional_data: Vec<BigNumber>
 }
 
-export type Covenant = Vec<u8>
+export type Covenant = Vec<BigNumber>
 export interface Transaction {
   kind: TxKind
   inputs: Vec<CoinID>
@@ -108,11 +97,11 @@ export interface Transaction {
 
 export interface CoinID {
   txhash: TxHash
-  index: u8
+  index: BigNumber
 }
 
-export type TxHash = HashVal
-export type Address = HashVal
+export type TxHash = String
+export type Address = String
 
 /// Transaction represents an individual, serializable Themelio transaction.
 
@@ -142,13 +131,13 @@ export interface CoinSpend {
 type Option<T> = T | undefined
 export interface TransactionStatus {
   raw: Transaction
-  confirmed_height: Option<u64>
+  confirmed_height: Option<BigNumber>
   outputs: Vec<AnnCoinID>
 }
 
 export interface AnnCoinID {
   coin_data: CoinData
-  is_change: bool
+  is_change: Boolean
   coin_id: String
 }
 
@@ -157,47 +146,13 @@ export interface CoinCrawl {
   coin_spenders: { [key: string]: string }
 }
 
-export type Ed25519PK = [
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8,
-  u8
-] // [u8; 32]
 export interface StakeDoc {
-  /// lic key.
-  key: Ed25519PK
+  /// public key.
+  key: String
   /// Starting epoch.
-  e_start: u64
+  e_start: BigNumber
   /// Ending epoch. This is the epoch *after* the last epoch in which the syms are effective.
-  e_post_end: u64
+  e_post_end: BigNumber
   /// Number of syms staked.
   syms_staked: CoinValue
 }
@@ -208,7 +163,7 @@ export interface WalletSummary {
   staked_microsym: CoinValue
   network: NetID
   address: Address
-  locked: bool
+  locked: Boolean
 }
 
 export type WalletCoins = Association<CoinID, CoinData>

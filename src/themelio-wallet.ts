@@ -4,8 +4,11 @@ import type {
   CoinID,
   Covenant,
   Denom,
+  Header,
   NetID,
   Obj,
+  PoolKey,
+  PoolState,
   StakeDoc,
   Transaction,
   TransactionStatus,
@@ -17,6 +20,16 @@ import type {
 import { WalletInfo, Wallet } from './wallet-types'
 import fetch from 'node-fetch'
 import { assertType, is } from 'typescript-is'
+ interface DaemonClient {
+  list_wallets(): Obj<WalletSummary>
+  // summarize_wallet(wallet_name: string): Promise<WalletSummary | null>
+  get_wallet(wallet_name: string): Promise<WalletSummary | null>
+  create_wallet(name: string, password: String | null, secret: String | null): void
+  get_pool(pool: PoolKey): Promise<PoolState>
+  get_summary(): Header
+}
+
+
 class ThemelioWallet implements Wallet {
   name: string
   #endpoint: String
@@ -24,17 +37,18 @@ class ThemelioWallet implements Wallet {
   constructor(wallet_name: string) {
     this.name = wallet_name
     this.#endpoint = 'http://localhost:11773'
+    return this
   }
   set_endpoint(endpoint: string) {
     this.#endpoint = endpoint
   }
-  async summarize_wallet(): Promise<WalletSummary> {
-    let wallet = this
-    let summary = await fetch_wrapper(`${wallet.#endpoint}/wallets/${wallet.name}`)
-    console.log(summary)
-    if (is<WalletSummary>(summary)) return summary as any as WalletSummary
-    throw new Error('Failed to get wallet summary')
-  }
+  // async summarize_wallet(): Promise<WalletSummary> {
+  //   let wallet = this
+  //   let summary = await fetch_wrapper(`${wallet.#endpoint}/wallets/${wallet.name}`)
+  //   console.log(summary)
+  //   if (is<WalletSummary>(summary)) return summary as any as WalletSummary
+  //   throw new Error('Failed to get wallet summary')
+  // }
   async get_coins(): Promise<WalletCoins> {
     throw new Error('Method not implemented.')
   }
@@ -56,17 +70,17 @@ class ThemelioWallet implements Wallet {
   async prepare_stake_transaction(stake_doc: StakeDoc): Promise<Transaction> {
     throw new Error('Method not implemented.')
   }
-  async prepare_transaction(
-    kind: TxKind,
-    desired_inputs: Vec<CoinID>,
-    desired_outputs: Vec<CoinData>,
-    covenants: Vec<Covenant>,
-    data: Vec<number>,
-    no_balance: Vec<Denom>,
-    fee_ballast: BigNumber
-  ): Promise<Transaction> {
-    throw new Error('Method not implemented.')
-  }
+  // async prepare_transaction(
+  //   kind: TxKind,
+  //   desired_inputs: Vec<CoinID>,
+  //   desired_outputs: Vec<CoinData>,
+  //   covenants: Vec<Covenant>,
+  //   data: Vec<number>,
+  //   no_balance: Vec<Denom>,
+  //   fee_ballast: BigNumber
+  // ): Promise<Transaction> {
+  //   throw new Error('Method not implemented.')
+  // }
   async get_transaction_status(txhash: String): Promise<TransactionStatus> {
     throw new Error('Method not implemented.')
   }
