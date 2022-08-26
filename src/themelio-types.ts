@@ -2,7 +2,6 @@ import type BigNumber from 'bignumber.js'
 
 
 
-export type Vec<T> = T[]
 
 export type Obj<T> = { [key: string]: T }
 export type Association<K, V> = [K, V][]
@@ -78,18 +77,18 @@ export interface CoinData {
   covhash: Address
   value: BigNumber
   denom: Denom
-  additional_data: Vec<BigNumber>
+  additional_data: BigNumber
 }
 
-export type Covenant = Vec<BigNumber>
+export type Covenant = BigNumber
 export interface Transaction {
   kind: TxKind
-  inputs: Vec<CoinID>
-  outputs: Vec<CoinData>
+  inputs: CoinID
+  outputs: CoinData
   fee: BigNumber
-  covenants: Vec<Covenant>
+  covenants: Covenant
   data: string
-  sigs: Vec<string>
+  sigs: string
 }
 
 export interface CoinID {
@@ -125,22 +124,11 @@ export interface CoinSpend {
   height: BigNumber
 }
 
-type Option<T> = T | undefined
-export interface TransactionStatus {
-  raw: Transaction
-  confirmed_height: Option<BigNumber>
-  outputs: Vec<AnnCoinID>
-}
 
 export interface AnnCoinID {
   coin_data: CoinData
   is_change: Boolean
   coin_id: String
-}
-
-export interface CoinCrawl {
-  coin_contents: [CoinID, CoinData]
-  coin_spenders: { [key: string]: string }
 }
 
 export interface StakeDoc {

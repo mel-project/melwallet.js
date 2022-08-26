@@ -20,35 +20,35 @@ import type {
 import { Wallet } from './wallet-types'
 import fetch from 'node-fetch'
 import { assertType, is } from 'typescript-is'
- interface DaemonClient {
-  list_wallets(): Obj<WalletSummary>
-  // summarize_wallet(wallet_name: string): Promise<WalletSummary | null>
-  get_wallet(wallet_name: string): Promise<ThemelioWallet | null>
-  create_wallet(name: string, password: String | null, secret: String | null): void
-  get_pool(pool: PoolKey): Promise<PoolState>
-  get_summary(): Header
-}
 
-class MelwalletdClient implements DaemonClient{
-  readonly #endpoint: string;
-  constructor(endpoint: string){
-    this.#endpoint = endpoint;
+
+class MelwalletdClient{
+  readonly #address: string;
+  constructor(address: string){
+    this.#address = address;
     
   }
-
-  list_wallets(): Obj<WalletSummary> {
+  async request(endpoint: string, method?: string): Promise<Response> {
+    method = method || "GET"
+    return fetch(`${this.#address}` + endpoint, {
+      method
+    })
+  }
+  async list_wallets(): Promise<Obj<WalletSummary>> {
+    let res = await this.request("/wallets")
+    console.log()
+    return {}
+  }
+  async get_wallet(wallet_name: string): Promise<ThemelioWallet | null> {
     throw new Error('Method not implemented.')
   }
-  get_wallet(wallet_name: string): Promise<ThemelioWallet | null> {
+  async create_wallet(name: string, password: String | null, secret: String | null): Promise<void> {
     throw new Error('Method not implemented.')
   }
-  create_wallet(name: string, password: String | null, secret: String | null): void {
+  async get_pool(pool: PoolKey): Promise<PoolState> {
     throw new Error('Method not implemented.')
   }
-  get_pool(pool: PoolKey): Promise<PoolState> {
-    throw new Error('Method not implemented.')
-  }
-  get_summary(): Header {
+  async get_summary(): Promise<Header> {
     throw new Error('Method not implemented.')
   }
 
@@ -56,8 +56,10 @@ class MelwalletdClient implements DaemonClient{
 
 class ThemelioWallet implements Wallet {
   name: string
+  address: string
   #endpoint: String
 
+  constructor(name: string)
   set_endpoint(endpoint: string) {
     this.#endpoint = endpoint
   }

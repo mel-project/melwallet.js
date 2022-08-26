@@ -1,22 +1,19 @@
 import BigNumber from 'bignumber.js'
 import {
-  PoolKey,
-  PoolState,
-  Header,
   TxHash,
   Transaction,
-  TxKind,
   Denom,
-  Vec,
-  Covenant,
-  StakeDoc,
-  TransactionStatus,
-  WalletSummary,
+  AnnCoinID,
 } from './themelio-types'
 import { CoinData, CoinID, WalletCoins } from './themelio-types'
 
 export type Obj<T> = { [key: string]: T }
 
+export interface TransactionStatus {
+  raw: Transaction
+  confirmed_height: BigNumber | null
+  outputs: AnnCoinID
+}
 
 export interface Wallet {
   get_name(): Promise<String>,
