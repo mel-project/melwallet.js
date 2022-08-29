@@ -16,8 +16,11 @@ export interface TransactionStatus {
 }
 
 export interface Wallet {
-  get_name(): Promise<String>,
-  get_balances(): Promise<[Denom, BigNumber]>
+  get_name(): Promise<String>
+
+  get_address(): Promise<String>
+
+  get_balances(): Promise<[Denom, BigNumber][]>
 
   get_coins(): Promise<WalletCoins>
 

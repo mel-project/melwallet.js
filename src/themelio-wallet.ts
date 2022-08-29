@@ -11,16 +11,16 @@ import type {
   PoolState,
   StakeDoc,
   Transaction,
-  TransactionStatus,
   TxKind,
-  Vec,
   WalletCoins,
   WalletSummary,
 } from './themelio-types'
-import { Wallet } from './wallet-types'
+import { TransactionStatus, Wallet } from './wallet-types'
 import fetch from 'node-fetch'
+import {Response} from 'node-fetch'
 import { assertType, is } from 'typescript-is'
-
+import { AnyTxtRecord } from 'dns'
+import JSONBig from 'json-big';
 
 class MelwalletdClient{
   readonly #address: string;
@@ -34,10 +34,9 @@ class MelwalletdClient{
       method
     })
   }
-  async list_wallets(): Promise<Obj<WalletSummary>> {
+  async list_wallets(): Promise<Map<String,WalletSummary>> {
     let res = await this.request("/wallets")
-    console.log()
-    return {}
+    return new Map()
   }
   async get_wallet(wallet_name: string): Promise<ThemelioWallet | null> {
     throw new Error('Method not implemented.')
@@ -55,19 +54,26 @@ class MelwalletdClient{
 }
 
 class ThemelioWallet implements Wallet {
-  name: string
-  address: string
-  #endpoint: String
-
-  constructor(name: string)
-  set_endpoint(endpoint: string) {
-    this.#endpoint = endpoint
+  #domain: string
+  readonly #name: string
+  
+  constructor(name: string, domain: string){
+    this.#name = name;
+    this.#domain = domain;
+  } 
+  async get_name(): Promise<String> {
+    throw new Error('Method not implemented.')
   }
-  async get_balances(): Promise<WalletSummary> {
+
+  async get_address(): Promise<String> {
+    let res = this.melwalletd_request
+    return ''
+  }
+  async get_balances(): Promise<[Denom, BigNumber][]> {
     let wallet = this
-    let summary = await fetch_wrapper(`${wallet.#endpoint}/wallets/${wallet.name}`)
+    let summary = await fetch_wrapper(`${wallet.#domain}/wallets/${wallet.#name}`)
     console.log(summary)
-    if (is<WalletSummary>(summary)) return summary as any as WalletSummary
+    return []
     throw new Error('Failed to get wallet summary')
   }
   async get_coins(): Promise<WalletCoins> {
@@ -108,23 +114,35 @@ class ThemelioWallet implements Wallet {
   async wait_transaction(txhash: String): Promise<BigNumber> {
     throw new Error('Method not implemented.')
   }
-}
-
-async function fetch_wrapper(endpoint: any, data?: any) {
-  data = data || {}
-  let response = await fetch(endpoint, data)
-  if (response.ok) {
-    return response.json()
-  } else {
-    throw new Error(response.statusText)
+  async melwalletd_request<T>(endpoint: any, data?: any): Promise<any> {
+    let response = await fetch_wrapper(`${this.#domain}` + endpoint, data)
+    if (response.ok) {
+      let data = response.text
+      let json = JSONBig.parse(data)
+      return json
+    }
+    else{
+      throw new Error(response.statusText)
+    }
   }
 }
 
-let wallet: ThemelioWallet = new ThemelioWallet('testing')
+async function fetch_wrapper(endpoint: any, data?: any): Promise<Response> {
+  data = data || {}
+  let response = await fetch(endpoint, data)
+  return response
+  
+}
+
+// let wallet: ThemelioWallet = new ThemelioWallet('testing')
 
 async function main() {
-  console.log('what the heck')
-  let summary = await wallet.summarize_wallet()
-  console.log(summary)
+  let b = new Map()
+  b.set("a", 1);
+  console.log(b.entries());
+  console.log(JSONBig.stringify(b.entries()));
+  // console.log('what the heck')
+  // let summary = await wallet.summarize_wallet()
+  // console.log(summary)
 }
 main()
