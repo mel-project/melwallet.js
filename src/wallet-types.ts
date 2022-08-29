@@ -24,9 +24,7 @@ export interface Wallet {
 
   get_address(): Promise<String>
 
-  get_balances(): Promise<[Denom, BigNumber][]>
-
-  get_coins(): Promise<Map<CoinID, CoinData>>
+  get_balances(): Promise<Map<Denom, BigNumber>>
 
   lock(): Promise<void>
 

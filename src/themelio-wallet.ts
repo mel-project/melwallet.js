@@ -4,20 +4,15 @@ import type {
   CoinID,
   Denom,
   Header,
-  NetID,
   PoolKey,
   PoolState,
   StakeDoc,
   Transaction,
-  TxKind,
 } from './themelio-types'
 import { TransactionStatus, Wallet, WalletSummary } from './wallet-types'
 import fetch from 'node-fetch'
 import { Response } from 'node-fetch'
-import { assertType, createIs, is } from 'typescript-is'
-import { AnyTxtRecord } from 'dns'
 import JSONBig from 'json-big'
-import { json } from 'node:stream/consumers'
 
 class MelwalletdClient {
   readonly #domain: string
@@ -83,8 +78,9 @@ export class ThemelioWallet implements Wallet {
     let res = this.melwalletd_request
     return ''
   }
-  async get_balances(): Promise<[Denom, BigNumber][]> {
-    throw new Error('Method not implemented.')
+  async get_balances(): Promise<Map<Denom, BigNumber>> {
+    let coins = await this.get_coins()
+    return get_balances(coins)
   }
   async get_coins(): Promise<Map<CoinID, CoinData>> {
     let wallet = this
@@ -149,6 +145,18 @@ async function unwrap_nullable_promise<T>(m: Promise<T | null>): Promise<T> {
     return maybe
   }
   throw Error(`Unable to unwrap: ${m}`)
+}
+
+async function get_balances(coin_info: Map<CoinID, CoinData>): Promise<Map<Denom, BigNumber>> {
+  let denoms: Map<Denom, BigNumber> = new Map()
+  for (let coin_data of coin_info.values()) {
+    let denom = coin_data.denom
+    let current_value: BigNumber = denoms.get(denom) || new BigNumber(0)
+    let coin_value: BigNumber = coin_data.value
+    denoms.set(denom, coin_value.plus(current_value))
+  }
+
+  return denoms
 }
 async function main() {
   let client = new MelwalletdClient('127.0.0.1:11773')
