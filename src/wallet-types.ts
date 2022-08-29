@@ -1,11 +1,6 @@
 import BigNumber from 'bignumber.js'
-import {
-  TxHash,
-  Transaction,
-  Denom,
-  AnnCoinID,
-} from './themelio-types'
-import { CoinData, CoinID, WalletCoins } from './themelio-types'
+import { Transaction, Denom, AnnCoinID, NetID } from './themelio-types'
+import { CoinData, CoinID } from './themelio-types'
 
 export type Obj<T> = { [key: string]: T }
 
@@ -15,6 +10,15 @@ export interface TransactionStatus {
   outputs: AnnCoinID
 }
 
+export interface WalletSummary {
+  total_micromel: BigNumber
+  detailed_balance: Obj<BigNumber>
+  staked_microsym: BigNumber
+  network: NetID
+  address: string
+  locked: Boolean
+}
+
 export interface Wallet {
   get_name(): Promise<String>
 
@@ -22,7 +26,7 @@ export interface Wallet {
 
   get_balances(): Promise<[Denom, BigNumber][]>
 
-  get_coins(): Promise<WalletCoins>
+  get_coins(): Promise<Map<CoinID, CoinData>>
 
   lock(): Promise<void>
 
@@ -46,9 +50,8 @@ export interface Wallet {
   //   fee_ballast: BigNumber
   // ): Promise<Transaction>
   ///
+  toJSON(): string
+  get_transaction_status(txhash: string): Promise<TransactionStatus>
 
-  get_transaction_status(txhash: TxHash): Promise<TransactionStatus>
-
-  wait_transaction(txhash: TxHash): Promise<BigNumber>
+  wait_transaction(txhash: string): Promise<BigNumber>
 }
-

@@ -1,12 +1,5 @@
 import type BigNumber from 'bignumber.js'
 
-
-
-
-export type Obj<T> = { [key: string]: T }
-export type Association<K, V> = [K, V][]
-
-
 export enum NetID {
   Testnet = 0x01,
   Custom02 = 0x02,
@@ -69,35 +62,31 @@ export interface PoolState {
 }
 
 export interface CoinID {
-  txhash: TxHash
+  txhash: string
   index: BigNumber
 }
 
 export interface CoinData {
-  covhash: Address
+  covhash: string
   value: BigNumber
   denom: Denom
   additional_data: BigNumber
 }
 
-export type Covenant = BigNumber
 export interface Transaction {
   kind: TxKind
   inputs: CoinID
   outputs: CoinData
   fee: BigNumber
-  covenants: Covenant
+  covenants: BigNumber
   data: string
   sigs: string
 }
 
 export interface CoinID {
-  txhash: TxHash
+  txhash: string
   index: BigNumber
 }
-
-export type TxHash = String
-export type Address = String
 
 /// Transaction represents an individual, serializable Themelio transaction.
 
@@ -111,7 +100,6 @@ export enum TxKind {
   Swap = 0x51,
 }
 
-
 export interface CoinDataHeight {
   coin_data: CoinData
   height: BigNumber
@@ -119,10 +107,9 @@ export interface CoinDataHeight {
 
 export interface CoinSpend {
   coinid: CoinID
-  txhash: TxHash
+  txhash: string
   height: BigNumber
 }
-
 
 export interface AnnCoinID {
   coin_data: CoinData
@@ -140,14 +127,3 @@ export interface StakeDoc {
   /// Number of syms staked.
   syms_staked: BigNumber
 }
-
-export interface WalletSummary {
-  total_micromel: BigNumber
-  detailed_balance: Obj<BigNumber>
-  staked_microsym: BigNumber
-  network: NetID
-  address: Address
-  locked: Boolean
-}
-
-export type WalletCoins = Association<CoinID, CoinData>
