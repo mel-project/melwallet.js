@@ -48,7 +48,6 @@ export interface Wallet {
   //   fee_ballast: BigNumber
   // ): Promise<Transaction>
   ///
-  toJSON(): string
   get_transaction_status(txhash: string): Promise<TransactionStatus>
 
   wait_transaction(txhash: string): Promise<BigNumber>

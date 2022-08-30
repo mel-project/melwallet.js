@@ -10,9 +10,8 @@ import type {
   Transaction,
 } from './themelio-types'
 import { TransactionStatus, Wallet, WalletSummary } from './wallet-types'
-import fetch from 'node-fetch'
-import { Response } from 'node-fetch'
 import JSONBig from 'json-big'
+import { fetch_wrapper, int_to_bigint, map_from_entries, unwrap_nullable_promise } from './utils'
 
 class MelwalletdClient {
   readonly #domain: string
@@ -23,7 +22,7 @@ class MelwalletdClient {
     let response = await fetch_wrapper(`http://${domain}` + endpoint, metadata)
     if (response.ok) {
       let data = await response.text()
-      let json = JSONBig.parse(data)
+      let json = JSONBig.parse(data, int_to_bigint)
       return json
     } else {
       throw new Error(response.statusText)
@@ -78,16 +77,18 @@ export class ThemelioWallet implements Wallet {
     let res = this.melwalletd_request
     return ''
   }
+
+  async get_coins(): Promise<Map<CoinID, CoinData>> {
+    let wallet = this
+    let coins: [CoinID, CoinData][] = await wallet.melwalletd_request('/coins')
+    return map_from_entries(coins);
+  }
+
   async get_balances(): Promise<Map<Denom, BigNumber>> {
     let coins = await this.get_coins()
     return get_balances(coins)
   }
-  async get_coins(): Promise<Map<CoinID, CoinData>> {
-    let wallet = this
-    let summary = await this.melwalletd_request('/coins')
-    console.log(summary)
-    throw new Error('Failed to get wallet summary')
-  }
+
   async lock(): Promise<void> {
     throw new Error('Method not implemented.')
   }
@@ -127,25 +128,8 @@ export class ThemelioWallet implements Wallet {
     let wallet = this
     return MelwalletdClient.request(`${wallet.#domain}/wallets/${wallet.#name}`, endpoint, data)
   }
-
-  toJSON() {
-    return '{"hello": "world"}'
-  }
 }
 
-async function fetch_wrapper(endpoint: any, data?: any): Promise<Response> {
-  data = data || {}
-  let response = await fetch(endpoint, data)
-  return response
-}
-
-async function unwrap_nullable_promise<T>(m: Promise<T | null>): Promise<T> {
-  let maybe: T | null = await m
-  if (maybe) {
-    return maybe
-  }
-  throw Error(`Unable to unwrap: ${m}`)
-}
 
 async function get_balances(coin_info: Map<CoinID, CoinData>): Promise<Map<Denom, BigNumber>> {
   let denoms: Map<Denom, BigNumber> = new Map()
@@ -161,7 +145,8 @@ async function get_balances(coin_info: Map<CoinID, CoinData>): Promise<Map<Denom
 async function main() {
   let client = new MelwalletdClient('127.0.0.1:11773')
   unwrap_nullable_promise(client.get_wallet('shane'))
-    .then(async (wallet: ThemelioWallet) => wallet.get_coins())
+    .then(async (wallet: ThemelioWallet) => wallet.get_balances())
+    .then(balances => console.log(balances))
     .catch((err) => console.log(err))
 }
 main()
