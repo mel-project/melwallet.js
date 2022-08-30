@@ -39,6 +39,16 @@ export interface TransactionSummary {
   mel_moved: BigNumber
 }
 
+export enum TxKind {
+  DoscMint = "0x50",
+  Faucet = "0xff",
+  LiqDeposit ="0x52",
+  LiqWithdraw = "0x53",
+  Normal = "0x00",
+  Stake = "0x10",
+  Swap = "0x51",
+}
+
 export interface PoolKey {
   left: Denom
   right: Denom
@@ -70,7 +80,7 @@ export interface CoinData {
   covhash: string
   value: BigNumber
   denom: Denom
-  additional_data: BigNumber
+  additional_data: string
 }
 
 export interface Transaction {
@@ -88,17 +98,7 @@ export interface CoinID {
   index: BigNumber
 }
 
-/// Transaction represents an individual, serializable Themelio transaction.
 
-export enum TxKind {
-  DoscMint = 0x50,
-  Faucet = 0xff,
-  LiqDeposit = 0x52,
-  LiqWithdraw = 0x53,
-  Normal = 0x00,
-  Stake = 0x10,
-  Swap = 0x51,
-}
 
 export interface CoinDataHeight {
   coin_data: CoinData

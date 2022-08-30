@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js'
-import { Transaction, Denom, AnnCoinID, NetID } from './themelio-types'
+import { Transaction, Denom, AnnCoinID, NetID, TxKind } from './themelio-types'
 import { CoinData, CoinID } from './themelio-types'
 
 export type Obj<T> = { [key: string]: T }
@@ -20,9 +20,9 @@ export interface WalletSummary {
 }
 
 export interface Wallet {
-  get_name(): Promise<String>
+  get_name(): Promise<string>
 
-  get_address(): Promise<String>
+  get_address(): Promise<string>
 
   get_balances(): Promise<Map<Denom, BigNumber>>
 
@@ -30,25 +30,32 @@ export interface Wallet {
 
   unlock(password: string): Promise<void>
 
-  export_sk(password: String | null): Promise<String>
+  export_sk(password: string): Promise<string>
 
-  // send_faucet(wallet_name: string): Pr omise<TxHash>
+  // send_faucet(wallet_name: string): Promise<TxHash>
 
-  // send_tx(tx: Transaction): Promise<TxHash>
+  send_tx(tx: Transaction): Promise<string>
 
   // prepare_stake_transaction(stake_doc: StakeDoc): Promise<Transaction>
 
-  // prepare_transaction(
-  //   kind: TxKind,
-  //   desired_inputs: Vec<CoinID>,
-  //   desired_outputs: Vec<CoinData>,
-  //   covenants: Vec<Covenant>,
-  //   data: Vec<BigNumber>,
-  //   no_balance: Vec<Denom>,
-  //   fee_ballast: BigNumber
-  // ): Promise<Transaction>
-  ///
+  prepare_transaction(ptx: PrepareTransaction): Promise<Transaction>
+  
   get_transaction_status(txhash: string): Promise<TransactionStatus>
 
-  wait_transaction(txhash: string): Promise<BigNumber>
+}
+
+export interface PrepareTransaction {
+  inputs: CoinID[],
+  outputs: CoinData[],
+  signing_key: string | null,
+  kind: TxKind | null,
+  data: string | null,
+  covenants: string[],
+  nobalance: Denom[],
+  fee_ballast: BigNumber,
+}
+
+export interface MyInterface {
+  someObject: TxKind;
+  without: string;
 }
