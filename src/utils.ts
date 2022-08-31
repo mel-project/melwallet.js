@@ -43,33 +43,38 @@ export function map_from_entries<T, K>(entries: [T, K][], reviver?: Reviver<K>):
 
 
 
-function int_to_bigint(key: string, value: number): bigint | false {
+function int_to_bigint<T extends JSONValue>(key: string, value:T ): bigint | false {
   if (typeof (value) === 'number') {
     return BigInt(value);
   }
   return false
 }
 
-function object_to_map(key: string, value: Record<string, JSONValue>): Map<string, JSONValue> | false {
+function object_to_map<T extends JSONValue>(key: string, value: T): Map<string, JSONValue>| Record<string, JSONValue> | false {
   if (typeof (value) == 'object') {
     let entries: [string, JSONValue][] = Object.entries(value);
-    let map: Map<string, JSONValue> = map_from_entries(entries);
 
+    // deal with the containing object
+    // don't create a map since maps aren't analyzed properly by typescript-is
+    if (key === "") return Object.fromEntries(entries)
+    return map_from_entries(entries);
   }
+
+  else 
   return false
 }
 
 
-type Reviver<T extends JSONValue> = (key: string, value: T) => any | false;
+type Reviver<T> = (key: string, value: T) => any | false;
 function chain_reviver<T extends JSONValue>(revivers: Reviver<T>[]): Reviver<T> {
   return (key, value) => {
+    var parsed_value;
     let v = revivers.find((r) => {
-      let parsed_value = r(key, value)
+      parsed_value = r(key, value)
       if (parsed_value === false) return false
-      console.log('parsed_value: ', parsed_value)
       return true
     })
-    if (v) return value;
+    if (v) return parsed_value;
     else return value;
   }
 }

@@ -10,11 +10,11 @@ export interface TransactionStatus {
 
 export interface WalletSummary {
   total_micromel: bigint
-  detailed_balance: Map<Denom,bigint>
+  detailed_balance: Map<Denom, bigint>
   staked_microsym: bigint
   network: NetID
   address: string
-  locked: Boolean
+  locked: boolean
 }
 
 export interface Wallet {

@@ -112,7 +112,7 @@ export interface CoinSpend {
 
 export interface AnnCoinID {
   coin_data: CoinData
-  is_change: Boolean
+  is_change: boolean
   coin_id: String
 }
 

@@ -100,9 +100,8 @@ export class ThemelioWallet implements Wallet {
   async get_summary(): Promise<WalletSummary> {
     let raw_summary: RawWalletSummary = await this.melwalletd_request("");
     let detailed_balance: Map<Denom, bigint> = new Map()
-    // let raw_balance: Record<string, bigint> = raw_summary.detailed_balance;
- 
-    // console.log(Object.entries(raw_balance))
+    console.log(raw_summary);
+    console.log(is<RawWalletSummary>(raw_summary))
 
     throw Error()
   }
@@ -183,26 +182,26 @@ export class ThemelioWallet implements Wallet {
 // }
 async function main() {
   let client = new MelwalletdClient('127.0.0.1:11773')
-  unwrap_nullable_promise(client.get_wallet('test1231232'))
+  unwrap_nullable_promise(client.get_wallet('shane'))
     .then(async (wallet: ThemelioWallet) => {
-      console.log(`requesting to unlock: \`${await wallet.get_name()}\``);
-      await wallet.unlock("123")
+      // console.log(`requesting to unlock: \`${await wallet.get_name()}\``);
+      // await wallet.unlock("123")
       let summary = await wallet.get_summary();
-      console.log(summary)
-      console.log('unlocked');
+      // console.log(summary)
+      // console.log('unlocked');
 
-      console.log("pk: ", await wallet.export_sk("123"))
-      try {
-        console.log("faucet? ", await wallet.send_faucet())
-      }
-      catch {
-        console.log("sending faucet failed")
-      }
-      console.log('locking')
-      await wallet.lock()
-      let new_summary = await wallet.get_summary()
-      console.log("is locked: ", new_summary.locked)
-      console.log("how much money is in here: ", await wallet.get_balances())
+      // console.log("pk: ", await wallet.export_sk("123"))
+      // try {
+      //   console.log("faucet? ", await wallet.send_faucet())
+      // }
+      // catch {
+      //   console.log("sending faucet failed")
+      // }
+      // console.log('locking')
+      // await wallet.lock()
+      // let new_summary = await wallet.get_summary()
+      // console.log("is locked: ", new_summary.locked)
+      // console.log("how much money is in here: ", await wallet.get_balances())
     })
     // .then(balances => console.log(balances))
     .catch((err) => console.log(err))
