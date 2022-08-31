@@ -8,10 +8,10 @@ type JSONValue =
   | number
   | boolean
   | bigint
-  | JSONObject 
+  | JSONObject
   | JSONArray;
 
-interface JSONObject extends Record<string, JSONValue> {}
+interface JSONObject extends Record<string, JSONValue> { }
 interface JSONArray extends Array<JSONValue> { }
 
 
@@ -30,7 +30,7 @@ export async function unwrap_nullable_promise<T>(m: Promise<T | null>): Promise<
   throw Error(`Unable to unwrap: ${m}`)
 }
 
-export function map_from_entries<T, K>(entries: [T, K][], reviver?: Reviver<K>): Map<T, K> {
+export function map_from_entries<T, K, J>(entries: [T, K][]): Map<T, K> {
   let map: Map<T, K> = new Map();
   for (let entry of entries) {
     let [key, value] = entry;
@@ -43,14 +43,14 @@ export function map_from_entries<T, K>(entries: [T, K][], reviver?: Reviver<K>):
 
 
 
-function int_to_bigint<T extends JSONValue>(key: string, value:T ): bigint | false {
+function int_to_bigint<T extends JSONValue>(key: string, value: T): bigint | false {
   if (typeof (value) === 'number') {
     return BigInt(value);
   }
   return false
 }
 
-function object_to_map<T extends JSONValue>(key: string, value: T): Map<string, JSONValue>| Record<string, JSONValue> | false {
+function object_to_map<T extends JSONValue>(key: string, value: T): Map<string, JSONValue> | Record<string, JSONValue> | false {
   if (typeof (value) == 'object') {
     let entries: [string, JSONValue][] = Object.entries(value);
 
@@ -60,22 +60,24 @@ function object_to_map<T extends JSONValue>(key: string, value: T): Map<string, 
     return map_from_entries(entries);
   }
 
-  else 
-  return false
+  else
+    return false
 }
 
-
+type TypedReviver<T,K> = (key: T, value: any) => K | false
 type Reviver<T> = (key: string, value: T) => any | false;
 function chain_reviver<T extends JSONValue>(revivers: Reviver<T>[]): Reviver<T> {
   return (key, value) => {
     var parsed_value;
-    let v = revivers.find((r) => {
+
+    // iterate through all the parsers 
+    revivers.find((r) => {
       parsed_value = r(key, value)
       if (parsed_value === false) return false
       return true
     })
-    if (v) return parsed_value;
-    else return value;
+    if (parsed_value !== false) return parsed_value;
+    return value;
   }
 }
 

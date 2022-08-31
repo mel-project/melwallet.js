@@ -93,7 +93,6 @@
   },
   "dependencies": {
     "babel-jest": "^29.0.1",
-    "json-big": "^1.0.2",
     "node-fetch": "^3.2.10",
     "typescript-is": "^0.19.0"
   }

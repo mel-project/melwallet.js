@@ -39,13 +39,13 @@ export interface TransactionSummary {
 }
 
 export enum TxKind {
-  DoscMint = "0x50",
-  Faucet = "0xff",
-  LiqDeposit = "0x52",
-  LiqWithdraw = "0x53",
-  Normal = "0x00",
-  Stake = "0x10",
-  Swap = "0x51",
+  DoscMint = 0x50,
+  Faucet = 0xff,
+  LiqDeposit = 0x52,
+  LiqWithdraw = 0x53,
+  Normal = 0x00,
+  Stake = 0x10,
+  Swap = 0x51,
 }
 
 export interface PoolKey {

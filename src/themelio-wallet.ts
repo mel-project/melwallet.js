@@ -3,6 +3,7 @@ import {
   CoinID,
   Denom,
   Header,
+  NetID,
   PoolKey,
   PoolState,
   StakeDoc,
@@ -10,8 +11,7 @@ import {
   TxKind,
 } from './themelio-types'
 import { PrepareTransaction, TransactionStatus, Wallet, WalletSummary } from './wallet-types'
-import JSONBig from 'json-big'
-import { is } from 'typescript-is'
+import { assertType, is } from 'typescript-is'
 import {
   main_reviver,
   fetch_wrapper,
@@ -19,8 +19,8 @@ import {
   unwrap_nullable_promise
 } from './utils'
 import { RawWalletSummary, UnsafeMelwalletdResponse } from './request-types'
+import { int_to_netid } from './wallet-utils'
 
-const JSON = JSONBig;
 
 
 
@@ -84,8 +84,9 @@ export class ThemelioWallet implements Wallet {
     this.#name = name
     this.#domain = domain
   }
-  async prepare_transaction(prepare_tx: PrepareTransaction): Promise<Transaction> {
 
+  async prepare_transaction(prepare_tx: PrepareTransaction): Promise<Transaction> {
+    
     let maybe_tx: any = await this.melwalletd_request("", {
       method: "POST",
       body: JSON.stringify(prepare_tx)
@@ -99,11 +100,22 @@ export class ThemelioWallet implements Wallet {
 
   async get_summary(): Promise<WalletSummary> {
     let raw_summary: RawWalletSummary = await this.melwalletd_request("");
-    let detailed_balance: Map<Denom, bigint> = new Map()
-    console.log(raw_summary);
-    console.log(is<RawWalletSummary>(raw_summary))
+    assertType<RawWalletSummary>(raw_summary);
+    let {total_micromel, staked_microsym, address, locked} = raw_summary;
+    let network: NetID = int_to_netid(raw_summary.network);
+    let detailed_balance: Map<Denom, bigint> = new Map();
+    let balance_entries: [] = Object.entries(detailed_balance)
+    let summary: WalletSummary = {
+      total_micromel,
+      detailed_balance,
+      staked_microsym,
+      network,
+      address,
+      locked
+    }
 
-    throw Error()
+    return summary
+    
   }
   async get_name(): Promise<string> {
     return this.#name
@@ -133,7 +145,7 @@ export class ThemelioWallet implements Wallet {
     password = password || "";
     return this.melwalletd_request_raw("/unlock", {
       method: "POST",
-      body: JSONBig.stringify({ password })
+      body: JSON.stringify({ password })
     })
 
   }
@@ -141,7 +153,7 @@ export class ThemelioWallet implements Wallet {
     password = password || "";
     return this.melwalletd_request_raw("/export-sk", {
       method: "POST",
-      body: JSONBig.stringify({ password })
+      body: JSON.stringify({ password })
     })
 
   }
@@ -187,7 +199,7 @@ async function main() {
       // console.log(`requesting to unlock: \`${await wallet.get_name()}\``);
       // await wallet.unlock("123")
       let summary = await wallet.get_summary();
-      // console.log(summary)
+      console.log(summary)
       // console.log('unlocked');
 
       // console.log("pk: ", await wallet.export_sk("123"))
@@ -204,7 +216,7 @@ async function main() {
       // console.log("how much money is in here: ", await wallet.get_balances())
     })
     // .then(balances => console.log(balances))
-    .catch((err) => console.log(err))
+    .catch((err: Error) => console.log(err.message))
 }
 
 async function send_faucet(wallet: Wallet): Promise<string> {
