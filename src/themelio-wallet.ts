@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js'
 import {
   CoinData,
   CoinID,
@@ -10,14 +9,22 @@ import {
   Transaction,
   TxKind,
 } from './themelio-types'
-import { MyInterface, PrepareTransaction, TransactionStatus, Wallet, WalletSummary } from './wallet-types'
-import { Response } from 'node-fetch'
-
-import { fetch_wrapper, int_to_bigint,
-   map_from_entries, unwrap_nullable_promise } from './utils'
+import { PrepareTransaction, TransactionStatus, Wallet, WalletSummary } from './wallet-types'
 import JSONBig from 'json-big'
+import { is } from 'typescript-is'
+import {
+  main_reviver,
+  fetch_wrapper,
+  map_from_entries,
+  unwrap_nullable_promise
+} from './utils'
+import { RawWalletSummary, UnsafeMelwalletdResponse } from './request-types'
 
 const JSON = JSONBig;
+
+
+
+
 export class MelwalletdClient {
   readonly #domain: string
   constructor(domain: string) {
@@ -46,7 +53,7 @@ export class MelwalletdClient {
   }
   async get_wallet(wallet_name: string): Promise<ThemelioWallet | null> {
     let data: string = await this.request(`/wallets/${wallet_name}`)
-    let summary = JSON.parse(data, int_to_bigint);
+    let summary = JSON.parse(data);
     // let isWalletSummary = createIs<WalletSummary>();
     if (summary?.address) {
       let { address } = summary
@@ -91,7 +98,13 @@ export class ThemelioWallet implements Wallet {
   }
 
   async get_summary(): Promise<WalletSummary> {
-    return this.melwalletd_request("");
+    let raw_summary: RawWalletSummary = await this.melwalletd_request("");
+    let detailed_balance: Map<Denom, bigint> = new Map()
+    // let raw_balance: Record<string, bigint> = raw_summary.detailed_balance;
+ 
+    // console.log(Object.entries(raw_balance))
+
+    throw Error()
   }
   async get_name(): Promise<string> {
     return this.#name
@@ -101,15 +114,15 @@ export class ThemelioWallet implements Wallet {
     return this.address;
   }
 
-  async get_coins(): Promise<Map<CoinID, CoinData>> {
-    let wallet = this
-    let coins: [CoinID, CoinData][] = await wallet.melwalletd_request('/coins')
-    return map_from_entries(coins);
-  }
+  // async get_coins(): Promise<Map<CoinID, CoinData>> {
+  //   let wallet = this
+  //   let coins: [CoinID, CoinData][] = await wallet.melwalletd_request('/coins')
+  //   return map_from_entries(coins);
+  // }
 
-  async get_balances(): Promise<Map<Denom, BigNumber>> {
-    let coins = await this.get_coins()
-    return get_balances(coins)
+  async get_balances(): Promise<Map<Denom, bigint>> {
+    let summary: WalletSummary = await this.get_summary();
+    return summary.detailed_balance;
   }
 
   async lock(): Promise<void> {
@@ -147,14 +160,13 @@ export class ThemelioWallet implements Wallet {
     throw new Error('Method not implemented.')
   }
 
-
-  async melwalletd_request<T>(endpoint: any, metadata?: any): Promise<T> {
+  async melwalletd_request<T extends UnsafeMelwalletdResponse>(endpoint: any, metadata?: any): Promise<T> {
     let wallet = this
     let data = await MelwalletdClient.request(`${wallet.#domain}/wallets/${wallet.#name}`, endpoint, metadata);
-    return JSON.parse(data, int_to_bigint);
+    return JSON.parse(data, main_reviver) as T;
 
   }
-  async melwalletd_request_raw<T>(endpoint: any, metadata?: any): Promise<any> {
+  async melwalletd_request_raw(endpoint: any, metadata?: any): Promise<any> {
     let wallet = this
     return MelwalletdClient.request(`${wallet.#domain}/wallets/${wallet.#name}`, endpoint, metadata);
 
@@ -162,17 +174,7 @@ export class ThemelioWallet implements Wallet {
 }
 
 
-async function get_balances(coin_info: Map<CoinID, CoinData>): Promise<Map<Denom, BigNumber>> {
-  let denoms: Map<Denom, BigNumber> = new Map()
-  for (let coin_data of coin_info.values()) {
-    let denom = coin_data.denom
-    let current_value: BigNumber = denoms.get(denom) || new BigNumber(0)
-    let coin_value: BigNumber = coin_data.value
-    denoms.set(denom, coin_value.plus(current_value))
-  }
 
-  return denoms
-}
 
 // async function send_faucet(): Promise<string> {
 //   return this.melwalletd_request_raw("/send-faucet", {
@@ -209,7 +211,7 @@ async function main() {
 async function send_faucet(wallet: Wallet): Promise<string> {
   let outputs: CoinData[] = [{
     covhash: await wallet.get_address(),
-    value: new BigNumber(1001000000),
+    value: 1001000000n,
     denom: Denom.MEL,
     additional_data: ""
   }]
@@ -221,7 +223,7 @@ async function send_faucet(wallet: Wallet): Promise<string> {
     covenants: [],
     data: "",
     nobalance: [],
-    fee_ballast: new BigNumber(0),
+    fee_ballast: 0n,
     signing_key: null
   }
   let tx: Transaction = await wallet.prepare_transaction(ptx)
@@ -243,5 +245,4 @@ function new_issue() {
   // }
 
 }
-
-main()
+main() 

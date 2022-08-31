@@ -1,4 +1,3 @@
-import type BigNumber from 'bignumber.js'
 
 export enum NetID {
   Testnet = 0x01,
@@ -21,28 +20,28 @@ export enum Denom {
 export interface Header {
   network: NetID
   previous: String
-  height: BigNumber
+  height: bigint
   history_hash: String
   coins_hash: String
   transactions_hash: String
-  fee_pool: BigNumber
-  fee_multiplier: BigNumber
-  dosc_speed: BigNumber
+  fee_pool: bigint
+  fee_multiplier: bigint
+  dosc_speed: bigint
   pools_hash: String
   stakes_hash: String
 }
 export interface TransactionSummary {
   hash: String
   shorthash: String
-  height: BigNumber
-  weight: BigNumber
-  mel_moved: BigNumber
+  height: bigint
+  weight: bigint
+  mel_moved: bigint
 }
 
 export enum TxKind {
   DoscMint = "0x50",
   Faucet = "0xff",
-  LiqDeposit ="0x52",
+  LiqDeposit = "0x52",
   LiqWithdraw = "0x53",
   Normal = "0x00",
   Stake = "0x10",
@@ -57,28 +56,28 @@ export interface PoolKey {
 // 2 million cached pooldataitems is 64 mb
 // 1 item is 256 bits
 export interface PoolDataItem {
-  date: BigNumber
-  height: BigNumber
-  price: BigNumber
-  liquidity: BigNumber
-  ergs_per_mel: BigNumber
+  date: bigint
+  height: bigint
+  price: bigint
+  liquidity: bigint
+  ergs_per_mel: bigint
 }
 
 export interface PoolState {
-  lefts: BigNumber
-  rights: BigNumber
-  price_accum: BigNumber
-  liqs: BigNumber
+  lefts: bigint
+  rights: bigint
+  price_accum: bigint
+  liqs: bigint
 }
 
 export interface CoinID {
   txhash: string
-  index: BigNumber
+  index: bigint
 }
 
 export interface CoinData {
   covhash: string
-  value: BigNumber
+  value: bigint
   denom: Denom
   additional_data: string
 }
@@ -87,28 +86,28 @@ export interface Transaction {
   kind: TxKind
   inputs: CoinID
   outputs: CoinData
-  fee: BigNumber
-  covenants: BigNumber
+  fee: bigint
+  covenants: bigint
   data: string
   sigs: string
 }
 
 export interface CoinID {
   txhash: string
-  index: BigNumber
+  index: bigint
 }
 
 
 
 export interface CoinDataHeight {
   coin_data: CoinData
-  height: BigNumber
+  height: bigint
 }
 
 export interface CoinSpend {
   coinid: CoinID
   txhash: string
-  height: BigNumber
+  height: bigint
 }
 
 export interface AnnCoinID {
@@ -121,9 +120,9 @@ export interface StakeDoc {
   /// public key.
   key: String
   /// Starting epoch.
-  e_start: BigNumber
+  e_start: bigint
   /// Ending epoch. This is the epoch *after* the last epoch in which the syms are effective.
-  e_post_end: BigNumber
+  e_post_end: bigint
   /// Number of syms staked.
-  syms_staked: BigNumber
+  syms_staked: bigint
 }

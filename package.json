@@ -22,8 +22,9 @@
   "scripts": {
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "rimraf dist",
-    "build": "rollup -c rollup.config.ts ",
-    "start": "rollup -c rollup.config.ts -w",
+    "build": "rollup -c rollup.config.ts",
+    "start": "rollup -wc rollup.config.ts",
+    "dev": "rollup -wc rollup.config.ts --watch.onBundleEnd 'node dist/themelio-wallet.es5.js' --watch.buildDelay 1",
     "test": "jest",
     "test:watch": "jest --coverage --watch",
     "test:prod": "npm run lint && npm run test -- --no-cache",
@@ -92,7 +93,6 @@
   },
   "dependencies": {
     "babel-jest": "^29.0.1",
-    "bignumber.js": "^9.1.0",
     "json-big": "^1.0.2",
     "node-fetch": "^3.2.10",
     "typescript-is": "^0.19.0"

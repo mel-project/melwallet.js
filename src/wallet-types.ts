@@ -1,19 +1,17 @@
-import BigNumber from 'bignumber.js'
 import { Transaction, Denom, AnnCoinID, NetID, TxKind } from './themelio-types'
 import { CoinData, CoinID } from './themelio-types'
 
-export type Obj<T> = { [key: string]: T }
 
 export interface TransactionStatus {
   raw: Transaction
-  confirmed_height: BigNumber | null
+  confirmed_height: bigint | null
   outputs: AnnCoinID
 }
 
 export interface WalletSummary {
-  total_micromel: BigNumber
-  detailed_balance: Obj<BigNumber>
-  staked_microsym: BigNumber
+  total_micromel: bigint
+  detailed_balance: Map<Denom,bigint>
+  staked_microsym: bigint
   network: NetID
   address: string
   locked: Boolean
@@ -24,7 +22,7 @@ export interface Wallet {
 
   get_address(): Promise<string>
 
-  get_balances(): Promise<Map<Denom, BigNumber>>
+  get_balances(): Promise<Map<Denom, bigint>>
 
   lock(): Promise<void>
 
@@ -39,7 +37,7 @@ export interface Wallet {
   // prepare_stake_transaction(stake_doc: StakeDoc): Promise<Transaction>
 
   prepare_transaction(ptx: PrepareTransaction): Promise<Transaction>
-  
+
   get_transaction_status(txhash: string): Promise<TransactionStatus>
 
 }
@@ -52,7 +50,7 @@ export interface PrepareTransaction {
   data: string | null,
   covenants: string[],
   nobalance: Denom[],
-  fee_ballast: BigNumber,
+  fee_ballast: bigint,
 }
 
 export interface MyInterface {

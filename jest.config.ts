@@ -10,6 +10,10 @@
 //   transform: {},
 //   };
 
+
+const { pathsToModuleNameMapper } = require('ts-jest')
+const { compilerOptions } = require('./tsconfig')
+
 export default {
   preset: 'ts-jest',
   transform: {
@@ -30,7 +34,12 @@ export default {
       statements: 95,
     },
   },
+  modulePaths: [
+      '<rootDir>/node_modules'
+  ],
   // moduleDirectories: ['<rootDir>/node_modules/', 'src'],
   // roots: ['<rootDir>'],
   // modulePaths: ['<rootDir>'],
+
+
 }
