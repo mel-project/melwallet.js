@@ -103,8 +103,9 @@ export class ThemelioWallet implements Wallet {
     assertType<RawWalletSummary>(raw_summary);
     let {total_micromel, staked_microsym, address, locked} = raw_summary;
     let network: NetID = int_to_netid(raw_summary.network);
+    let balance_entries: [string, bigint][] = Object.entries(raw_summary.detailed_balance)
     let detailed_balance: Map<Denom, bigint> = new Map();
-    let balance_entries: [] = Object.entries(detailed_balance)
+
     let summary: WalletSummary = {
       total_micromel,
       detailed_balance,
