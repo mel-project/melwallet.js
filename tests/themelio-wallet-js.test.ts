@@ -13,7 +13,7 @@ describe('Dummy test', () => {
 
     async function main() {
         let client = new MelwalletdClient('127.0.0.1:11773')
-        unwrap_nullable_promise(client.get_wallet('test1231232'))
+        await unwrap_nullable_promise(client.get_wallet('test1231232'))
           .then(async (wallet: ThemelioWallet) => {
             console.log(`requesting to unlock: \`${await wallet.get_name()}\``);
             await wallet.unlock("123")
