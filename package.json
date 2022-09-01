@@ -1,99 +1,30 @@
 {
-  "name": "themelio-wallet-js",
-  "version": "0.0.0",
+  "name": "melwallet",
+  "version": "1.0.0",
   "description": "",
-  "keywords": [],
-  "main": "dist/themelio-wallet.umd.js",
-  "module": "dist/themelio-wallet.es5.js",
-  "typings": "dist/types/themelio-wallet.d.ts",
-  "type": "module",
-  "files": [
-    "dist"
-  ],
-  "author": "Shane Mendez <mendezsoftware@gmail.com>",
-  "repository": {
-    "type": "git",
-    "url": ""
-  },
-  "license": "MIT",
-  "engines": {
-    "node": ">=6.0.0"
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
   },
   "scripts": {
-    "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
-    "prebuild": "rimraf dist",
-    "build": "rollup -c rollup.config.ts",
-    "start": "rollup -wc rollup.config.ts",
-    "dev": "rollup -wc rollup.config.ts --watch.onBundleEnd 'node dist/themelio-wallet.es5.js' --watch.buildDelay 1",
-    "test": "jest",
-    "test:watch": "jest --coverage --watch",
-    "test:prod": "npm run lint && npm run test -- --no-cache",
-    "report-coverage": "cat ./coverage/lcov.info | coveralls",
-    "commit": "git-cz",
-    "semantic-release": "semantic-release",
-    "semantic-release-prepare": "ts-node tools/semantic-release-prepare",
-    "precommit": "lint-staged"
+    "test": "jest"
   },
-  "lint-staged": {
-    "{src,test}/**/*.ts": [
-      "prettier --write",
-      "git add"
-    ]
-  },
-  "config": {
-    "commitizen": {
-      "path": "node_modules/cz-conventional-changelog"
-    }
-  },
-  "prettier": {
-    "semi": false,
-    "singleQuote": true
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
-  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "devDependencies": {
-    "@commitlint/cli": "^17.0.3",
-    "@commitlint/config-conventional": "^17.0.3",
-    "@jest/globals": "^29.0.1",
-    "@rollup/plugin-commonjs": "^22.0.2",
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.3.0",
-    "@types/jest": "^28.1.7",
-    "@types/node": "^18.7.10",
-    "colors": "^1.4.0",
-    "commitizen": "^4.2.5",
-    "coveralls": "^3.1.1",
-    "cross-env": "^7.0.3",
-    "cz-conventional-changelog": "^3.3.0",
-    "eslint": "^8.22.0",
-    "husky": "^8.0.1",
-    "jest": "^28.1.3",
-    "jest-config": "^28.1.3",
-    "lint-staged": "^13.0.3",
-    "lodash.camelcase": "^4.3.0",
-    "prettier": "^2.7.1",
-    "prompt": "^1.3.0",
-    "replace-in-file": "^6.3.5",
-    "rimraf": "^3.0.2",
-    "rollup": "^2.78.1",
-    "rollup-plugin-sourcemaps": "^0.6.3",
-    "rollup-plugin-typescript2": "^0.33.0",
-    "semantic-release": "^19.0.4",
-    "shelljs": "^0.8.5",
+    "@babel/core": "^7.18.13",
+    "@babel/preset-env": "^7.18.10",
+    "@types/jest": "^28.0.0",
+    "babel-jest": "^29.0.1",
+    "jest": "^28.0.0",
     "ts-jest": "^28.0.8",
     "ts-node": "^10.9.1",
     "tslib": "^2.4.0",
-    "tslint-config-prettier": "^1.18.0",
-    "ttypescript": "^1.5.13",
-    "typedoc": "^0.23.10",
-    "typescript": "^4.7.4"
+    "typescript": "^4.8.2",
+    "typescript-is": "^0.19.0"
   },
   "dependencies": {
-    "babel-jest": "^29.0.1",
-    "node-fetch": "^3.2.10",
-    "typescript-is": "^0.19.0"
+    "node-fetch": "^3.2.10"
   }
 }
