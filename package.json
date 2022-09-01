@@ -7,7 +7,19 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "jest"
+    "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
+    "prebuild": "rimraf dist",
+    "build": "rollup -c rollup.config.ts",
+    "start": "rollup -wc rollup.config.ts",
+    "dev": "rollup -wc rollup.config.ts --watch.onBundleEnd 'node dist/themelio-wallet.es5.js' --watch.buildDelay 1",
+    "test": "jest",
+    "test:watch": "jest --coverage --watch",
+    "test:prod": "npm run lint && npm run test -- --no-cache",
+    "report-coverage": "cat ./coverage/lcov.info | coveralls",
+    "commit": "git-cz",
+    "semantic-release": "semantic-release",
+    "semantic-release-prepare": "ts-node tools/semantic-release-prepare",
+    "precommit": "lint-staged"
   },
   "keywords": [],
   "author": "",
