@@ -6,7 +6,6 @@
   "main": "dist/themelio-wallet.umd.js",
   "module": "dist/themelio-wallet.es5.js",
   "typings": "dist/types/themelio-wallet.d.ts",
-  "type": "module",
   "files": [
     "dist"
   ],
@@ -89,10 +88,11 @@
     "tslint-config-prettier": "^1.18.0",
     "ttypescript": "^1.5.13",
     "typedoc": "^0.23.10",
-    "typescript": "4.7.4"
+    "typescript": "4.7.4",
+
+    "@babel/preset-env": "^7.18.10"
   },
   "dependencies": {
-    "babel-jest": "^29.0.1",
     "node-fetch": "^3.2.10",
     "typescript-is": "^0.19.0"
   }
