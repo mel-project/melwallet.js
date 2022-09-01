@@ -11,7 +11,7 @@ import {
   TxKind,
 } from './themelio-types'
 import { PrepareTransaction, TransactionStatus, Wallet, WalletSummary } from './wallet-types'
-// import { assertType, is } from 'typescript-is'
+import { assertType, is } from 'typescript-is'
 import {
   main_reviver,
   fetch_wrapper,
@@ -20,12 +20,6 @@ import {
 } from './utils'
 import { RawWalletSummary, UnsafeMelwalletdResponse } from './request-types'
 import { hex_to_denom, int_to_netid, string_to_denom } from './wallet-utils'
-
-function assertType<T> (idk: any): T{
-  return {} as T
-}
-
-
 
 
 export class MelwalletdClient {

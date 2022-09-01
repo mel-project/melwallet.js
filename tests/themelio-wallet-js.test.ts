@@ -33,7 +33,7 @@ describe('Dummy test', () => {
         console.log("is locked: ", new_summary.locked)
         console.log("how much money is in here: ", await wallet.get_balances())
       })
-      // .then(balances => console.log(balances))
+      .then(balances => console.log(balances))
       .catch((err) => console.log(err))
 
 

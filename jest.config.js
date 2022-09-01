@@ -8,6 +8,12 @@ module.exports = {
     },
   transformIgnorePatterns: [
   ],
+  globals: {
+    "ts-jest": {
+      compiler: "ttypescript"
+    }
+  }
+
 };
 
 
