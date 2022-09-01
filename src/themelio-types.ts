@@ -1,4 +1,15 @@
 
+
+ export enum Denom {
+    MEL =  109,
+    SYM = 115,
+    ERG = 100,
+    CUSTOM = 0,
+    NEWCOIN = 0
+
+ }
+
+
 export enum NetID {
   Testnet = 0x01,
   Custom02 = 0x02,
@@ -9,12 +20,6 @@ export enum NetID {
   Custom07 = 0x07,
   Custom08 = 0x08,
   Mainnet = 0xff,
-}
-
-export enum Denom {
-  MEL = 'MEL',
-  SYM = 'SYM',
-  ERG = 'ERG',
 }
 
 export interface Header {
