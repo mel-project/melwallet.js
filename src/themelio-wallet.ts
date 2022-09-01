@@ -19,10 +19,7 @@ import {
   unwrap_nullable_promise
 } from './utils'
 import { RawWalletSummary, UnsafeMelwalletdResponse } from './request-types'
-import { int_to_netid } from './wallet-utils'
-
-
-
+import { hex_to_denom, int_to_netid, string_to_denom } from './wallet-utils'
 
 
 export class MelwalletdClient {
@@ -101,11 +98,22 @@ export class ThemelioWallet implements Wallet {
   async get_summary(): Promise<WalletSummary> {
     let raw_summary: RawWalletSummary = await this.melwalletd_request("");
     assertType<RawWalletSummary>(raw_summary);
+    console.log(raw_summary);
     let {total_micromel, staked_microsym, address, locked} = raw_summary;
     let network: NetID = int_to_netid(raw_summary.network);
+    
+    
     let balance_entries: [string, bigint][] = Object.entries(raw_summary.detailed_balance)
-    let detailed_balance: Map<Denom, bigint> = new Map();
-
+    
+    let detailed_balance: Map<Denom, bigint> = map_from_entries(balance_entries.map(entry=>{
+      
+      let [key, value]: [string, bigint] = entry;
+      let mapped: [Denom, bigint] = [hex_to_denom("0x"+key),value]
+      return mapped;
+    
+    }) as [Denom, bigint][])
+    
+    
     let summary: WalletSummary = {
       total_micromel,
       detailed_balance,
@@ -172,10 +180,10 @@ export class ThemelioWallet implements Wallet {
     throw new Error('Method not implemented.')
   }
 
-  async melwalletd_request<T extends UnsafeMelwalletdResponse>(endpoint: any, metadata?: any): Promise<T> {
+  async melwalletd_request(endpoint: any, metadata?: any): Promise<any> {
     let wallet = this
     let data = await MelwalletdClient.request(`${wallet.#domain}/wallets/${wallet.#name}`, endpoint, metadata);
-    return JSON.parse(data, main_reviver) as T;
+    return JSON.parse(data, main_reviver);
 
   }
   async melwalletd_request_raw(endpoint: any, metadata?: any): Promise<any> {
@@ -257,4 +265,4 @@ function new_issue() {
   // }
 
 }
-main() 
+ 

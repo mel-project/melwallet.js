@@ -30,9 +30,10 @@ export async function unwrap_nullable_promise<T>(m: Promise<T | null>): Promise<
   throw Error(`Unable to unwrap: ${m}`)
 }
 
-export function map_from_entries<T, K, J>(entries: [T, K][]): Map<T, K> {
+export function map_from_entries<T, K>(entries: [T, K][]): Map<T, K> {
   let map: Map<T, K> = new Map();
   for (let entry of entries) {
+    console.log(entry)
     let [key, value] = entry;
     map.set(key, value);
   }
@@ -50,14 +51,10 @@ function int_to_bigint<T extends JSONValue>(key: string, value: T): bigint | fal
   return false
 }
 
-function object_to_map<T extends JSONValue>(key: string, value: T): Map<string, JSONValue> | Record<string, JSONValue> | false {
+function null_object_to_record<T extends JSONValue>(key: string, value: T):  Record<string, JSONValue> | false {
   if (typeof (value) == 'object') {
     let entries: [string, JSONValue][] = Object.entries(value);
-
-    // deal with the containing object
-    // don't create a map since maps aren't analyzed properly by typescript-is
-    if (key === "") return Object.fromEntries(entries)
-    return map_from_entries(entries);
+    return Object.fromEntries(entries)
   }
 
   else
@@ -81,4 +78,8 @@ function chain_reviver<T extends JSONValue>(revivers: Reviver<T>[]): Reviver<T> 
   }
 }
 
-export let main_reviver = chain_reviver([int_to_bigint, object_to_map])
+
+export let main_reviver = chain_reviver([int_to_bigint, null_object_to_record])
+
+type EnumValues = number | string | bigint 
+// export function is_in_enum<T extends [string, ], K extends keyof typeof T>()
