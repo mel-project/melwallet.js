@@ -19,7 +19,7 @@ import {
   unwrap_nullable_promise
 } from './utils'
 import { RawWalletSummary, UnsafeMelwalletdResponse } from './request-types'
-import { hex_to_denom, int_to_netid, string_to_denom } from './wallet-utils'
+import { hex_to_denom, int_to_netid, send_faucet, string_to_denom } from './wallet-utils'
 
 
 export class MelwalletdClient {
@@ -195,74 +195,3 @@ export class ThemelioWallet implements Wallet {
 
 
 
-
-// async function send_faucet(): Promise<string> {
-//   return this.melwalletd_request_raw("/send-faucet", {
-//     method: "POST"
-//   })
-// }
-async function main() {
-  let client = new MelwalletdClient('127.0.0.1:11773')
-  unwrap_nullable_promise(client.get_wallet('shane'))
-    .then(async (wallet: ThemelioWallet) => {
-      // console.log(`requesting to unlock: \`${await wallet.get_name()}\``);
-      // await wallet.unlock("123")
-      let summary = await wallet.get_summary();
-      console.log(summary)
-      // console.log('unlocked');
-
-      // console.log("pk: ", await wallet.export_sk("123"))
-      // try {
-      //   console.log("faucet? ", await wallet.send_faucet())
-      // }
-      // catch {
-      //   console.log("sending faucet failed")
-      // }
-      // console.log('locking')
-      // await wallet.lock()
-      // let new_summary = await wallet.get_summary()
-      // console.log("is locked: ", new_summary.locked)
-      // console.log("how much money is in here: ", await wallet.get_balances())
-    })
-    // .then(balances => console.log(balances))
-    .catch((err: Error) => console.log(err.message))
-}
-
-async function send_faucet(wallet: Wallet): Promise<string> {
-  let outputs: CoinData[] = [{
-    covhash: await wallet.get_address(),
-    value: 1001000000n,
-    denom: Denom.MEL,
-    additional_data: ""
-  }]
-
-  let ptx: PrepareTransaction = {
-    kind: TxKind.Faucet,
-    inputs: [],
-    outputs: outputs,
-    covenants: [],
-    data: "",
-    nobalance: [],
-    fee_ballast: 0n,
-    signing_key: null
-  }
-  let tx: Transaction = await wallet.prepare_transaction(ptx)
-  return await wallet.send_tx(tx)
-}
-
-function new_issue() {
-
-
-  const foreignObject: any = { someObject: 'obtained from the wild', without: 'type safety' };
-
-  // if (is<MyInterface>(foreignObject)) { // returns true
-  //   const someObject = foreignObject.someObject; // type: string
-  //   const without = foreignObject.without; // type: string
-  //   console.log("is my interface")
-  // }
-  // else {
-  //   console.log("isn't my interface")
-  // }
-
-}
- 
