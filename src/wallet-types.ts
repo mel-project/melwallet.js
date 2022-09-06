@@ -24,12 +24,13 @@ export interface Wallet {
 
   get_balances(): Promise<Map<Denom, bigint>>
 
-  lock(): Promise<void>
+  lock(): Promise<boolean>
 
-  unlock(password: string): Promise<void>
+  unlock(password: string): Promise<boolean>
 
-  export_sk(password: string): Promise<string>
+  export_sk(password: string): Promise<string | null>
 
+  get_network(): Promise<NetID>
   // send_faucet(wallet_name: string): Promise<TxHash>
 
   send_tx(tx: Transaction): Promise<string>

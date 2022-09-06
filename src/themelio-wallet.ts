@@ -81,9 +81,14 @@ export class ThemelioWallet implements Wallet {
     this.#name = name
     this.#domain = domain
   }
+  async get_network(): Promise<NetID> {
+    let summary = await this.get_summary()
+    let network: NetID = summary.network;
+    return network;
+  }
 
   async prepare_transaction(prepare_tx: PrepareTransaction): Promise<Transaction> {
-    
+
     let maybe_tx: any = await this.melwalletd_request("", {
       method: "POST",
       body: JSON.stringify(prepare_tx)
@@ -99,21 +104,21 @@ export class ThemelioWallet implements Wallet {
     let raw_summary: RawWalletSummary = await this.melwalletd_request("");
     assertType<RawWalletSummary>(raw_summary);
     console.log(raw_summary);
-    let {total_micromel, staked_microsym, address, locked} = raw_summary;
+    let { total_micromel, staked_microsym, address, locked } = raw_summary;
     let network: NetID = int_to_netid(raw_summary.network);
-    
-    
+
+
     let balance_entries: [string, bigint][] = Object.entries(raw_summary.detailed_balance)
-    
-    let detailed_balance: Map<Denom, bigint> = map_from_entries(balance_entries.map(entry=>{
-      
+
+    let detailed_balance: Map<Denom, bigint> = map_from_entries(balance_entries.map(entry => {
+
       let [key, value]: [string, bigint] = entry;
-      let mapped: [Denom, bigint] = [hex_to_denom("0x"+key),value]
+      let mapped: [Denom, bigint] = [hex_to_denom("0x" + key), value]
       return mapped;
-    
+
     }) as [Denom, bigint][])
-    
-    
+
+
     let summary: WalletSummary = {
       total_micromel,
       detailed_balance,
@@ -124,7 +129,7 @@ export class ThemelioWallet implements Wallet {
     }
 
     return summary
-    
+
   }
   async get_name(): Promise<string> {
     return this.#name
@@ -145,18 +150,30 @@ export class ThemelioWallet implements Wallet {
     return summary.detailed_balance;
   }
 
-  async lock(): Promise<void> {
-    return this.melwalletd_request_raw("/lock", {
-      method: "POST"
-    })
+  async lock(): Promise<boolean> {
+    try {
+      this.melwalletd_request_raw("/lock", {
+        method: "POST"
+      })
+      return true
+    }
+    catch {
+      return false
+    }
   }
-  async unlock(password?: string): Promise<void> {
+  async unlock(password?: string): Promise<boolean> {
     password = password || "";
-    return this.melwalletd_request_raw("/unlock", {
-      method: "POST",
-      body: JSON.stringify({ password })
-    })
+    try {
+      this.melwalletd_request_raw("/unlock", {
+        method: "POST",
+        body: JSON.stringify({ password })
+      })
+      return true
+    }
+    catch {
+      return false;
 
+    }
   }
   async export_sk(password?: string): Promise<string> {
     password = password || "";
