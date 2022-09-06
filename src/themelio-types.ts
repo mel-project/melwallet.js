@@ -1,14 +1,10 @@
-
-
- export enum Denom {
-    MEL =  109,
-    SYM = 115,
-    ERG = 100,
-    CUSTOM = 0,
-    NEWCOIN = 0
-
- }
-
+export enum Denom {
+  MEL = 109,
+  SYM = 115,
+  ERG = 100,
+  CUSTOM = 0,
+  NEWCOIN = 0,
+}
 
 export enum NetID {
   Testnet = 0x01,
@@ -23,24 +19,24 @@ export enum NetID {
 }
 
 export interface Header {
-  network: NetID
-  previous: String
-  height: bigint
-  history_hash: String
-  coins_hash: String
-  transactions_hash: String
-  fee_pool: bigint
-  fee_multiplier: bigint
-  dosc_speed: bigint
-  pools_hash: String
-  stakes_hash: String
+  network: NetID;
+  previous: String;
+  height: bigint;
+  history_hash: String;
+  coins_hash: String;
+  transactions_hash: String;
+  fee_pool: bigint;
+  fee_multiplier: bigint;
+  dosc_speed: bigint;
+  pools_hash: String;
+  stakes_hash: String;
 }
 export interface TransactionSummary {
-  hash: String
-  shorthash: String
-  height: bigint
-  weight: bigint
-  mel_moved: bigint
+  hash: String;
+  shorthash: String;
+  height: bigint;
+  weight: bigint;
+  mel_moved: bigint;
 }
 
 export enum TxKind {
@@ -54,80 +50,78 @@ export enum TxKind {
 }
 
 export interface PoolKey {
-  left: Denom
-  right: Denom
+  left: Denom;
+  right: Denom;
 }
 
 // 2 million cached pooldataitems is 64 mb
 // 1 item is 256 bits
 export interface PoolDataItem {
-  date: bigint
-  height: bigint
-  price: bigint
-  liquidity: bigint
-  ergs_per_mel: bigint
+  date: bigint;
+  height: bigint;
+  price: bigint;
+  liquidity: bigint;
+  ergs_per_mel: bigint;
 }
 
 export interface PoolState {
-  lefts: bigint
-  rights: bigint
-  price_accum: bigint
-  liqs: bigint
+  lefts: bigint;
+  rights: bigint;
+  price_accum: bigint;
+  liqs: bigint;
 }
 
 export interface CoinID {
-  txhash: string
-  index: bigint
+  txhash: string;
+  index: bigint;
 }
 
 export interface CoinData {
-  covhash: string
-  value: bigint
-  denom: Denom
-  additional_data: string
+  covhash: string;
+  value: bigint;
+  denom: Denom;
+  additional_data: string;
 }
 
 export interface Transaction {
-  kind: TxKind
-  inputs: CoinID
-  outputs: CoinData
-  fee: bigint
-  covenants: bigint
-  data: string
-  sigs: string
+  kind: TxKind;
+  inputs: CoinID;
+  outputs: CoinData;
+  fee: bigint;
+  covenants: bigint;
+  data: string;
+  sigs: string;
 }
 
 export interface CoinID {
-  txhash: string
-  index: bigint
+  txhash: string;
+  index: bigint;
 }
 
-
-
 export interface CoinDataHeight {
-  coin_data: CoinData
-  height: bigint
+  coin_data: CoinData;
+  height: bigint;
 }
 
 export interface CoinSpend {
-  coinid: CoinID
-  txhash: string
-  height: bigint
+  coinid: CoinID;
+  txhash: string;
+  height: bigint;
 }
 
 export interface AnnCoinID {
-  coin_data: CoinData
-  is_change: boolean
-  coin_id: String
+  coin_data: CoinData;
+  is_change: boolean;
+  coin_id: String;
 }
 
 export interface StakeDoc {
   /// public key.
-  key: String
+  key: String;
   /// Starting epoch.
-  e_start: bigint
+  e_start: bigint;
   /// Ending epoch. This is the epoch *after* the last epoch in which the syms are effective.
-  e_post_end: bigint
+  e_post_end: bigint;
   /// Number of syms staked.
-  syms_staked: bigint
+  syms_staked: bigint;
 }
