@@ -1,6 +1,7 @@
 {
   "name": "themelio-wallet-js",
   "version": "0.0.0",
+  "type": "module",
   "description": "",
   "keywords": [],
   "main": "dist/themelio-wallet.umd.js",
