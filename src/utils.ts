@@ -7,8 +7,8 @@ type JSONValue = string | number | boolean | bigint | JSONObject | JSONArray;
 interface JSONObject extends Record<string, JSONValue> {}
 interface JSONArray extends Array<JSONValue> {}
 
-(BigInt.prototype as any).toJSON = (i: bigint) => {
-  console.log('stringifying bigint');
+(BigInt.prototype as any).toJSON = (i: bigint, j: any) => {
+  console.log('stringifying bigint', i.toString(), i, j);
   return i.toString();
 };
 

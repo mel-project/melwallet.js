@@ -48,6 +48,16 @@ const get_store: () => Promise<Store> = (() => {
 })();
 
 
+describe('Test Basic util features',()=>{
+  it('bigint.toString', ()=>{
+    let big = 11111111111111111111n
+    expect(big.toString()).toBe("11111111111111111111")
+  })
+  it('bigint.toString', ()=>{
+    let big = 11111111111111111111n
+    expect(JSON.stringify(big)).toBe("11111111111111111111")
+  })
+})
 
 describe('Basic Themelio Wallet Tests', () => {
   it('Creates Client and ThemelioWallet', async () => {
