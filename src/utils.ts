@@ -8,6 +8,7 @@ interface JSONObject extends Record<string, JSONValue> {}
 interface JSONArray extends Array<JSONValue> {}
 
 (BigInt.prototype as any).toJSON = (i: bigint) => {
+  console.log('stringifying bigint');
   return i.toString();
 };
 

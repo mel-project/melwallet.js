@@ -1,9 +1,18 @@
-export enum Denom {
+export enum DenomNum {
   MEL = 109,
   SYM = 115,
   ERG = 100,
   CUSTOM = 0,
   NEWCOIN = 0,
+}
+
+
+export enum Denom {
+  MEL = "MEL",
+  SYM = "SYM",
+  ERG = "ERG",
+  CUSTOM = "CUSTOM()",
+  NEWCOIN = "(NEWCOIN)",
 }
 
 export enum NetID {
