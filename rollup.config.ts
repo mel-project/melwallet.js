@@ -1,45 +1,87 @@
-import resolve from '@rollup/plugin-node-resolve'
-import commonjs from '@rollup/plugin-commonjs'
-import sourceMaps from 'rollup-plugin-sourcemaps'
-import json from '@rollup/plugin-json'
-import ttypescript from 'ttypescript'
-import tsPlugin from 'rollup-plugin-typescript2'
+// import resolve from '@rollup/plugin-node-resolve'
+// import commonjs from '@rollup/plugin-commonjs'
+// import sourceMaps from 'rollup-plugin-sourcemaps'
+// import json from '@rollup/plugin-json'
+// import ttypescript from 'ttypescript'
+// import tsPlugin from 'rollup-plugin-typescript2'
+//
+// const pkg = require('./package.json')
+//
+// const libraryName = 'themelio-wallet'
+//
+// export default {
+//   input: `src/${libraryName}.ts`,
+//   output: [
+//     { file: pkg.main, name: "index.js", format: 'umd', sourcemap: true },
+//     { file: pkg.module, format: 'es', sourcemap: true },
+//   ],
+//   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
+//   external: ["node-fetch"],
+//   watch: {
+//     include: 'src/*',
+//   },
+//   inlineDynamicImports: true,
+//   plugins: [
+//     // Allow json resolution
+//     json(),
+//     // Compile TypeScript files
+//     tsPlugin({
+//       typescript: ttypescript
+//     }),
+//     // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
+//     commonjs(),
+//     // Allow node_modules resolution, so you can use 'external' to control
+//     // which external modules to include in the bundle
+//     // https://github.com/rollup/rollup-plugin-node-resolve#usage
+//     resolve(
+//       {
+//         preferBuiltins: true
+//       }
+//     ),
+//
+//     // Resolve source maps to the original source
+//     sourceMaps(),
+//   ],
+// }
 
-const pkg = require('./package.json')
+import pkg from './package.json';
 
 const libraryName = 'themelio-wallet'
 
-export default {
-  input: `src/${libraryName}.ts`,
-  output: [
-    { file: pkg.main, name: "index.js", format: 'umd', sourcemap: true },
-    { file: pkg.module, format: 'es', sourcemap: true },
-  ],
-  // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
-  external: ["node-fetch"],
-  watch: {
-    include: 'src/*',
-  },
-  inlineDynamicImports: true,
-  plugins: [
-    // Allow json resolution
-    json(),
-    // Compile TypeScript files
-    tsPlugin({
-      typescript: ttypescript
-    }),
-    // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
-    commonjs(),
-    // Allow node_modules resolution, so you can use 'external' to control
-    // which external modules to include in the bundle
-    // https://github.com/rollup/rollup-plugin-node-resolve#usage
-    resolve(
-      {
-        preferBuiltins: true
-      }
-    ),
+import ts from "rollup-plugin-ts";
+import commonjs from '@rollup/plugin-commonjs'
 
-    // Resolve source maps to the original source
-    sourceMaps(),
-  ],
+
+export default {
+    input: `src/${libraryName}.ts`,
+    external: ["node-fetch", "typescript-is"],
+    output: [
+      {
+        dir: 'dist',
+        name: 'index.js',
+        format: 'umd',
+        dir: 'dist',
+//         sourcemap: false,
+        inlineDynamicImports: true,
+        globals: {
+          'node-fetch': 'node-fetch',
+          'typescript-is': 'typescript-is'
+        }
+      },
+      {
+        dir: 'dist',
+        format: 'es',
+        dir: 'dist',
+//         sourcemap: false,
+        inlineDynamicImports: true,
+      }
+    ],
+    watch: {
+      include: 'src/*',
+    },
+    plugins: [
+    		ts({
+    			/* Plugin options */
+    		}),
+    ]
 }

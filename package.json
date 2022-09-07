@@ -1,6 +1,7 @@
 {
   "name": "melwallet",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -11,7 +12,7 @@
     "prebuild": "rimraf dist",
     "build": "rollup -c rollup.config.ts",
     "start": "rollup -wc rollup.config.ts",
-    "dev": "rollup -wc rollup.config.ts --watch.onBundleEnd 'node dist/themelio-wallet.es5.js' --watch.buildDelay 1",
+    "dev": "rollup -wc rollup.config.ts --watch.onBundleEnd 'node dist/themelio-wallet.js' --watch.buildDelay 1",
     "test": "jest",
     "test:watch": "jest --coverage --watch",
     "test:prod": "npm run lint && npm run test -- --no-cache",
@@ -35,6 +36,7 @@
     "jest": "^28.0.0",
     "rollup": "^2.79.0",
     "rollup-plugin-sourcemaps": "^0.6.3",
+    "rollup-plugin-ts": "^3.0.2",
     "rollup-plugin-typescript2": "^0.33.0",
     "ts-jest": "^28.0.8",
     "ts-node": "^10.9.1",

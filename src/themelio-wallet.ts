@@ -11,7 +11,6 @@ import {
   TxKind,
 } from './themelio-types'
 import { PrepareTransaction, TransactionStatus, Wallet, WalletSummary } from './wallet-types'
-import { assertType, is } from 'typescript-is'
 import {
   main_reviver,
   fetch_wrapper,
@@ -20,6 +19,8 @@ import {
 } from './utils'
 import { RawWalletSummary, UnsafeMelwalletdResponse } from './request-types'
 import { int_to_netid } from './wallet-utils'
+
+import { assertType, is } from 'typescript-is'
 
 
 
@@ -86,7 +87,7 @@ export class ThemelioWallet implements Wallet {
   }
 
   async prepare_transaction(prepare_tx: PrepareTransaction): Promise<Transaction> {
-    
+
     let maybe_tx: any = await this.melwalletd_request("", {
       method: "POST",
       body: JSON.stringify(prepare_tx)
@@ -116,7 +117,7 @@ export class ThemelioWallet implements Wallet {
     }
 
     return summary
-    
+
   }
   async get_name(): Promise<string> {
     return this.#name
@@ -257,4 +258,4 @@ function new_issue() {
   // }
 
 }
-main() 
+main()
