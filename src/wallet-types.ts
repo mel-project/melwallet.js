@@ -36,12 +36,12 @@ export interface Wallet {
 
   // prepare_stake_transaction(stake_doc: StakeDoc): Promise<Transaction>
 
-  prepare_transaction(ptx: PrepareTransaction): Promise<Transaction>;
+  prepare_transaction(ptx: PreparedTransaction): Promise<Transaction>;
 
   get_transaction_status(txhash: string): Promise<TransactionStatus>;
 }
 
-export interface PrepareTransaction {
+export interface PreparedTransaction {
   inputs: CoinID[];
   outputs: CoinData[];
   signing_key: string | null;

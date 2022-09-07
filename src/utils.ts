@@ -7,6 +7,10 @@ type JSONValue = string | number | boolean | bigint | JSONObject | JSONArray;
 interface JSONObject extends Record<string, JSONValue> {}
 interface JSONArray extends Array<JSONValue> {}
 
+(BigInt.prototype as any).toJSON = (i: bigint) => {
+  return i.toString();
+};
+
 export async function fetch_wrapper(
   endpoint: any,
   data?: RequestInit,
@@ -29,7 +33,7 @@ export async function unwrap_nullable_promise<T>(
 export function map_from_entries<T, K>(entries: [T, K][]): Map<T, K> {
   let map: Map<T, K> = new Map();
   for (let entry of entries) {
-    console.log(entry);
+    // console.log(entry);
     let [key, value] = entry;
     map.set(key, value);
   }
@@ -58,14 +62,14 @@ function null_object_to_record<T extends JSONValue>(
 
 type TypedReviver<T, K> = (key: T, value: any) => K | false;
 type Reviver<T> = (key: string, value: T) => any | false;
-function chain_reviver<T extends JSONValue>(
-  revivers: Reviver<T>[],
+function chain_replacer<T extends JSONValue>(
+  replacers: Reviver<T>[],
 ): Reviver<T> {
   return (key, value) => {
     var parsed_value;
 
     // iterate through all the parsers
-    revivers.find(r => {
+    replacers.find(r => {
       parsed_value = r(key, value);
       if (parsed_value === false) return false;
       return true;
@@ -75,7 +79,27 @@ function chain_reviver<T extends JSONValue>(
   };
 }
 
-export let main_reviver = chain_reviver([int_to_bigint, null_object_to_record]);
+export let main_replacer = chain_replacer([
+  int_to_bigint,
+  null_object_to_record,
+]);
 
-type EnumValues = number | string | bigint;
-// export function is_in_enum<T extends [string, ], K extends keyof typeof T>()
+export async function promise_value_or_error<T>(
+  promise: Promise<T>,
+): Promise<Error | Awaited<T>> {
+  try {
+    return await promise;
+  } catch (e) {
+    return e as Error;
+  }
+}
+
+export async function promise_or_false<T>(
+  promise: Promise<T>,
+): Promise<T | false> {
+  try {
+    return await promise;
+  } catch (e) {
+    return false;
+  }
+}

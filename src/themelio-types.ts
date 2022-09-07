@@ -20,20 +20,20 @@ export enum NetID {
 
 export interface Header {
   network: NetID;
-  previous: String;
+  previous: string;
   height: bigint;
-  history_hash: String;
-  coins_hash: String;
-  transactions_hash: String;
+  history_hash: string;
+  coins_hash: string;
+  transactions_hash: string;
   fee_pool: bigint;
   fee_multiplier: bigint;
   dosc_speed: bigint;
-  pools_hash: String;
-  stakes_hash: String;
+  pools_hash: string;
+  stakes_hash: string;
 }
 export interface TransactionSummary {
-  hash: String;
-  shorthash: String;
+  hash: string;
+  shorthash: string;
   height: bigint;
   weight: bigint;
   mel_moved: bigint;
@@ -112,12 +112,12 @@ export interface CoinSpend {
 export interface AnnCoinID {
   coin_data: CoinData;
   is_change: boolean;
-  coin_id: String;
+  coin_id: string;
 }
 
 export interface StakeDoc {
   /// public key.
-  key: String;
+  key: string;
   /// Starting epoch.
   e_start: bigint;
   /// Ending epoch. This is the epoch *after* the last epoch in which the syms are effective.

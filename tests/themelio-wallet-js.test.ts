@@ -1,7 +1,10 @@
 import { ThemelioWallet, MelwalletdClient } from '../src/themelio-wallet';
 import { describe, expect, test } from '@jest/globals';
-import { unwrap_nullable_promise } from '../src/utils';
-import { NetID } from '../src/themelio-types';
+import { promise_or_false, promise_value_or_error, unwrap_nullable_promise } from '../src/utils';
+import { Denom, Header, NetID } from '../src/themelio-types';
+import { assertType } from 'typescript-is';
+import { prepare_faucet } from '../src/wallet-utils';
+import { PreparedTransaction } from '../src/wallet-types';
 
 interface WalletInfo {
   name: string;
@@ -20,15 +23,19 @@ const get_store: () => Promise<Store> = (() => {
   const melwalletd_addr = '127.0.0.1:11773';
 
   var store: Store;
-
+  var attempts: number = 0
+  expect(attempts).toBeLessThan(2);
   // always returns a store if test passes
   return async () => {
     if (!store) {
+      attempts == 1
+      console.log("Loading Store")
       const wallet_info: WalletInfo = {
         name: test_wallet_name,
         password: test_wallet_password,
       };
       const client: MelwalletdClient = new MelwalletdClient(melwalletd_addr);
+      expect(assertType<Header>(await client.get_summary()))
       const wallet: ThemelioWallet = await unwrap_nullable_promise(
         client.get_wallet(wallet_info.name),
       );
@@ -40,14 +47,13 @@ const get_store: () => Promise<Store> = (() => {
   };
 })();
 
-/**
- * Dummy test
- */
-describe('Dummy test', () => {
+
+
+describe('Basic Themelio Wallet Tests', () => {
   it('Creates Client and ThemelioWallet', async () => {
     expect(await get_store()).toBeTruthy();
   });
-  it('Unlocks the wallet', async () => {
+  it('Unlock the wallet', async () => {
     let store = await get_store();
     let wallet = store.wallet;
     expect(await wallet.unlock(store.wallet_info.password));
@@ -56,7 +62,7 @@ describe('Dummy test', () => {
     let { wallet } = await get_store();
     let summary = await wallet.get_summary();
   });
-  it('Requests the private key', async () => {
+  it('Request the private key', async () => {
     let { wallet, wallet_info } = await get_store();
     let pk = await wallet.export_sk(wallet_info.password);
     expect(typeof pk).toBe('string');
@@ -64,8 +70,12 @@ describe('Dummy test', () => {
   it('Try to tap faucet', async () => {
     let { wallet } = await get_store();
     if ((await wallet.get_network()) == NetID.Testnet) {
-      let txhash = await wallet.send_faucet();
-      expect(typeof txhash).toBe('string');
+      let ptx: PreparedTransaction = await prepare_faucet(wallet);
+      console.log(JSON.stringify(ptx, null, 2));
+      let faucet_tx = await wallet.prepare_transaction(ptx);
+      let txhash: false | string = await promise_or_false(wallet.send_tx(faucet_tx));
+      expect(txhash).toBeTruthy();
+
     } else {
       expect(true);
     }
@@ -73,12 +83,20 @@ describe('Dummy test', () => {
 
   it('Lock the wallet', async () => {
     let { wallet } = await get_store();
-    await wallet.lock();
+    let locked = await wallet.lock();
     let new_summary = await wallet.get_summary();
+    expect(locked).toBe(true);
     expect(new_summary.locked).toBeTruthy();
+    expect(new_summary.locked).toEqual(locked);
   });
-  it('', async () => {
+  
+  it('Each balance is a `bigint`', async () => {
     let { wallet } = await get_store();
-    console.log('how much money is in here: ', await wallet.get_balances());
+    let balances: Map<Denom, bigint> = await wallet.get_balances();
+    Object.entries(balances.entries()).forEach((entry)=>{
+      let [denom, value] = entry
+      expect(typeof value).toBe('bigint')
+    });
+    
   });
 });

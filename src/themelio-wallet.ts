@@ -11,25 +11,16 @@ import {
   TxKind,
 } from './themelio-types';
 import {
-  PrepareTransaction,
+  PreparedTransaction,
   TransactionStatus,
   Wallet,
   WalletSummary,
 } from './wallet-types';
-import { assertType, is } from 'typescript-is';
-import {
-  main_reviver,
-  fetch_wrapper,
-  map_from_entries,
-  unwrap_nullable_promise,
-} from './utils';
-import { RawWalletSummary, UnsafeMelwalletdResponse } from './request-types';
-import {
-  hex_to_denom,
-  int_to_netid,
-  send_faucet,
-  string_to_denom,
-} from './wallet-utils';
+import { assertType } from 'typescript-is';
+import { main_replacer, fetch_wrapper, map_from_entries } from './utils';
+import { RawWalletSummary } from './request-types';
+import { hex_to_denom, int_to_netid, prepare_faucet } from './wallet-utils';
+import { assert } from 'console';
 
 export class MelwalletdClient {
   readonly #domain: string;
@@ -83,13 +74,20 @@ export class MelwalletdClient {
     throw new Error('Method not implemented.');
   }
   async get_summary(): Promise<Header> {
-    throw new Error('Method not implemented.');
+    let unsafe_header: any = JSON.parse(
+      await this.request('/summary'),
+      main_replacer,
+    );
+    unsafe_header.network = Number(unsafe_header.network);
+    assertType<Header>(unsafe_header);
+    let header: Header = unsafe_header!;
+    return header;
   }
 }
 
 export class ThemelioWallet implements Wallet {
-  address: string;
-  #domain: string;
+  readonly address: string;
+  readonly #domain: string;
   readonly #name: string;
 
   constructor(address: string, name: string, domain: string) {
@@ -97,30 +95,17 @@ export class ThemelioWallet implements Wallet {
     this.#name = name;
     this.#domain = domain;
   }
-  async get_network(): Promise<NetID> {
-    let summary = await this.get_summary();
-    let network: NetID = summary.network;
-    return network;
+  async get_name(): Promise<string> {
+    return this.#name;
   }
 
-  async prepare_transaction(
-    prepare_tx: PrepareTransaction,
-  ): Promise<Transaction> {
-    let maybe_tx: any = await this.melwalletd_request('', {
-      method: 'POST',
-      body: JSON.stringify(prepare_tx),
-    });
-
-    // if(is<Transaction>(maybe_tx)){
-    //   return maybe_tx
-    // }
-    throw Error('Failed to find transaction');
+  async get_address(): Promise<string> {
+    return this.address;
   }
 
   async get_summary(): Promise<WalletSummary> {
     let raw_summary: RawWalletSummary = await this.melwalletd_request('');
     assertType<RawWalletSummary>(raw_summary);
-    console.log(raw_summary);
     let { total_micromel, staked_microsym, address, locked } = raw_summary;
     let network: NetID = int_to_netid(raw_summary.network);
 
@@ -147,23 +132,11 @@ export class ThemelioWallet implements Wallet {
 
     return summary;
   }
-  async get_name(): Promise<string> {
-    return this.#name;
-  }
 
-  async get_address(): Promise<string> {
-    return this.address;
-  }
-
-  // async get_coins(): Promise<Map<CoinID, CoinData>> {
-  //   let wallet = this
-  //   let coins: [CoinID, CoinData][] = await wallet.melwalletd_request('/coins')
-  //   return map_from_entries(coins);
-  // }
-
-  async get_balances(): Promise<Map<Denom, bigint>> {
-    let summary: WalletSummary = await this.get_summary();
-    return summary.detailed_balance;
+  async get_network(): Promise<NetID> {
+    let summary = await this.get_summary();
+    let network: NetID = summary.network;
+    return network;
   }
 
   async lock(): Promise<boolean> {
@@ -176,6 +149,7 @@ export class ThemelioWallet implements Wallet {
       return false;
     }
   }
+
   async unlock(password?: string): Promise<boolean> {
     password = password || '';
     try {
@@ -188,6 +162,7 @@ export class ThemelioWallet implements Wallet {
       return false;
     }
   }
+
   async export_sk(password?: string): Promise<string> {
     password = password || '';
     return this.melwalletd_request_raw('/export-sk', {
@@ -195,10 +170,28 @@ export class ThemelioWallet implements Wallet {
       body: JSON.stringify({ password }),
     });
   }
+  
+  async get_balances(): Promise<Map<Denom, bigint>> {
+    let summary: WalletSummary = await this.get_summary();
+    return summary.detailed_balance;
+  }
 
+  async prepare_transaction(
+    prepare_tx: PreparedTransaction,
+  ): Promise<Transaction> {
+    let maybe_tx: any = await this.melwalletd_request('/prepare-tx', {
+      method: 'POST',
+      body: JSON.stringify(prepare_tx),
+    });
+
+    assertType<Transaction>(maybe_tx);
+    return maybe_tx as Transaction;
+  }
   async send_faucet(): Promise<string> {
     let wallet: Wallet = this;
-    return send_faucet(wallet);
+    let ptx: PreparedTransaction = await prepare_faucet(wallet);
+    let faucet_tx = await wallet.prepare_transaction(ptx);
+    return await this.send_tx(faucet_tx);
   }
   async send_tx(tx: Transaction): Promise<string> {
     throw new Error('Method not implemented.');
@@ -215,7 +208,7 @@ export class ThemelioWallet implements Wallet {
       endpoint,
       metadata,
     );
-    return JSON.parse(data, main_reviver);
+    return JSON.parse(data, main_replacer);
   }
   async melwalletd_request_raw(endpoint: any, metadata?: any): Promise<any> {
     let wallet = this;

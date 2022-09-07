@@ -1,5 +1,5 @@
 import { CoinData, Denom, NetID, Transaction, TxKind } from './themelio-types';
-import { Wallet, PrepareTransaction } from './wallet-types';
+import { Wallet, PreparedTransaction } from './wallet-types';
 
 export function int_to_netid(num: bigint): NetID {
   if (num === BigInt(NetID.Mainnet)) return NetID.Mainnet;
@@ -18,22 +18,27 @@ export function hex_to_denom(hex: string): Denom {
   return number_to_denom(denom_val);
 }
 
-export function number_to_denom(num: Number): Denom {
-  (Object.values(Denom) as Array<keyof typeof Denom>).findIndex(key => {});
-  throw Error();
+export function number_to_denom(num: number): Denom {
+  if(num == 109) return Denom.MEL
+  if(num == 115) return Denom.SYM
+  if(num == 100) return Denom.ERG
+  return Denom.CUSTOM
+  
 }
 
-export async function send_faucet(wallet: Wallet): Promise<string> {
+export async function prepare_faucet(
+  wallet: Wallet,
+): Promise<PreparedTransaction> {
+  let address = await wallet.get_address();
   let outputs: CoinData[] = [
     {
-      covhash: await wallet.get_address(),
+      covhash: address,
       value: 1001000000n,
       denom: Denom.MEL,
       additional_data: '',
     },
   ];
-
-  let ptx: PrepareTransaction = {
+  let ptx: PreparedTransaction = {
     kind: TxKind.Faucet,
     inputs: [],
     outputs: outputs,
@@ -43,6 +48,5 @@ export async function send_faucet(wallet: Wallet): Promise<string> {
     fee_ballast: 0n,
     signing_key: null,
   };
-  let tx: Transaction = await wallet.prepare_transaction(ptx);
-  return await wallet.send_tx(tx);
+  return ptx;
 }

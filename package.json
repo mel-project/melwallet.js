@@ -26,7 +26,7 @@
     "start": "rollup -wc rollup.config.ts",
     "dev": "rollup -wc rollup.config.ts --watch.onBundleEnd 'node dist/themelio-wallet.es5.js' --watch.buildDelay 1",
     "test": "jest",
-    "test:watch": "jest --coverage --watch",
+    "test:watch": "jest --coverage -o",
     "test:prod": "npm run lint && npm run test -- --no-cache",
     "report-coverage": "cat ./coverage/lcov.info | coveralls",
     "commit": "git-cz",
