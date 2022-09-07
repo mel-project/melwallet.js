@@ -53,9 +53,9 @@ describe('Test Basic util features',()=>{
     let big = 11111111111111111111n
     expect(big.toString()).toBe("11111111111111111111")
   })
-  it('bigint.toString', ()=>{
+  it('Json.stringify(bigint)', ()=>{
     let big = 11111111111111111111n
-    expect(JSON.stringify(big)).toBe("11111111111111111111")
+    expect(JSON.stringify(big)).toBe('"11111111111111111111"')
   })
 })
 

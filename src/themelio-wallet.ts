@@ -17,10 +17,10 @@ import {
   WalletSummary,
 } from './wallet-types';
 import { assertType } from 'typescript-is';
-import { main_replacer, fetch_wrapper, map_from_entries } from './utils';
+import { fetch_wrapper, map_from_entries } from './utils';
 import { RawWalletSummary } from './request-types';
 import { hex_to_denom, int_to_netid, prepare_faucet } from './wallet-utils';
-import { assert } from 'console';
+const JSONBig = require('json-bigint')({ useNativeBigInt: true, alwaysParseAsBig: true });
 
 export class MelwalletdClient {
   readonly #domain: string;
@@ -53,7 +53,7 @@ export class MelwalletdClient {
   }
   async get_wallet(wallet_name: string): Promise<ThemelioWallet | null> {
     let data: string = await this.request(`/wallets/${wallet_name}`);
-    let summary = JSON.parse(data);
+    let summary = JSONBig.parse(data);
     // let isWalletSummary = createIs<WalletSummary>();
     if (summary?.address) {
       let { address } = summary;
@@ -74,10 +74,8 @@ export class MelwalletdClient {
     throw new Error('Method not implemented.');
   }
   async get_summary(): Promise<Header> {
-    let unsafe_header: any = JSON.parse(
-      await this.request('/summary'),
-      main_replacer,
-    );
+    let unsafe_header: any = JSONBig.parse(
+      await this.request('/summary'));
     unsafe_header.network = Number(unsafe_header.network);
     assertType<Header>(unsafe_header);
     let header: Header = unsafe_header!;
@@ -155,7 +153,7 @@ export class ThemelioWallet implements Wallet {
     try {
       this.melwalletd_request_raw('/unlock', {
         method: 'POST',
-        body: JSON.stringify({ password }),
+        body: JSONBig.stringify({ password }),
       });
       return true;
     } catch {
@@ -167,10 +165,10 @@ export class ThemelioWallet implements Wallet {
     password = password || '';
     return this.melwalletd_request_raw('/export-sk', {
       method: 'POST',
-      body: JSON.stringify({ password }),
+      body: JSONBig.stringify({ password }),
     });
   }
-  
+
   async get_balances(): Promise<Map<Denom, bigint>> {
     let summary: WalletSummary = await this.get_summary();
     return summary.detailed_balance;
@@ -181,7 +179,7 @@ export class ThemelioWallet implements Wallet {
   ): Promise<Transaction> {
     let maybe_tx: any = await this.melwalletd_request('/prepare-tx', {
       method: 'POST',
-      body: JSON.stringify(prepare_tx),
+      body: JSONBig.stringify(prepare_tx),
     });
 
     assertType<Transaction>(maybe_tx);
@@ -208,7 +206,7 @@ export class ThemelioWallet implements Wallet {
       endpoint,
       metadata,
     );
-    return JSON.parse(data, main_replacer);
+    return JSONBig.parse(data);
   }
   async melwalletd_request_raw(endpoint: any, metadata?: any): Promise<any> {
     let wallet = this;

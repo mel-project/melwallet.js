@@ -7,10 +7,18 @@ type JSONValue = string | number | boolean | bigint | JSONObject | JSONArray;
 interface JSONObject extends Record<string, JSONValue> {}
 interface JSONArray extends Array<JSONValue> {}
 
-(BigInt.prototype as any).toJSON = (i: bigint, j: any) => {
-  console.log('stringifying bigint', i.toString(), i, j);
-  return i.toString();
-};
+declare global
+{
+    interface BigInt
+    {
+        toJSON:()=>string;
+    }
+}
+
+BigInt.prototype.toJSON = function() { 
+  console.log(this.toString())
+  return this.toString()
+ }
 
 export async function fetch_wrapper(
   endpoint: any,
