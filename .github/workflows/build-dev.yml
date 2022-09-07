@@ -32,7 +32,7 @@ jobs:
       - name: Run NPM Test
         run: npm test
 
-  ginkou-build:
+  melwallet-js-build:
     runs-on: self-hosted
 
     container:
