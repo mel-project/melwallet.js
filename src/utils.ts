@@ -7,19 +7,6 @@ type JSONValue = string | number | boolean | bigint | JSONObject | JSONArray;
 interface JSONObject extends Record<string, JSONValue> {}
 interface JSONArray extends Array<JSONValue> {}
 
-declare global
-{
-    interface BigInt
-    {
-        toJSON:()=>string;
-    }
-}
-
-BigInt.prototype.toJSON = function() { 
-  console.log(this.toString())
-  return this.toString()
- }
-
 export async function fetch_wrapper(
   endpoint: any,
   data?: RequestInit,
@@ -88,10 +75,7 @@ function chain_replacer<T extends JSONValue>(
   };
 }
 
-export let main_replacer = chain_replacer([
-  int_to_bigint,
-  null_object_to_record,
-]);
+export let main_replacer = chain_replacer([null_object_to_record]);
 
 export async function promise_value_or_error<T>(
   promise: Promise<T>,
@@ -112,3 +96,8 @@ export async function promise_or_false<T>(
     return false;
   }
 }
+
+export const JSONBig = require('json-bigint')({
+  useNativeBigInt: true,
+  alwaysParseAsBig: true,
+});

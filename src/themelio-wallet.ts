@@ -17,11 +17,14 @@ import {
   WalletSummary,
 } from './wallet-types';
 import { assertType } from 'typescript-is';
-import { fetch_wrapper, map_from_entries } from './utils';
+import {
+  JSONBig,
+  fetch_wrapper,
+  map_from_entries,
+  main_replacer,
+} from './utils';
 import { RawWalletSummary } from './request-types';
 import { hex_to_denom, int_to_netid, prepare_faucet } from './wallet-utils';
-const JSONBig = require('json-bigint')({ useNativeBigInt: true, alwaysParseAsBig: true });
-
 export class MelwalletdClient {
   readonly #domain: string;
   constructor(domain: string) {
@@ -74,8 +77,7 @@ export class MelwalletdClient {
     throw new Error('Method not implemented.');
   }
   async get_summary(): Promise<Header> {
-    let unsafe_header: any = JSONBig.parse(
-      await this.request('/summary'));
+    let unsafe_header: any = JSONBig.parse(await this.request('/summary'));
     unsafe_header.network = Number(unsafe_header.network);
     assertType<Header>(unsafe_header);
     let header: Header = unsafe_header!;
@@ -177,22 +179,24 @@ export class ThemelioWallet implements Wallet {
   async prepare_transaction(
     prepare_tx: PreparedTransaction,
   ): Promise<Transaction> {
-    let maybe_tx: any = await this.melwalletd_request('/prepare-tx', {
+    let maybe_tx: Transaction = await this.melwalletd_request('/prepare-tx', {
       method: 'POST',
       body: JSONBig.stringify(prepare_tx),
     });
-
+    maybe_tx.kind = Number(maybe_tx.kind);
     assertType<Transaction>(maybe_tx);
     return maybe_tx as Transaction;
   }
   async send_faucet(): Promise<string> {
     let wallet: Wallet = this;
-    let ptx: PreparedTransaction = await prepare_faucet(wallet);
-    let faucet_tx = await wallet.prepare_transaction(ptx);
-    return await this.send_tx(faucet_tx);
+    let tx: Transaction = await prepare_faucet(wallet);
+    return await this.send_tx(tx);
   }
   async send_tx(tx: Transaction): Promise<string> {
-    throw new Error('Method not implemented.');
+    return this.melwalletd_request_raw('/send-tx', {
+      method: 'POST',
+      body: JSONBig.stringify(tx),
+    });
   }
 
   async get_transaction_status(txhash: string): Promise<TransactionStatus> {

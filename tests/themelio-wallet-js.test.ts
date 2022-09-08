@@ -1,11 +1,10 @@
 import { ThemelioWallet, MelwalletdClient } from '../src/themelio-wallet';
 import { describe, expect, test } from '@jest/globals';
-import { promise_or_false, promise_value_or_error, unwrap_nullable_promise } from '../src/utils';
+import { promise_or_false, promise_value_or_error, unwrap_nullable_promise, JSONBig } from '../src/utils';
 import { Denom, Header, NetID } from '../src/themelio-types';
 import { assertType } from 'typescript-is';
 import { prepare_faucet } from '../src/wallet-utils';
 import { PreparedTransaction } from '../src/wallet-types';
-
 interface WalletInfo {
   name: string;
   password: string;
@@ -29,7 +28,6 @@ const get_store: () => Promise<Store> = (() => {
   return async () => {
     if (!store) {
       attempts == 1
-      console.log("Loading Store")
       const wallet_info: WalletInfo = {
         name: test_wallet_name,
         password: test_wallet_password,
@@ -48,14 +46,14 @@ const get_store: () => Promise<Store> = (() => {
 })();
 
 
-describe('Test Basic util features',()=>{
-  it('bigint.toString', ()=>{
+describe('Test Basic util features', () => {
+  it('bigint.toString', () => {
     let big = 11111111111111111111n
     expect(big.toString()).toBe("11111111111111111111")
   })
-  it('Json.stringify(bigint)', ()=>{
+  it('Json.stringify(bigint)', () => {
     let big = 11111111111111111111n
-    expect(JSON.stringify(big)).toBe('"11111111111111111111"')
+    expect(JSONBig.stringify(big)).toBe('11111111111111111111')
   })
 })
 
@@ -80,12 +78,10 @@ describe('Basic Themelio Wallet Tests', () => {
   it('Try to tap faucet', async () => {
     let { wallet } = await get_store();
     if ((await wallet.get_network()) == NetID.Testnet) {
-      let ptx: PreparedTransaction = await prepare_faucet(wallet);
-      console.log(JSON.stringify(ptx, null, 2));
-      let faucet_tx = await wallet.prepare_transaction(ptx);
-      let txhash: false | string = await promise_or_false(wallet.send_tx(faucet_tx));
-      expect(txhash).toBeTruthy();
+      let txhash:  string = await wallet.send_faucet();
 
+      expect(txhash).toBeTruthy();
+      console.log(txhash)
     } else {
       expect(true);
     }
@@ -99,14 +95,14 @@ describe('Basic Themelio Wallet Tests', () => {
     expect(new_summary.locked).toBeTruthy();
     expect(new_summary.locked).toEqual(locked);
   });
-  
+
   it('Each balance is a `bigint`', async () => {
     let { wallet } = await get_store();
     let balances: Map<Denom, bigint> = await wallet.get_balances();
-    Object.entries(balances.entries()).forEach((entry)=>{
+    Object.entries(balances.entries()).forEach((entry) => {
       let [denom, value] = entry
       expect(typeof value).toBe('bigint')
     });
-    
+
   });
 });

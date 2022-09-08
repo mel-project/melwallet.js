@@ -6,13 +6,12 @@ export enum DenomNum {
   NEWCOIN = 0,
 }
 
-
 export enum Denom {
-  MEL = "MEL",
-  SYM = "SYM",
-  ERG = "ERG",
-  CUSTOM = "CUSTOM()",
-  NEWCOIN = "(NEWCOIN)",
+  MEL = 'MEL',
+  SYM = 'SYM',
+  ERG = 'ERG',
+  CUSTOM = 'CUSTOM()',
+  NEWCOIN = '(NEWCOIN)',
 }
 
 export enum NetID {
@@ -94,12 +93,12 @@ export interface CoinData {
 
 export interface Transaction {
   kind: TxKind;
-  inputs: CoinID;
-  outputs: CoinData;
+  inputs: CoinID[];
+  outputs: CoinData[];
   fee: bigint;
-  covenants: bigint;
+  covenants: string[];
   data: string;
-  sigs: string;
+  sigs: string[];
 }
 
 export interface CoinID {

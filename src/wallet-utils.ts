@@ -19,17 +19,18 @@ export function hex_to_denom(hex: string): Denom {
 }
 
 export function number_to_denom(num: number): Denom {
-  if(num == 109) return Denom.MEL
-  if(num == 115) return Denom.SYM
-  if(num == 100) return Denom.ERG
-  return Denom.CUSTOM
-  
+  if (num == 109) return Denom.MEL;
+  if (num == 115) return Denom.SYM;
+  if (num == 100) return Denom.ERG;
+  return Denom.CUSTOM;
 }
 
-export async function prepare_faucet(
-  wallet: Wallet,
-): Promise<PreparedTransaction> {
+export async function prepare_faucet(wallet: Wallet): Promise<Transaction> {
   let address = await wallet.get_address();
+  let char_codes: number[] = [...Array(64).keys()].map(() =>
+    Math.floor(Math.random() * 15),
+  );
+  let data: string = char_codes.map((i: number) => i.toString(16)).join('');
   let outputs: CoinData[] = [
     {
       covhash: address,
@@ -38,15 +39,14 @@ export async function prepare_faucet(
       additional_data: '',
     },
   ];
-  let ptx: PreparedTransaction = {
+  let tx: Transaction = {
     kind: TxKind.Faucet,
     inputs: [],
     outputs: outputs,
     covenants: [],
-    data: '',
-    nobalance: [],
-    fee_ballast: 0n,
-    signing_key: null,
+    data,
+    fee: 1001000000n,
+    sigs: [],
   };
-  return ptx;
+  return tx;
 }
