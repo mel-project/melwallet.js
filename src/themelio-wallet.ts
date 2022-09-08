@@ -33,10 +33,15 @@ export class MelwalletdClient {
 
   static async request(
     domain: string,
-    endpoint: string,
+    path: string[],
     metadata?: any,
   ): Promise<string> {
+    var endpoint = ""
+    if (path.length > 0) {
+      endpoint = '/' + path.join("/")
+    }
     let url = `http://${domain}` + endpoint;
+    console.log(url)
     let response = await fetch_wrapper(url, metadata);
     if (response.ok) {
       let data = await response.text();
@@ -46,16 +51,16 @@ export class MelwalletdClient {
     }
   }
 
-  async request(endpoint: string, metadata?: any): Promise<string> {
+  async request(endpoint: string[], metadata?: any): Promise<string> {
     return MelwalletdClient.request(this.#domain, endpoint, metadata);
   }
 
   async list_wallets(): Promise<Map<string, WalletSummary>> {
-    let res = await this.request('/wallets');
+    let res = await this.request([`wallets`]);
     return new Map();
   }
   async get_wallet(wallet_name: string): Promise<ThemelioWallet | null> {
-    let data: string = await this.request(`/wallets/${wallet_name}`);
+    let data: string = await this.request([`wallets`,wallet_name]);
     let summary = JSONBig.parse(data);
     // let isWalletSummary = createIs<WalletSummary>();
     if (summary?.address) {
@@ -77,7 +82,7 @@ export class MelwalletdClient {
     throw new Error('Method not implemented.');
   }
   async get_summary(): Promise<Header> {
-    let unsafe_header: any = JSONBig.parse(await this.request('/summary'));
+    let unsafe_header: any = JSONBig.parse(await this.request([`summary`]));
     unsafe_header.network = Number(unsafe_header.network);
     assertType<Header>(unsafe_header);
     let header: Header = unsafe_header!;
@@ -104,7 +109,7 @@ export class ThemelioWallet implements Wallet {
   }
 
   async get_summary(): Promise<WalletSummary> {
-    let raw_summary: RawWalletSummary = await this.melwalletd_request('');
+    let raw_summary: RawWalletSummary = await this.melwalletd_request([]);
     assertType<RawWalletSummary>(raw_summary);
     let { total_micromel, staked_microsym, address, locked } = raw_summary;
     let network: NetID = int_to_netid(raw_summary.network);
@@ -141,7 +146,7 @@ export class ThemelioWallet implements Wallet {
 
   async lock(): Promise<boolean> {
     try {
-      this.melwalletd_request_raw('/lock', {
+      this.melwalletd_request_raw([`lock`], {
         method: 'POST',
       });
       return true;
@@ -153,7 +158,7 @@ export class ThemelioWallet implements Wallet {
   async unlock(password?: string): Promise<boolean> {
     password = password || '';
     try {
-      this.melwalletd_request_raw('/unlock', {
+      this.melwalletd_request_raw([`unlock`], {
         method: 'POST',
         body: JSONBig.stringify({ password }),
       });
@@ -165,7 +170,7 @@ export class ThemelioWallet implements Wallet {
 
   async export_sk(password?: string): Promise<string> {
     password = password || '';
-    return this.melwalletd_request_raw('/export-sk', {
+    return this.melwalletd_request_raw([`export-sk`], {
       method: 'POST',
       body: JSONBig.stringify({ password }),
     });
@@ -179,7 +184,7 @@ export class ThemelioWallet implements Wallet {
   async prepare_transaction(
     prepare_tx: PreparedTransaction,
   ): Promise<Transaction> {
-    let maybe_tx: Transaction = await this.melwalletd_request('/prepare-tx', {
+    let maybe_tx: Transaction = await this.melwalletd_request([`prepare-tx`], {
       method: 'POST',
       body: JSONBig.stringify(prepare_tx),
     });
@@ -193,31 +198,27 @@ export class ThemelioWallet implements Wallet {
     return await this.send_tx(tx);
   }
   async send_tx(tx: Transaction): Promise<string> {
-    return this.melwalletd_request_raw('/send-tx', {
+    return this.melwalletd_request_raw([`send-tx`], {
       method: 'POST',
       body: JSONBig.stringify(tx),
     });
   }
 
-  async get_transaction_status(txhash: string): Promise<TransactionStatus> {
-    throw new Error('Method not implemented.');
+  async get_transaction(txhash: string): Promise<TransactionStatus> {
+    return this.melwalletd_request_raw([`transactions`,txhash]);
   }
 
-  async melwalletd_request(endpoint: any, metadata?: any): Promise<any> {
-    let wallet = this;
-    let data = await MelwalletdClient.request(
-      `${wallet.#domain}/wallets/${wallet.#name}`,
-      endpoint,
-      metadata,
-    );
+  async melwalletd_request(path: string[], metadata?: any): Promise<any> {
+    let data = this.melwalletd_request_raw(path, metadata)
     return JSONBig.parse(data);
   }
-  async melwalletd_request_raw(endpoint: any, metadata?: any): Promise<any> {
+  async melwalletd_request_raw(path: string[], metadata?: any): Promise<any> {
     let wallet = this;
-    return MelwalletdClient.request(
+    return await MelwalletdClient.request(
       `${wallet.#domain}/wallets/${wallet.#name}`,
-      endpoint,
+      path,
       metadata,
     );
+
   }
 }

@@ -78,7 +78,7 @@ describe('Basic Themelio Wallet Tests', () => {
   it('Try to tap faucet', async () => {
     let { wallet } = await get_store();
     if ((await wallet.get_network()) == NetID.Testnet) {
-      let txhash:  string = await wallet.send_faucet();
+      let txhash: string = await wallet.send_faucet();
 
       expect(txhash).toBeTruthy();
       console.log(txhash)
