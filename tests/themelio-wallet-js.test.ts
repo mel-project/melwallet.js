@@ -1,4 +1,4 @@
-import { ThemelioWallet, MelwalletdClient } from '../src/themelio-wallet';
+import { MelwalletdWallet, MelwalletdClient } from '../src/themelio-wallet';
 import { describe, expect, test } from '@jest/globals';
 import { promise_or_false, promise_value_or_error, ThemelioJson, unwrap_nullable_promise } from '../src/utils';
 import { Denom, Header, NetID } from '../src/themelio-types';
@@ -12,15 +12,15 @@ interface WalletInfo {
 interface Store {
   wallet_info: WalletInfo;
   client: MelwalletdClient;
-  wallet: ThemelioWallet;
+  wallet: MelwalletdWallet;
 }
 
 // lazy load Store and memoize
-// creates a client then creates the test_wallet and builds a `ThemelioWallet`
+// creates a client then creates the test_wallet and builds a `MelwalletdWallet`
 const get_store: () => Promise<Store> = (() => {
   const test_wallet_name = 'test_wallet';
   const test_wallet_password = '123';
-  const melwalletd_addr = '127.0.0.1:11773';
+  const melwalletd_addr = 'http://127.0.0.1:11773';
 
   var store: Store;
   var attempts: number = 0
@@ -36,14 +36,13 @@ const get_store: () => Promise<Store> = (() => {
 
       const client: MelwalletdClient = new MelwalletdClient(melwalletd_addr);
       expect(assertType<Header>(await client.get_summary()))
-      let created = await promise_or_false(client.create_wallet(wallet_info.name, wallet_info.password, null));
-      expect(created).toBeTruthy()
-      const wallet: ThemelioWallet | false = await promise_or_false(unwrap_nullable_promise(
+      let created = await client.create_wallet(wallet_info.name, wallet_info.password, null);
+      const wallet: MelwalletdWallet | false = await promise_or_false(unwrap_nullable_promise(
         client.get_wallet(wallet_info.name),
       ));
       expect(wallet);
       expect(client);
-      store = { wallet_info, client, wallet: wallet as ThemelioWallet};
+      store = { wallet_info, client, wallet: wallet as MelwalletdWallet };
     }
     return store;
   };
@@ -56,18 +55,98 @@ describe('Test Basic util features', () => {
     expect(big.toString()).toBe("11111111111111111111")
   })
   it('Json.stringify(int) => bigint', () => {
-    let big = '["1111111111"]'
+    let big = '[1111111111]'
     let json = ThemelioJson.parse(big) as [bigint]
-    expect(json).toBe([1111111111n])
+    expect(json).toStrictEqual([1111111111n])
   })
 })
 
-describe('Client Features', ()=> {
-
+describe('Client Features', () => {
+  it('tests get_wallet', async () => {
+    let { client } = await get_store()
+    client.get_wallet()
+  });
+  it('create a few different wallets', async () => {
+    let { client } = await get_store()
+    let body = {
+      password: "",
+      secret: "",
+    }
+    let wallet_list = ["9","a","b","c","d","e"].map((name:string)=>({name, body}))
+    client.create_wallet()
+  });
+  it('tests list_wallets', async () => {
+    let { client } = await get_store()
+    client.list_wallets()
+  });
+  it('tests get_pool', async () => {
+    let { client } = await get_store()
+    client.get_pool()
+  });
+  it('tests get_summary', async () => {
+    let { client } = await get_store()
+    client.get_summary()
+  });
+  it('tests get_name', async () => {
+    let { client } = await get_store()
+    client.get_name()
+  });
+  it('tests get_address', async () => {
+    let { client } = await get_store()
+    client.get_address()
+  });
+  it('tests get_summary', async () => {
+    let { client } = await get_store()
+    client.get_summary()
+  });
+  it('tests get_network', async () => {
+    let { client } = await get_store()
+    client.get_network()
+  });
+  it('tests lock', async () => {
+    let { client } = await get_store()
+    client.lock()
+  });
+  it('tests unlock', async () => {
+    let { client } = await get_store()
+    client.unlock()
+  });
+  it('tests export_sk', async () => {
+    let { client } = await get_store()
+    client.export_sk()
+  });
+  it('tests get_balances', async () => {
+    let { client } = await get_store()
+    client.get_balances()
+  });
+  it('tests prepare_transaction', async () => {
+    let { client } = await get_store()
+    client.prepare_transaction()
+  });
+  it('tests send_faucet', async () => {
+    let { client } = await get_store()
+    client.send_faucet()
+  });
+  it('tests send_tx', async () => {
+    let { client } = await get_store()
+    client.send_tx()
+  });
+  it('tests get_transaction', async () => {
+    let { client } = await get_store()
+    client.get_transaction()
+  });
+  it('tests melwalletd_request', async () => {
+    let { client } = await get_store()
+    client.melwalletd_request()
+  });
+  it('tests melwalletd_request_raw', async () => {
+    let { client } = await get_store()
+    client.melwalletd_request_raw()
+  });
 })
 
 describe('Themelio Wallet', () => {
-  it('Creates Client and ThemelioWallet', async () => {
+  it('Creates Client and MelwalletdWallet', async () => {
     expect(await get_store()).toBeTruthy();
   });
   it('Unlock the wallet', async () => {
