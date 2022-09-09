@@ -1,6 +1,6 @@
 import { ThemelioWallet, MelwalletdClient } from '../src/themelio-wallet';
 import { describe, expect, test } from '@jest/globals';
-import { promise_or_false, promise_value_or_error, unwrap_nullable_promise, JSONBig } from '../src/utils';
+import { promise_or_false, promise_value_or_error, ThemelioJson, unwrap_nullable_promise } from '../src/utils';
 import { Denom, Header, NetID } from '../src/themelio-types';
 import { assertType } from 'typescript-is';
 import { prepare_faucet } from '../src/wallet-utils';
@@ -16,6 +16,7 @@ interface Store {
 }
 
 // lazy load Store and memoize
+// creates a client then creates the test_wallet and builds a `ThemelioWallet`
 const get_store: () => Promise<Store> = (() => {
   const test_wallet_name = 'test_wallet';
   const test_wallet_password = '123';
@@ -32,14 +33,17 @@ const get_store: () => Promise<Store> = (() => {
         name: test_wallet_name,
         password: test_wallet_password,
       };
+
       const client: MelwalletdClient = new MelwalletdClient(melwalletd_addr);
       expect(assertType<Header>(await client.get_summary()))
-      const wallet: ThemelioWallet = await unwrap_nullable_promise(
+      let created = await promise_or_false(client.create_wallet(wallet_info.name, wallet_info.password, null));
+      expect(created).toBeTruthy()
+      const wallet: ThemelioWallet | false = await promise_or_false(unwrap_nullable_promise(
         client.get_wallet(wallet_info.name),
-      );
+      ));
       expect(wallet);
       expect(client);
-      store = { wallet_info, client, wallet };
+      store = { wallet_info, client, wallet: wallet as ThemelioWallet};
     }
     return store;
   };
@@ -51,13 +55,18 @@ describe('Test Basic util features', () => {
     let big = 11111111111111111111n
     expect(big.toString()).toBe("11111111111111111111")
   })
-  it('Json.stringify(bigint)', () => {
-    let big = 11111111111111111111n
-    expect(JSONBig.stringify(big)).toBe('11111111111111111111')
+  it('Json.stringify(int) => bigint', () => {
+    let big = '["1111111111"]'
+    let json = ThemelioJson.parse(big) as [bigint]
+    expect(json).toBe([1111111111n])
   })
 })
 
-describe('Basic Themelio Wallet Tests', () => {
+describe('Client Features', ()=> {
+
+})
+
+describe('Themelio Wallet', () => {
   it('Creates Client and ThemelioWallet', async () => {
     expect(await get_store()).toBeTruthy();
   });

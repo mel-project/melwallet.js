@@ -38,7 +38,7 @@ export interface Wallet {
 
   prepare_transaction(ptx: PreparedTransaction): Promise<Transaction>;
 
-  get_transaction(txhash: string): Promise<TransactionStatus>;
+  get_transaction(txhash: string): Promise<Transaction>;
 }
 
 export interface PreparedTransaction {
@@ -50,9 +50,4 @@ export interface PreparedTransaction {
   covenants: string[];
   nobalance: Denom[];
   fee_ballast: bigint;
-}
-
-export interface MyInterface {
-  someObject: TxKind;
-  without: string;
 }

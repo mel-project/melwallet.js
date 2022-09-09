@@ -23,7 +23,7 @@
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "rimraf dist",
     "build": "rollup -c rollup.config.ts",
-    "start": "rollup -wc rollup.config.ts",
+    "start": "rollup -wc rollup.config.ts && node dist/themelio-wallet.es5.js",
     "dev": "rollup -wc rollup.config.ts --watch.onBundleEnd 'node dist/themelio-wallet.es5.js' --watch.buildDelay 1",
     "test": "jest",
     "test:watch": "jest --coverage -o",

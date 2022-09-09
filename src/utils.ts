@@ -1,20 +1,27 @@
-import fetch from 'node-fetch';
-import { Response, RequestInit } from 'node-fetch';
-import { parse } from 'path';
+export type JSONValue =
+  | string
+  | boolean
+  | bigint
+  | JSONObject
+  | JSONArray
+  | JSONObject;
 
-type JSONValue = string | number | boolean | bigint | JSONObject | JSONArray;
+export type JSONObject = { [key: string]: JSONValue };
+export type JSONArray = Array<JSONValue>;
 
-interface JSONObject extends Record<string, JSONValue> {}
-interface JSONArray extends Array<JSONValue> {}
+const JSONBig = require('json-bigint')({
+  useNativeBigInt: true,
+  alwaysParseAsBig: true,
+});
 
-export async function fetch_wrapper(
-  endpoint: any,
-  data?: RequestInit,
-): Promise<Response> {
-  data = data || {};
-  let response = await fetch(endpoint, data);
-  return response;
-}
+export const ThemelioJson = {
+  parse: function (str: string): JSONValue {
+    return JSONBig.parse(str) as JSONValue;
+  },
+  stringify: function (json: JSONValue | Object): string {
+    return JSONBig.stringify(json);
+  },
+};
 
 export async function unwrap_nullable_promise<T>(
   m: Promise<T | null>,
@@ -56,7 +63,6 @@ function null_object_to_record<T extends JSONValue>(
   } else return false;
 }
 
-type TypedReviver<T, K> = (key: T, value: any) => K | false;
 type Reviver<T> = (key: string, value: T) => any | false;
 function chain_replacer<T extends JSONValue>(
   replacers: Reviver<T>[],
@@ -96,8 +102,3 @@ export async function promise_or_false<T>(
     return false;
   }
 }
-
-export const JSONBig = require('json-bigint')({
-  useNativeBigInt: true,
-  alwaysParseAsBig: true,
-});

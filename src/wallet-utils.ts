@@ -1,5 +1,7 @@
+import { RawWalletSummary } from './request-types';
 import { CoinData, Denom, NetID, Transaction, TxKind } from './themelio-types';
-import { Wallet, PreparedTransaction } from './wallet-types';
+import { map_from_entries } from './utils';
+import { Wallet, PreparedTransaction, WalletSummary } from './wallet-types';
 
 export function int_to_netid(num: bigint): NetID {
   if (num === BigInt(NetID.Mainnet)) return NetID.Mainnet;
@@ -30,6 +32,7 @@ export async function prepare_faucet(wallet: Wallet): Promise<Transaction> {
   let char_codes: number[] = [...Array(64).keys()].map(() =>
     Math.floor(Math.random() * 15),
   );
+
   let data: string = char_codes.map((i: number) => i.toString(16)).join('');
   let outputs: CoinData[] = [
     {
@@ -49,4 +52,33 @@ export async function prepare_faucet(wallet: Wallet): Promise<Transaction> {
     sigs: [],
   };
   return tx;
+}
+
+export function wallet_summary_from_raw(
+  raw_summary: RawWalletSummary,
+): WalletSummary {
+  let { total_micromel, staked_microsym, address, locked } = raw_summary;
+  let network: NetID = int_to_netid(raw_summary.network);
+
+  let balance_entries: [string, bigint][] = Object.entries(
+    raw_summary.detailed_balance,
+  );
+
+  let detailed_balance: Map<Denom, bigint> = map_from_entries(
+    balance_entries.map(entry => {
+      let [key, value]: [string, bigint] = entry;
+      let mapped: [Denom, bigint] = [hex_to_denom('0x' + key), value];
+      return mapped;
+    }) as [Denom, bigint][],
+  );
+
+  let summary: WalletSummary = {
+    total_micromel,
+    detailed_balance,
+    staked_microsym,
+    network,
+    address,
+    locked,
+  };
+  return summary;
 }
