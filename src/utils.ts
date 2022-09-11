@@ -9,17 +9,18 @@ export type JSONValue =
 export type JSONObject = { [key: string]: JSONValue };
 export type JSONArray = Array<JSONValue>;
 
-const JSONBig = require('json-bigint')({
+import JSONBig from 'json-bigint'
+const JSONAlwaysBig = JSONBig({
   useNativeBigInt: true,
   alwaysParseAsBig: true,
-});
+})
 
 export const ThemelioJson = {
   parse: function (str: string): JSONValue {
-    return JSONBig.parse(str) as JSONValue;
+    return JSONAlwaysBig.parse(str) as JSONValue;
   },
   stringify: function (json: JSONValue | Object): string {
-    return JSONBig.stringify(json);
+    return JSONAlwaysBig.stringify(json);
   },
 };
 
