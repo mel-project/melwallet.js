@@ -1,6 +1,6 @@
 import { RawWalletSummary } from './request-types';
 import { CoinData, Denom, NetID, Transaction, TxKind } from './themelio-types';
-import { map_from_entries } from './utils';
+import { map_from_entries, random_hex_string } from './utils';
 import { Wallet, PreparedTransaction, WalletSummary } from './wallet-types';
 
 export function int_to_netid(num: bigint): NetID {
@@ -29,11 +29,7 @@ export function number_to_denom(num: number): Denom {
 
 export async function prepare_faucet(wallet: Wallet): Promise<Transaction> {
   let address = await wallet.get_address();
-  let char_codes: number[] = [...Array(64).keys()].map(() =>
-    Math.floor(Math.random() * 15),
-  );
-
-  let data: string = char_codes.map((i: number) => i.toString(16)).join('');
+  let data = random_hex_string(32);
   let outputs: CoinData[] = [
     {
       covhash: address,
@@ -82,4 +78,3 @@ export function wallet_summary_from_raw(
   };
   return summary;
 }
-

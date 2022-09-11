@@ -9,11 +9,11 @@ export type JSONValue =
 export type JSONObject = { [key: string]: JSONValue };
 export type JSONArray = Array<JSONValue>;
 
-import JSONBig from 'json-bigint'
+import JSONBig from 'json-bigint';
 const JSONAlwaysBig = JSONBig({
   useNativeBigInt: true,
   alwaysParseAsBig: true,
-})
+});
 
 export const ThemelioJson = {
   parse: function (str: string): JSONValue {
@@ -103,4 +103,10 @@ export async function promise_or_false<T>(
     return false;
   }
 }
+export function random_hex_string(arg0: number) {
+  let char_codes: number[] = [...Array(arg0).keys()].map(() =>
+    Math.floor(Math.random() * 15),
+  );
 
+  return char_codes.map((i: number) => i.toString(16)).join('');
+}

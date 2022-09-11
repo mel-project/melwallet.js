@@ -1,10 +1,10 @@
 import { MelwalletdWallet, MelwalletdClient } from '../src/themelio-wallet';
 import { describe, expect, test } from '@jest/globals';
-import { promise_or_false, promise_value_or_error, ThemelioJson, unwrap_nullable_promise } from '../src/utils';
+import { promise_or_false, promise_value_or_error, random_hex_string, ThemelioJson, unwrap_nullable_promise } from '../src/utils';
 import { Denom, Header, NetID } from '../src/themelio-types';
 import { assertType } from 'typescript-is';
 import { prepare_faucet } from '../src/wallet-utils';
-import { PreparedTransaction } from '../src/wallet-types';
+import { PreparedTransaction, WalletList } from '../src/wallet-types';
 interface WalletInfo {
   name: string;
   password: string;
@@ -63,85 +63,38 @@ describe('Test Basic util features', () => {
 
 describe('Client Features', () => {
   it('tests get_wallet', async () => {
-    let { client } = await get_store()
-    client.get_wallet()
+    let { client,wallet_info } = await get_store()
+    client.get_wallet(wallet_info.name)
   });
+  const CREATED_WALLETS = Object.keys(Array(10)).map(()=>random_hex_string(64));
   it('create a few different wallets', async () => {
     let { client } = await get_store()
     let body = {
       password: "",
       secret: "",
     }
-    let wallet_list = ["9","a","b","c","d","e"].map((name:string)=>({name, body}))
-    client.create_wallet()
+    let creations = await Promise.all(CREATED_WALLETS
+    .map(async (name:string)=>
+      client.create_wallet(name,body.password, body.secret)
+    ));
+
+    expect(creations.reduce((r,v) => r && v))
   });
   it('tests list_wallets', async () => {
     let { client } = await get_store()
-    client.list_wallets()
+    let wallets = await client.list_wallets()
+    let is_wallet_in_list = CREATED_WALLETS.map(wallets.has)
+    let all_wallets_in_list = is_wallet_in_list.reduce((r, v) => r && v)
+    expect(all_wallets_in_list)
   });
   it('tests get_pool', async () => {
     let { client } = await get_store()
-    client.get_pool()
+    let pool = await client.get_pool({left: Denom.MEL, right: Denom.SYM})
+    expect(pool)
   });
   it('tests get_summary', async () => {
     let { client } = await get_store()
-    client.get_summary()
-  });
-  it('tests get_name', async () => {
-    let { client } = await get_store()
-    client.get_name()
-  });
-  it('tests get_address', async () => {
-    let { client } = await get_store()
-    client.get_address()
-  });
-  it('tests get_summary', async () => {
-    let { client } = await get_store()
-    client.get_summary()
-  });
-  it('tests get_network', async () => {
-    let { client } = await get_store()
-    client.get_network()
-  });
-  it('tests lock', async () => {
-    let { client } = await get_store()
-    client.lock()
-  });
-  it('tests unlock', async () => {
-    let { client } = await get_store()
-    client.unlock()
-  });
-  it('tests export_sk', async () => {
-    let { client } = await get_store()
-    client.export_sk()
-  });
-  it('tests get_balances', async () => {
-    let { client } = await get_store()
-    client.get_balances()
-  });
-  it('tests prepare_transaction', async () => {
-    let { client } = await get_store()
-    client.prepare_transaction()
-  });
-  it('tests send_faucet', async () => {
-    let { client } = await get_store()
-    client.send_faucet()
-  });
-  it('tests send_tx', async () => {
-    let { client } = await get_store()
-    client.send_tx()
-  });
-  it('tests get_transaction', async () => {
-    let { client } = await get_store()
-    client.get_transaction()
-  });
-  it('tests melwalletd_request', async () => {
-    let { client } = await get_store()
-    client.melwalletd_request()
-  });
-  it('tests melwalletd_request_raw', async () => {
-    let { client } = await get_store()
-    client.melwalletd_request_raw()
+    expect(await client.get_summary())
   });
 })
 
@@ -193,4 +146,11 @@ describe('Themelio Wallet', () => {
     });
 
   });
+
+  it('prepare_transactions', ()=>{
+
+  });
+  it('get_transaction', ()=>{
+
+  })
 });

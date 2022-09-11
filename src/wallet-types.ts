@@ -51,3 +51,4 @@ export interface PreparedTransaction {
   nobalance: Denom[];
   fee_ballast: bigint;
 }
+export type WalletList = Map<string, WalletSummary> 
