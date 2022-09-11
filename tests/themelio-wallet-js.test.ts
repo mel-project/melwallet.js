@@ -1,10 +1,11 @@
 import { MelwalletdWallet, MelwalletdClient } from '../src/themelio-wallet';
 import { describe, expect, test } from '@jest/globals';
 import { promise_or_false, promise_value_or_error, random_hex_string, ThemelioJson, unwrap_nullable_promise } from '../src/utils';
-import { Denom, Header, NetID } from '../src/themelio-types';
+import { CoinData, Denom, Header, NetID, Transaction, TxKind } from '../src/themelio-types';
 import { assertType } from 'typescript-is';
 import { prepare_faucet } from '../src/wallet-utils';
 import { PreparedTransaction, WalletList } from '../src/wallet-types';
+import { RawTransaction } from '../src/request-types';
 interface WalletInfo {
   name: string;
   password: string;
@@ -49,7 +50,7 @@ const get_store: () => Promise<Store> = (() => {
 })();
 
 
-describe('Test Basic util features', () => {
+describe.skip('Test Basic util features', () => {
   it('bigint.toString', () => {
     let big = 11111111111111111111n
     expect(big.toString()).toBe("11111111111111111111")
@@ -61,7 +62,7 @@ describe('Test Basic util features', () => {
   })
 })
 
-describe('Client Features', () => {
+describe.skip('Client Features', () => {
   it('tests get_wallet', async () => {
     let { client,wallet_info } = await get_store()
     client.get_wallet(wallet_info.name)
@@ -98,7 +99,7 @@ describe('Client Features', () => {
   });
 })
 
-describe('Themelio Wallet', () => {
+describe.skip('Themelio Wallet', () => {
   it('Creates Client and MelwalletdWallet', async () => {
     expect(await get_store()).toBeTruthy();
   });
@@ -147,10 +148,27 @@ describe('Themelio Wallet', () => {
 
   });
 
-  it('prepare_transactions', ()=>{
-
+  it('prepare_transactions', async ()=>{
+    let {wallet} = await get_store();
+    let outputs: CoinData[] = [{
+      covhash: await wallet.get_address(),
+      value: 1001000000n,
+      denom: Denom.MEL,
+      additional_data: ""
+    }]
+  
+    let ptx: PreparedTransaction = {
+      kind: TxKind.Faucet,
+      inputs: [],
+      outputs: outputs,
+      covenants: [],
+      data: "",
+      nobalance: [],
+      fee_ballast: 0n,
+      signing_key: null
+    }
+    let tx: Transaction = await wallet.prepare_transaction(ptx)
+    expect(tx);
   });
-  it('get_transaction', ()=>{
 
-  })
 });

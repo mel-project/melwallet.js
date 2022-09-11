@@ -9,11 +9,14 @@ export type JSONValue =
 export type JSONObject = { [key: string]: JSONValue };
 export type JSONArray = Array<JSONValue>;
 
-import JSONBig from 'json-bigint';
-const JSONAlwaysBig = JSONBig({
-  useNativeBigInt: true,
-  alwaysParseAsBig: true,
-});
+import {parse, stringify} from 'json-bigint';
+const JSONAlwaysBig = {
+  parse: (parse as any)({
+    useNativeBigInt: true,
+    alwaysParseAsBig: true,
+  }),
+  stringify
+}
 
 export const ThemelioJson = {
   parse: function (str: string): JSONValue {
