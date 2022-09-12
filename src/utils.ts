@@ -1,3 +1,5 @@
+import * as JSONBig from 'json-bigint';
+
 export type JSONValue =
   | string
   | boolean
@@ -9,22 +11,20 @@ export type JSONValue =
 export type JSONObject = { [key: string]: JSONValue };
 export type JSONArray = Array<JSONValue>;
 
-import {parse, stringify} from 'json-bigint';
-const JSONAlwaysBig = {
-  parse: (parse as any)({
-    useNativeBigInt: true,
-    alwaysParseAsBig: true,
-  }),
-  stringify
-}
+const JSONAlwaysBig = JSONBig({
+  useNativeBigInt: true,
+  alwaysParseAsBig: true,
+});
+
+type NotPromise<T> =  T extends Promise<unknown> ? never : T
 
 export const ThemelioJson = {
-  parse: function (str: string): JSONValue {
-    return JSONAlwaysBig.parse(str) as JSONValue;
+  stringify: function<T> (value:  NotPromise<T>, replacer?: (string | number)[] | null | undefined, space?: string | number | undefined): string {
+    return JSONAlwaysBig.stringify(value);
   },
-  stringify: function (json: JSONValue | Object): string {
-    return JSONAlwaysBig.stringify(json);
-  },
+  parse: function (text: string, reviver?: ((this: any, key: string, value: any) => any) | undefined): JSONValue {
+    return JSONAlwaysBig.parse(text) as JSONValue;
+  }
 };
 
 export async function unwrap_nullable_promise<T>(
@@ -37,65 +37,6 @@ export async function unwrap_nullable_promise<T>(
   throw Error(`Unable to unwrap: ${m}`);
 }
 
-export function map_from_entries<T, K>(entries: [T, K][]): Map<T, K> {
-  let map: Map<T, K> = new Map();
-  for (let entry of entries) {
-    // console.log(entry);
-    let [key, value] = entry;
-    map.set(key, value);
-  }
-  return map;
-}
-
-function int_to_bigint<T extends JSONValue>(
-  key: string,
-  value: T,
-): bigint | false {
-  if (typeof value === 'number') {
-    return BigInt(value);
-  }
-  return false;
-}
-
-function null_object_to_record<T extends JSONValue>(
-  key: string,
-  value: T,
-): Record<string, JSONValue> | false {
-  if (typeof value == 'object') {
-    let entries: [string, JSONValue][] = Object.entries(value);
-    return Object.fromEntries(entries);
-  } else return false;
-}
-
-type Reviver<T> = (key: string, value: T) => any | false;
-function chain_replacer<T extends JSONValue>(
-  replacers: Reviver<T>[],
-): Reviver<T> {
-  return (key, value) => {
-    var parsed_value;
-
-    // iterate through all the parsers
-    replacers.find(r => {
-      parsed_value = r(key, value);
-      if (parsed_value === false) return false;
-      return true;
-    });
-    if (parsed_value !== false) return parsed_value;
-    return value;
-  };
-}
-
-export let main_replacer = chain_replacer([null_object_to_record]);
-
-export async function promise_value_or_error<T>(
-  promise: Promise<T>,
-): Promise<Error | Awaited<T>> {
-  try {
-    return await promise;
-  } catch (e) {
-    return e as Error;
-  }
-}
 
 export async function promise_or_false<T>(
   promise: Promise<T>,
@@ -106,10 +47,23 @@ export async function promise_or_false<T>(
     return false;
   }
 }
-export function random_hex_string(arg0: number) {
+
+export function map_from_entries<T, K>(entries: [T, K][]): Map<T, K> {
+  let map: Map<T, K> = new Map();
+  for (let entry of entries) {
+    // console.log(entry);
+    let [key, value] = entry;
+    map.set(key, value);
+  }
+  return map;
+}
+
+
+export function random_hex_string(arg0: number): string {
   let char_codes: number[] = [...Array(arg0).keys()].map(() =>
     Math.floor(Math.random() * 15),
   );
-
-  return char_codes.map((i: number) => i.toString(16)).join('');
+  let hex_string = char_codes.map((i: number) => i.toString(16)).join('');
+  // console.log(hex_string.length, hex_string)
+  return hex_string;
 }

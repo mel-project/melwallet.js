@@ -1,11 +1,20 @@
+
+
 import { MelwalletdWallet, MelwalletdClient } from '../src/themelio-wallet';
-import { describe, expect, test } from '@jest/globals';
-import { promise_or_false, promise_value_or_error, random_hex_string, ThemelioJson, unwrap_nullable_promise } from '../src/utils';
+import {describe as _describe, it as _it, expect} from '@jest/globals';
+
+import { promise_or_false, random_hex_string, ThemelioJson, unwrap_nullable_promise } from '../src/utils';
 import { CoinData, Denom, Header, NetID, Transaction, TxKind } from '../src/themelio-types';
-import { assertType } from 'typescript-is';
-import { prepare_faucet } from '../src/wallet-utils';
+import { assertType, is } from 'typescript-is';
 import { PreparedTransaction, WalletList } from '../src/wallet-types';
-import { RawTransaction } from '../src/request-types';
+
+/// many of the tests simply run methods with known valid data
+/// since it's assumed that the method uses `assertType` to verify type safety.
+/// If calling the method doesn't fail we can assume the defined type has been returned
+/// that is enough to give reasonable certainty in program correctness
+
+var describe = _describe;
+var it = _it;
 interface WalletInfo {
   name: string;
   password: string;
@@ -26,23 +35,25 @@ const get_store: () => Promise<Store> = (() => {
   var store: Store;
   var attempts: number = 0
   expect(attempts).toBeLessThan(2);
+
   // always returns a store if test passes
   return async () => {
+
     if (!store) {
-      attempts == 1
+      attempts += 1
       const wallet_info: WalletInfo = {
         name: test_wallet_name,
         password: test_wallet_password,
       };
-
       const client: MelwalletdClient = new MelwalletdClient(melwalletd_addr);
-      expect(assertType<Header>(await client.get_summary()))
+
+      expect(is<Header>(await client.get_summary())).toBeTruthy()
       let created = await client.create_wallet(wallet_info.name, wallet_info.password, null);
       const wallet: MelwalletdWallet | false = await promise_or_false(unwrap_nullable_promise(
         client.get_wallet(wallet_info.name),
       ));
-      expect(wallet);
-      expect(client);
+      expect(wallet).toBeTruthy();
+      expect(client).toBeTruthy();
       store = { wallet_info, client, wallet: wallet as MelwalletdWallet };
     }
     return store;
@@ -50,7 +61,8 @@ const get_store: () => Promise<Store> = (() => {
 })();
 
 
-describe.skip('Test Basic util features', () => {
+
+describe('Test Basic util features', () => {
   it('bigint.toString', () => {
     let big = 11111111111111111111n
     expect(big.toString()).toBe("11111111111111111111")
@@ -62,82 +74,99 @@ describe.skip('Test Basic util features', () => {
   })
 })
 
-describe.skip('Client Features', () => {
+describe("Initialize Store, end tests otherwise", ()=>{
+  /// initializes the store 
+  it('Creates Client and MelwalletdWallet', async () => {
+    let store = await get_store();
+  });
+
+})
+
+describe('Client Features', () => {
+  const WALLET_NAMES = [...Array(10).keys()].map(()=>random_hex_string(32));
+
+  /// tests for failure of method
   it('tests get_wallet', async () => {
     let { client,wallet_info } = await get_store()
-    client.get_wallet(wallet_info.name)
+    await client.get_wallet(wallet_info.name)
+
   });
-  const CREATED_WALLETS = Object.keys(Array(10)).map(()=>random_hex_string(64));
+
+  /// if this fails, the next test should also fail
   it('create a few different wallets', async () => {
     let { client } = await get_store()
-    let body = {
-      password: "",
-      secret: "",
-    }
-    let creations = await Promise.all(CREATED_WALLETS
+    let creations = await Promise.all(WALLET_NAMES
     .map(async (name:string)=>
-      client.create_wallet(name,body.password, body.secret)
+      client.create_wallet(name, name, null)
     ));
-
-    expect(creations.reduce((r,v) => r && v))
+    let created_all_wallets = creations.reduce((r,v) => r && v, true)
+    expect(created_all_wallets).toBeTruthy()
   });
+
+  ///compares the created wallets to the list of all wallets
   it('tests list_wallets', async () => {
     let { client } = await get_store()
-    let wallets = await client.list_wallets()
-    let is_wallet_in_list = CREATED_WALLETS.map(wallets.has)
-    let all_wallets_in_list = is_wallet_in_list.reduce((r, v) => r && v)
-    expect(all_wallets_in_list)
+    let wallets: WalletList = await client.list_wallets()
+    expect(wallets.has(WALLET_NAMES[0])).toBeTruthy()
+    let is_wallet_in_list = WALLET_NAMES.map((name)=>wallets.has(name))
+    let all_wallets_in_list = is_wallet_in_list.reduce((r, v) => r && v, true)
+    expect(all_wallets_in_list).toBeTruthy()
   });
+
+  ///
   it('tests get_pool', async () => {
     let { client } = await get_store()
     let pool = await client.get_pool({left: Denom.MEL, right: Denom.SYM})
     expect(pool)
   });
+
+  ///
   it('tests get_summary', async () => {
     let { client } = await get_store()
     expect(await client.get_summary())
   });
 })
 
-describe.skip('Themelio Wallet', () => {
-  it('Creates Client and MelwalletdWallet', async () => {
-    expect(await get_store()).toBeTruthy();
-  });
+
+///
+describe('Themelio Wallet', () => {
+
+
+  ///
   it('Unlock the wallet', async () => {
     let store = await get_store();
     let wallet = store.wallet;
-    expect(await wallet.unlock(store.wallet_info.password));
+    expect(await wallet.unlock(store.wallet_info.password)).toBeTruthy();
   });
+
+  ///
   it('Get wallet summary', async () => {
     let { wallet } = await get_store();
     let summary = await wallet.get_summary();
   });
+
+  ///
   it('Request the private key', async () => {
     let { wallet, wallet_info } = await get_store();
     let pk = await wallet.export_sk(wallet_info.password);
     expect(typeof pk).toBe('string');
   });
+
+  ///
   it('Try to tap faucet', async () => {
     let { wallet } = await get_store();
     if ((await wallet.get_network()) == NetID.Testnet) {
       let txhash: string = await wallet.send_faucet();
 
       expect(txhash).toBeTruthy();
-      console.log(txhash)
     } else {
       expect(true);
     }
   });
 
-  it('Lock the wallet', async () => {
-    let { wallet } = await get_store();
-    let locked = await wallet.lock();
-    let new_summary = await wallet.get_summary();
-    expect(locked).toBe(true);
-    expect(new_summary.locked).toBeTruthy();
-    expect(new_summary.locked).toEqual(locked);
-  });
 
+
+  ///
   it('Each balance is a `bigint`', async () => {
     let { wallet } = await get_store();
     let balances: Map<Denom, bigint> = await wallet.get_balances();
@@ -148,6 +177,7 @@ describe.skip('Themelio Wallet', () => {
 
   });
 
+  ///
   it('prepare_transactions', async ()=>{
     let {wallet} = await get_store();
     let outputs: CoinData[] = [{
@@ -171,4 +201,13 @@ describe.skip('Themelio Wallet', () => {
     expect(tx);
   });
 
+  /// After testing is complete, lock the wallet
+  it('Lock the wallet', async () => {
+    let { wallet } = await get_store();
+    let locked = await wallet.lock();
+    let new_summary = await wallet.get_summary();
+    expect(locked).toBe(true);
+    expect(new_summary.locked).toBeTruthy();
+    expect(new_summary.locked).toEqual(locked);
+  });
 });

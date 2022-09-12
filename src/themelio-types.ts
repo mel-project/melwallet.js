@@ -133,4 +133,3 @@ export interface StakeDoc {
   /// Number of syms staked.
   syms_staked: bigint;
 }
-
