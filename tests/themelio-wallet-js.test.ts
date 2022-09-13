@@ -9,9 +9,11 @@ import { assertType, is } from 'typescript-is';
 import { PreparedTransaction, WalletList } from '../src/wallet-types';
 
 /// many of the tests simply run methods with known valid data
-/// since it's assumed that the method uses `assertType` to verify type safety.
+/// The library was written using `typescript-is` `assertType` to verify type safety.
 /// If calling the method doesn't fail we can assume the defined type has been returned
 /// that is enough to give reasonable certainty in program correctness
+
+/// TODO: Improve testing of failures
 
 var describe = _describe;
 var it = _it;
@@ -113,14 +115,14 @@ describe('Client Features', () => {
     expect(all_wallets_in_list).toBeTruthy()
   });
 
-  ///
+  /// Get the MEL/SYM pool
   it('tests get_pool', async () => {
     let { client } = await get_store()
     let pool = await client.get_pool({left: Denom.MEL, right: Denom.SYM})
     expect(pool)
   });
 
-  ///
+  /// Get the melwalletd summary
   it('tests get_summary', async () => {
     let { client } = await get_store()
     expect(await client.get_summary())
@@ -139,7 +141,7 @@ describe('Themelio Wallet', () => {
     expect(await wallet.unlock(store.wallet_info.password)).toBeTruthy();
   });
 
-  ///
+  /// 
   it('Get wallet summary', async () => {
     let { wallet } = await get_store();
     let summary = await wallet.get_summary();
@@ -163,8 +165,6 @@ describe('Themelio Wallet', () => {
       expect(true);
     }
   });
-
-
 
   ///
   it('Each balance is a `bigint`', async () => {
@@ -210,6 +210,8 @@ describe('Themelio Wallet', () => {
   /// After testing is complete, lock the wallet
   it('Lock the wallet', async () => {
     let { wallet } = await get_store();
+    let summary = await wallet.get_summary();
+    expect(summary.locked).toBe(false);
     let locked = await wallet.lock();
     let new_summary = await wallet.get_summary();
     expect(locked).toBe(true);

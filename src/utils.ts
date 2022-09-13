@@ -65,11 +65,11 @@ function null_object_to_record<T extends JSONValue>(
   } else return false;
 }
 
-function array_reviver<T extends JSONValue>(key: string, value: T): T | false{
+function array_reviver<T extends JSONValue>(key: string, value: T): T | false {
   if (Object.prototype.toString.call(value) === '[object Array]') {
-    return value
+    return value;
   }
-  return false
+  return false;
 }
 function chain_reviver<T extends JSONValue>(
   replacers: Reviver<T>[],

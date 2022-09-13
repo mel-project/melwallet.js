@@ -313,7 +313,7 @@ export class MelwalletdWallet implements Wallet {
 
     assertType<RawTransaction>(res);
     let raw_tx: RawTransaction = res as any as RawTransaction;
-    let tx: Transaction = tx_from_raw(raw_tx)
+    let tx: Transaction = tx_from_raw(raw_tx);
 
     return tx;
   }
@@ -344,8 +344,8 @@ export class MelwalletdWallet implements Wallet {
     let data = await res.text();
     let maybe_tx_info: any = ThemelioJson.parse(data);
     assertType<RawTransaction>(maybe_tx_info!.raw);
-    let raw_tx:RawTransaction = maybe_tx_info!.raw;
-    return tx_from_raw(raw_tx)
+    let raw_tx: RawTransaction = maybe_tx_info!.raw;
+    return tx_from_raw(raw_tx);
   }
 
   async melwalletd_request(
@@ -371,4 +371,3 @@ export class MelwalletdWallet implements Wallet {
     );
   }
 }
-
