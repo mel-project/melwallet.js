@@ -1,22 +1,16 @@
 import {
-  CoinData,
-  CoinID,
   Denom,
   Header,
   NetID,
   PoolKey,
   PoolState,
-  StakeDoc,
   Transaction,
-  TxKind,
 } from './themelio-types';
 import { PreparedTransaction, Wallet, WalletSummary } from './wallet-types';
 import { assertType } from 'typescript-is';
 import { ThemelioJson, map_from_entries, JSONValue } from './utils';
 import { RawTransaction, RawWalletSummary } from './request-types';
 import {
-  hex_to_denom,
-  int_to_netid,
   prepare_faucet,
   tx_from_raw,
   wallet_summary_from_raw,
@@ -319,7 +313,7 @@ export class MelwalletdWallet implements Wallet {
   }
   async send_faucet(): Promise<string> {
     let wallet = this;
-    let tx: Transaction = await prepare_faucet(wallet);
+    let tx: Transaction = prepare_faucet(await wallet.get_address(), 1001000000n);
     return await this.send_tx(tx);
   }
   async send_tx(tx: Transaction): Promise<string> {

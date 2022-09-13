@@ -30,15 +30,14 @@ export interface Wallet {
   export_sk(password: string): Promise<string | null>;
 
   get_network(): Promise<NetID>;
-  // send_faucet(wallet_name: string): Promise<TxHash>
 
   send_tx(tx: Transaction): Promise<string>;
-
-  // prepare_stake_transaction(stake_doc: StakeDoc): Promise<Transaction>
 
   prepare_transaction(ptx: PreparedTransaction): Promise<Transaction>;
 
   get_transaction(txhash: string): Promise<Transaction>;
+
+  
 }
 
 export interface PreparedTransaction {

@@ -1,20 +1,22 @@
 import { assertType } from 'typescript-is';
 import { RawTransaction, RawWalletSummary } from './request-types';
-import { CoinData, Denom, NetID, Transaction, TxKind } from './themelio-types';
+import { CoinData, Denom, NetID, PoolKey, Transaction, TxKind } from './themelio-types';
 import { map_from_entries, random_hex_string } from './utils';
 import { Wallet, PreparedTransaction, WalletSummary } from './wallet-types';
 
 export function int_to_netid(num: bigint): NetID {
   if (num === BigInt(NetID.Mainnet)) return NetID.Mainnet;
   if (num === BigInt(NetID.Testnet)) return NetID.Testnet;
-  return NetID.Custom02;
+  throw "Unsupported network: " + num
 }
 
 export function string_to_denom(str: string): Denom {
   if (str == 'MEL') return Denom.MEL;
   if (str == 'SYM') return Denom.SYM;
-  return Denom.ERG;
+  if (str == 'ERG') return Denom.ERG;
+  throw "Unsupported denom: " + str
 }
+
 
 export function hex_to_denom(hex: string): Denom {
   let denom_val = Number(hex);
@@ -25,16 +27,15 @@ export function number_to_denom(num: number): Denom {
   if (num == 109) return Denom.MEL;
   if (num == 115) return Denom.SYM;
   if (num == 100) return Denom.ERG;
-  return Denom.CUSTOM;
+  throw "Unsupported Denom: " + num
 }
 
-export async function prepare_faucet(wallet: Wallet): Promise<Transaction> {
-  let address = await wallet.get_address();
+export function prepare_faucet(address: string, amount: bigint): Transaction {
   let data = random_hex_string(32);
   let outputs: CoinData[] = [
     {
       covhash: address,
-      value: 1001000000n,
+      value: amount,
       denom: Denom.MEL,
       additional_data: '',
     },
@@ -45,12 +46,31 @@ export async function prepare_faucet(wallet: Wallet): Promise<Transaction> {
     outputs: outputs,
     covenants: [],
     data,
-    fee: 1001000000n,
+    fee: amount,
     sigs: [],
   };
   return tx;
 }
-
+// export function prepare_swap(address: string, value: bigint, from: Denom, to: Denom): PreparedTransaction{
+//   let output: CoinData = {
+//     covhash: address,
+//     value,
+//     denom: from,
+//     additional_data: ''
+//   }
+//   let poolkey: PoolKey = {left: from, right: to}
+//   let prepared_tx: PreparedTransaction = {
+//     inputs: [],
+//     outputs: [],
+//     signing_key: null,
+//     kind: null,
+//     data: [from,to].join("/"),
+//     covenants: [],
+//     nobalance: [],
+//     fee_ballast: 0n
+//   }
+//   return prepared_tx
+// }
 export function tx_from_raw(raw_tx: RawTransaction): Transaction {
   let tx = Object.assign({}, raw_tx, {
     kind: Number(raw_tx.kind),

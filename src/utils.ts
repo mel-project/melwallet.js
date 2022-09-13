@@ -13,8 +13,6 @@ export type JSONArray = Array<JSONValue>;
 
 export type NotPromise<T> = T extends Promise<unknown> ? never : T;
 
-type Reviver<T> = (key: string, value: T) => any | false;
-
 export function random_hex_string(arg0: number): string {
   let char_codes: number[] = [...Array(arg0).keys()].map(() =>
     Math.floor(Math.random() * 15),
@@ -53,6 +51,11 @@ export function map_from_entries<T, K>(entries: [T, K][]): Map<T, K> {
   }
   return map;
 }
+
+const JSONAlwaysBig = JSONBig({
+  useNativeBigInt: true,
+  alwaysParseAsBig: true,
+});
 
 export const ThemelioJson = {
   stringify: function <T>(
