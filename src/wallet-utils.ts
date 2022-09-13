@@ -1,4 +1,5 @@
-import { RawWalletSummary } from './request-types';
+import { assertType } from 'typescript-is';
+import { RawTransaction, RawWalletSummary } from './request-types';
 import { CoinData, Denom, NetID, Transaction, TxKind } from './themelio-types';
 import { map_from_entries, random_hex_string } from './utils';
 import { Wallet, PreparedTransaction, WalletSummary } from './wallet-types';
@@ -47,6 +48,14 @@ export async function prepare_faucet(wallet: Wallet): Promise<Transaction> {
     fee: 1001000000n,
     sigs: [],
   };
+  return tx;
+}
+
+export function tx_from_raw(raw_tx: RawTransaction): Transaction {
+  let tx = Object.assign({}, raw_tx, {
+    kind: Number(raw_tx.kind),
+  });
+  assertType<Transaction>(tx);
   return tx;
 }
 

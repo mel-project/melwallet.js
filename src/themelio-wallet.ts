@@ -12,16 +12,13 @@ import {
 } from './themelio-types';
 import { PreparedTransaction, Wallet, WalletSummary } from './wallet-types';
 import { assertType } from 'typescript-is';
-import {
-  ThemelioJson,
-  map_from_entries,
-  JSONValue,
-} from './utils';
+import { ThemelioJson, map_from_entries, JSONValue } from './utils';
 import { RawTransaction, RawWalletSummary } from './request-types';
 import {
   hex_to_denom,
   int_to_netid,
   prepare_faucet,
+  tx_from_raw,
   wallet_summary_from_raw,
 } from './wallet-utils';
 import fetch from 'node-fetch';
@@ -139,7 +136,7 @@ export class MelwalletdClient {
       return response;
     } else {
       throw {
-        message: `Error fetching \`${method} => \`\`${url}\`:\n\t${response.statusText}\n`,
+        message: `Error fetching \`${method} => \`${url}\`:\n\t${response.statusText}\n`,
         response,
       };
     }
@@ -249,7 +246,7 @@ export class MelwalletdWallet implements Wallet {
   }
 
   async get_summary(): Promise<WalletSummary> {
-    let name = this.#name;
+    let name = await this.get_name();
     let res: JSONValue = (await this.melwalletd_request(
       melwalletd_endpoints.wallet_summary(name),
     )) as JSONValue;
@@ -267,7 +264,7 @@ export class MelwalletdWallet implements Wallet {
   }
 
   async lock(): Promise<boolean> {
-    let name = this.#name;
+    let name = await this.get_name();
     try {
       this.melwalletd_request_raw(melwalletd_endpoints.lock_wallet(name));
       return true;
@@ -278,7 +275,7 @@ export class MelwalletdWallet implements Wallet {
 
   async unlock(password?: string): Promise<boolean> {
     password = password || '';
-    let name = this.#name;
+    let name = await this.get_name();
     try {
       this.melwalletd_request_raw(
         melwalletd_endpoints.unlock_wallet(name),
@@ -292,7 +289,7 @@ export class MelwalletdWallet implements Wallet {
 
   async export_sk(password?: string): Promise<string> {
     password = password || '';
-    let name = this.#name;
+    let name = await this.get_name();
     let res = await this.melwalletd_request_raw(
       melwalletd_endpoints.export_sk(name),
       ThemelioJson.stringify({ password }),
@@ -308,7 +305,7 @@ export class MelwalletdWallet implements Wallet {
   async prepare_transaction(
     prepare_tx: PreparedTransaction,
   ): Promise<Transaction> {
-    let name = this.#name;
+    let name = await this.get_name();
     let res: Object = await this.melwalletd_request(
       melwalletd_endpoints.prepare_tx(name),
       ThemelioJson.stringify(prepare_tx),
@@ -316,35 +313,39 @@ export class MelwalletdWallet implements Wallet {
 
     assertType<RawTransaction>(res);
     let raw_tx: RawTransaction = res as any as RawTransaction;
-    let tx: Transaction = Object.assign({}, raw_tx, {
-      kind: Number(raw_tx.kind),
-    });
+    let tx: Transaction = tx_from_raw(raw_tx)
 
     return tx;
   }
   async send_faucet(): Promise<string> {
-    let wallet: Wallet = this;
+    let wallet = this;
     let tx: Transaction = await prepare_faucet(wallet);
     return await this.send_tx(tx);
   }
   async send_tx(tx: Transaction): Promise<string> {
     let wallet = this;
     let res = await this.melwalletd_request_raw(
-      melwalletd_endpoints.send_tx(wallet.#name),
+      melwalletd_endpoints.send_tx(await wallet.get_name()),
       ThemelioJson.stringify(tx),
     );
-    return res.text();
+    let unclean_txhash = await res.text();
+    let txhash = unclean_txhash.replace(/"/g, '');
+    // could assert type of each letter to be a hex string
+    // txhash.forEach((c: string)=>assertType<HexChar>(c))
+    return txhash;
   }
 
   async get_transaction(txhash: string): Promise<Transaction> {
     let wallet = this;
-    let name = wallet.#name;
-    let maybe_tx = this.melwalletd_request(
+    let name = await wallet.get_name();
+    let res = await this.melwalletd_request_raw(
       melwalletd_endpoints.get_wallet_transaction(name, txhash),
     );
-    assertType<Transaction>(maybe_tx);
-    let tx: Transaction = maybe_tx as any as Transaction;
-    return tx;
+    let data = await res.text();
+    let maybe_tx_info: any = ThemelioJson.parse(data);
+    assertType<RawTransaction>(maybe_tx_info!.raw);
+    let raw_tx:RawTransaction = maybe_tx_info!.raw;
+    return tx_from_raw(raw_tx)
   }
 
   async melwalletd_request(
@@ -370,3 +371,4 @@ export class MelwalletdWallet implements Wallet {
     );
   }
 }
+

@@ -201,6 +201,12 @@ describe('Themelio Wallet', () => {
     expect(tx);
   });
 
+  /// it gets a transaction based on hash
+  it('send a transaction and fetch it by hash', async ()=>{
+    let {wallet} = await get_store()
+    let txhash: string  = await wallet.send_faucet()
+    let tx: Transaction = await wallet.get_transaction(txhash)
+  })
   /// After testing is complete, lock the wallet
   it('Lock the wallet', async () => {
     let { wallet } = await get_store();
