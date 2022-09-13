@@ -54,47 +54,6 @@ export function map_from_entries<T, K>(entries: [T, K][]): Map<T, K> {
   return map;
 }
 
-function null_object_to_record<T extends JSONValue>(
-  key: string,
-  value: T,
-): Record<string, JSONValue> | false {
-  if (typeof value == 'object' && value !== null) {
-    console.log(key, value);
-    let entries: [string, JSONValue][] = Object.entries(value);
-    return Object.fromEntries(entries);
-  } else return false;
-}
-
-function array_reviver<T extends JSONValue>(key: string, value: T): T | false {
-  if (Object.prototype.toString.call(value) === '[object Array]') {
-    return value;
-  }
-  return false;
-}
-function chain_reviver<T extends JSONValue>(
-  replacers: Reviver<T>[],
-): Reviver<T> {
-  return (key, value) => {
-    var parsed_value;
-
-    // iterate through all the parsers
-    replacers.find(r => {
-      parsed_value = r(key, value);
-      if (parsed_value === false) return false;
-      return true;
-    });
-    if (parsed_value !== false) return parsed_value;
-    return value;
-  };
-}
-
-export let main_reviver = chain_reviver([array_reviver, null_object_to_record]);
-
-const JSONAlwaysBig = JSONBig({
-  useNativeBigInt: true,
-  alwaysParseAsBig: true,
-});
-
 export const ThemelioJson = {
   stringify: function <T>(
     value: NotPromise<T>,
