@@ -15,8 +15,6 @@ import { PreparedTransaction, WalletList } from '../src/wallet-types';
 
 /// TODO: Improve testing of failures
 
-var describe = _describe;
-var it = _it;
 interface WalletInfo {
   name: string;
   password: string;
@@ -36,8 +34,8 @@ const get_store: () => Promise<Store> = (() => {
 
   var store: Store;
   var attempts: number = 0
-  expect(attempts).toBeLessThan(2);
-
+  expect(attempts).toBeLessThan(2); 
+  
   // always returns a store if test passes
   return async () => {
 
