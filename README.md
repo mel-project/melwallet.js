@@ -14,17 +14,26 @@ The reference implementation of a wallet client in javascript.
 
 These api's were designed with ease of use in mind withcout sacrificing the ability to perform in advanced usecases.
 
-Lastly, this library aims to provide a minimal interface, `ThemelioWallet` to create wallets on other backends. Our hope is that some day many different wallet backends and providers may be unified under the `ThemelioWallet` interface.
+Lastly, this library aims to provide a minimal interface, `ThemelioWallet`, to create wallets on other backends. This interface will serve as the foundation for wallet-generic tooling.
+
+## Getting Started
+
+Before running this library, make sure melwalletd is running in the background. If it isn't, start it by running this script in the terminal of choice
+
+```
+cargo install --locked melwalletd
+melwalletd --wallet-dir /tmp/themelio-wallet-test --network testnet
+```
+
+For more a list of endpoints and terminal  checkout the melwalletd [readme](https://github.com/themeliolabs/melwalletd) 
 ## Basic Usage
 
 
 ```ts
-    /// url of melwalletd server
-    const melwalletd_base_url = 'http://127.0.0.1:11773';
-    /// create a melwalletd client
-    const client: MelwalletdClient = new MelwalletdClient(melwalletd_addr);
+    /// create a melwalletd client at the default location `http://127.0.0.1:11773`
+    const client: MelwalletdClient = new MelwalletdClient();
     // create your first wallet, `wallet_name`
-    await client.create_wallet("wallet_name", "password", null);
+    await client.create_wallet("wallet_name", "password");
     // try to get the wallet
     const wallet: MelwalletdWallet =  client.get_wallet("wallet_name");
 ```

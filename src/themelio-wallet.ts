@@ -16,7 +16,7 @@ import {
   wallet_summary_from_raw,
 } from './wallet-utils';
 import fetch from 'node-fetch';
-import { Response } from 'node-fetch';
+import { Response, BodyInit, RequestInit } from 'node-fetch';
 
 
 enum HTTPMethod {
@@ -31,7 +31,7 @@ enum HTTPMethod {
   TRACE = 'TRACE',
 }
 
-interface Endpoint {
+interface MelwalletdEndpoint {
   path: string[];
   method: HTTPMethod;
 }
@@ -41,96 +41,103 @@ interface RequestError {
   response: Response;
 }
 let melwalletd_endpoints = {
-  summary: (): Endpoint => ({
+  summary: (): MelwalletdEndpoint => ({
     path: [`summary`],
     method: HTTPMethod.GET,
   }),
-  pools: (poolkey: PoolKey): Endpoint => ({
+  pools: (poolkey: PoolKey): MelwalletdEndpoint => ({
     path: [`pools`, `${poolkey.left}:${poolkey.right}`],
     method: HTTPMethod.GET,
   }),
-  poolinfo: (): Endpoint => ({
+  poolinfo: (): MelwalletdEndpoint => ({
     path: [`pool_info`],
     method: HTTPMethod.POST,
   }),
-  wallet_list: (): Endpoint => ({
+  wallet_list: (): MelwalletdEndpoint => ({
     path: [`wallets`],
     method: HTTPMethod.GET,
   }),
-  wallet_summary: (name: string): Endpoint => ({
+  wallet_summary: (name: string): MelwalletdEndpoint => ({
     path: [`wallets`, name],
     method: HTTPMethod.GET,
   }),
-  create_wallet: (name: string): Endpoint => ({
+  create_wallet: (name: string): MelwalletdEndpoint => ({
     path: [`wallets`, name],
     method: HTTPMethod.PUT,
   }),
-  lock_wallet: (name: string): Endpoint => ({
+  lock_wallet: (name: string): MelwalletdEndpoint => ({
     path: [`wallets`, name, `lock`],
     method: HTTPMethod.POST,
   }),
-  unlock_wallet: (name: string): Endpoint => ({
+  unlock_wallet: (name: string): MelwalletdEndpoint => ({
     path: [`wallets`, name, `unlock`],
     method: HTTPMethod.POST,
   }),
-  export_sk: (name: string): Endpoint => ({
+  export_sk: (name: string): MelwalletdEndpoint => ({
     path: [`wallets`, name, `export-sk`],
     method: HTTPMethod.POST,
   }),
-  coins: (name: string): Endpoint => ({
+  coins: (name: string): MelwalletdEndpoint => ({
     path: [`wallets`, name, `coins`],
     method: HTTPMethod.GET,
   }),
-  prepare_tx: (name: string): Endpoint => ({
+  prepare_tx: (name: string): MelwalletdEndpoint => ({
     path: [`wallets`, name, `prepare-tx`],
     method: HTTPMethod.POST,
   }),
-  send_tx: (name: string): Endpoint => ({
+  send_tx: (name: string): MelwalletdEndpoint => ({
     path: [`wallets`, name, `send-tx`],
     method: HTTPMethod.POST,
   }),
-  send_faucet: (name: string): Endpoint => ({
+  send_faucet: (name: string): MelwalletdEndpoint => ({
     path: [`wallets`, name, `send-faucet`],
     method: HTTPMethod.POST,
   }),
-  get_wallet_transaction_list: (name: string): Endpoint => ({
+  get_wallet_transaction_list: (name: string): MelwalletdEndpoint => ({
     path: [`wallets`, name, `transactions`],
     method: HTTPMethod.GET,
   }),
-  get_wallet_transaction: (name: string, txhash: string): Endpoint => ({
+  get_wallet_transaction: (name: string, txhash: string): MelwalletdEndpoint => ({
     path: [`wallets`, name, `transactions`, txhash],
     method: HTTPMethod.GET,
   }),
-  get_transaction_balance: (name: string, txhash: string): Endpoint => ({
+  get_transaction_balance: (name: string, txhash: string): MelwalletdEndpoint => ({
     path: [`wallets`, name, `transactions`, txhash, `balance`],
     method: HTTPMethod.GET,
   }),
 };
 export class MelwalletdClient {
   readonly #base_url: string;
-  constructor(base_url: string) {
+  constructor(url_or: string, port_or?: number) {
+    let url = url_or || 'http://127.0.0.1'
+    let port = port_or || 11773
+    let base_url = url + ":" + port.toString();
     this.#base_url = base_url;
   }
   /**
+   * make a request to melwalletd
+   * A `MelwalletdEndpoint` is just a string[] and an http method. 
+   * It's easy to construct these by hand, or you can use the `melwalletd_endpoints` helper object
    * @param  {string} melwalletd_url
-   * @param  {Endpoint} endpoint
-   * @param  {any} body?
-   * @param  {any} metadata?
-   * @returns Promise
+   * @param  {MelwalletdEndpoint} endpoint
+   * @param  {BodyInit} body
+   * @param  {Omit<RequestInit, "method" | "body">} additional_options 
+   * @returns Promise<Response>
    */
   static async request(
     melwalletd_url: string,
-    endpoint: Endpoint,
-    body?: any,
-    metadata?: any,
+    endpoint: MelwalletdEndpoint,
+    body?: BodyInit,
+    additional_options?: Omit<RequestInit, "method" | "body">,
   ): Promise<Response> {
+    
     let { method, path } = endpoint;
     var str_endpoint = '';
     if (path.length > 0) {
       str_endpoint = '/' + path.join('/');
     }
     let url = `${melwalletd_url}` + str_endpoint;
-    let response = await fetch(url, { ...metadata, method, body });
+    let response = await fetch(url, { ...additional_options, method, body });
     if (response.ok) {
       return response;
     } else {
@@ -141,20 +148,23 @@ export class MelwalletdClient {
     }
   }
   /**
-   * @param  {Endpoint} endpoint
+   * @param  {MelwalletdEndpoint} endpoint
    * @param  {string} body?
-   * @param  {any} metadata?
+   * @param  {any} additional_options?
    * @returns Promise
    */
   async request(
-    endpoint: Endpoint,
-    body?: string,
-    metadata?: any,
+    endpoint: MelwalletdEndpoint,
+    body_or?: BodyInit,
+    additional_options_or?: Omit<RequestInit, "method" | "body">,
   ): Promise<Response> {
-    return MelwalletdClient.request(this.#base_url, endpoint, body, metadata);
+
+    let additional_options = additional_options_or || {};
+    return MelwalletdClient.request(this.#base_url, endpoint, body_or, additional_options);
   }
   /**
-   * @returns Promise
+   * A list of all wallets represented as a mapping between the wallet's name to it's summary
+   * @returns Promise<Map<string, WalletSummary>>
    */
   async list_wallets(): Promise<Map<string, WalletSummary>> {
     let res = await this.request(melwalletd_endpoints.wallet_list());
@@ -169,10 +179,10 @@ export class MelwalletdClient {
     return map_from_entries(entries);
   }
 
-  // assemble a wallet by it's name
   /**
+   * get a wallet by it's name
    * @param  {string} wallet_name
-   * @returns Promise
+   * @returns Promise<MelwalletdWallet>
    */
   async get_wallet(wallet_name: string): Promise<MelwalletdWallet> {
     let res = await this.request(
@@ -192,15 +202,32 @@ export class MelwalletdClient {
     throw `Unable to get Wallet ${wallet_name}`;
   }
   /**
+   * create a new wallet
    * @param  {string} name
    * @param  {string} password
-   * @param  {string|null} secret
-   * @returns Promise
+   * 
    */
   async create_wallet(
     name: string,
     password: string,
-    secret: string | null,
+  ): Promise<void> {
+    let body = ThemelioJson.stringify({
+      password,
+      secret: undefined,
+    });
+    await this.request(melwalletd_endpoints.create_wallet(name), body);
+  }
+  
+  /**
+   * Import a wallet given a name, password, and secret key
+   * @param  {string} name
+   * @param  {string} password
+   * @param  {string} secret
+   */
+  async import_wallet(
+    name: string,
+    password: string,
+    secret: string,
   ): Promise<void> {
     let body = ThemelioJson.stringify({
       password,
@@ -409,49 +436,50 @@ export class MelwalletdWallet implements ThemelioWallet {
   async get_transaction(txhash: string): Promise<Transaction> {
     let wallet = this;
     let name = await wallet.get_name();
-    let res = await this.melwalletd_request_raw(
+    let maybe_tx_info: Object = await this.melwalletd_request(
       melwalletd_endpoints.get_wallet_transaction(name, txhash),
     );
-    let data = await res.text();
-    let maybe_tx_info: any = ThemelioJson.parse(data);
-    assertType<RawTransaction>(maybe_tx_info!.raw);
-    let raw_tx: RawTransaction = maybe_tx_info!.raw;
-    return tx_from_raw(raw_tx);
+    if(maybe_tx_info.hasOwnProperty("raw")){
+      let raw_tx: RawTransaction = (maybe_tx_info as any).raw;
+      assertType<RawTransaction>(raw_tx);
+      return tx_from_raw(raw_tx);
+    }
+    throw `Unexpected Response: ${maybe_tx_info}`
   }
   /**
    * submits a request to melwalletd and parses the request as a json object
-   * @param  {Endpoint} endpoint
+   * @param  {MelwalletdEndpoint} endpoint
    * @param  {any} body?
-   * @param  {any} metadata?
+   * @param  {any} additional_options?
    * @returns Promise<JsonValue | Object>
    */
   async melwalletd_request(
-    endpoint: Endpoint,
+    endpoint: MelwalletdEndpoint,
     body?: JSONValue,
-    metadata?: any,
+    additional_options?: any,
   ): Promise<JSONValue | Object> {
-    let res = await this.melwalletd_request_raw(endpoint, body, metadata);
+    let res = await this.melwalletd_request_raw(endpoint, body, additional_options);
     let data = await res.text();
     return ThemelioJson.parse(data);
   }
   /**
    * submits a request to melwalletd
-   * @param  {Endpoint} endpoint
+   * @param  {MelwalletdEndpoint} endpoint
    * @param  {any} body?
-   * @param  {any} metadata?
+   * @param  {any} additional_options?
    * @returns Promise<Response>
    */
   async melwalletd_request_raw(
-    endpoint: Endpoint,
+    endpoint: MelwalletdEndpoint,
     body?: any,
-    metadata?: any,
+    additional_options?: any,
   ): Promise<Response> {
     let wallet = this;
     return await MelwalletdClient.request(
       `${wallet.#base_url}`,
       endpoint,
       body,
-      metadata,
+      additional_options,
     );
   }
 }
