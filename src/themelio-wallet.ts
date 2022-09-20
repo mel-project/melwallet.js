@@ -108,11 +108,17 @@ let melwalletd_endpoints = {
   }),
 };
 export class MelwalletdClient {
-  readonly #domain: string;
-  constructor(domain: string) {
-    this.#domain = domain;
+  readonly #base_url: string;
+  constructor(base_url: string) {
+    this.#base_url = base_url;
   }
-
+  /**
+   * @param  {string} melwalletd_url
+   * @param  {Endpoint} endpoint
+   * @param  {any} body?
+   * @param  {any} metadata?
+   * @returns Promise
+   */
   static async request(
     melwalletd_url: string,
     endpoint: Endpoint,
@@ -135,15 +141,22 @@ export class MelwalletdClient {
       };
     }
   }
-
+  /**
+   * @param  {Endpoint} endpoint
+   * @param  {string} body?
+   * @param  {any} metadata?
+   * @returns Promise
+   */
   async request(
     endpoint: Endpoint,
     body?: string,
     metadata?: any,
   ): Promise<Response> {
-    return MelwalletdClient.request(this.#domain, endpoint, body, metadata);
+    return MelwalletdClient.request(this.#base_url, endpoint, body, metadata);
   }
-
+  /**
+   * @returns Promise
+   */
   async list_wallets(): Promise<Map<string, WalletSummary>> {
     let res = await this.request(melwalletd_endpoints.wallet_list());
     let data: string = await res.text();
@@ -158,7 +171,11 @@ export class MelwalletdClient {
   }
 
   // assemble a wallet by it's name
-  async get_wallet(wallet_name: string): Promise<MelwalletdWallet | null> {
+  /**
+   * @param  {string} wallet_name
+   * @returns Promise
+   */
+  async get_wallet(wallet_name: string): Promise<MelwalletdWallet> {
     let res = await this.request(
       melwalletd_endpoints.wallet_summary(wallet_name),
     );
@@ -169,37 +186,33 @@ export class MelwalletdClient {
     let summary = maybe_summary as any as WalletSummary;
     if (summary?.address) {
       let { address } = summary;
-      let domain = this.#domain;
+      let base_url = this.#base_url;
       let name = wallet_name;
-      return new MelwalletdWallet(address, name, domain);
+      return new MelwalletdWallet(address, name, summary.network, base_url);
     }
-    return null;
+    throw `Unable to get Wallet ${wallet_name}`;
   }
-
+  /**
+   * @param  {string} name
+   * @param  {string} password
+   * @param  {string|null} secret
+   * @returns Promise
+   */
   async create_wallet(
     name: string,
     password: string,
     secret: string | null,
-  ): Promise<boolean> {
+  ): Promise<void> {
     let body = ThemelioJson.stringify({
       password,
       secret,
     });
-    try {
-      let res = await this.request(
-        melwalletd_endpoints.create_wallet(name),
-        body,
-      );
-      return true;
-    } catch (e) {
-      let err = e as RequestError;
-      if (err.response.status === 500) {
-        // console.log(err)
-        return false;
-      }
-      throw err;
-    }
+    await this.request(melwalletd_endpoints.create_wallet(name), body);
   }
+  /**
+   * @param  {PoolKey} poolkey
+   * @returns Promise
+   */
   async get_pool(poolkey: PoolKey): Promise<PoolState> {
     let res = await this.request(melwalletd_endpoints.pools(poolkey));
     let data: string = await res.text();
@@ -209,6 +222,9 @@ export class MelwalletdClient {
     let pool: PoolState = maybe_pool as any;
     return pool;
   }
+  /**
+   * @returns Promise
+   */
   async get_summary(): Promise<Header> {
     let res = await this.request(melwalletd_endpoints.summary());
     let data: string = await res.text();
@@ -225,20 +241,42 @@ export class MelwalletdWallet implements Wallet {
   readonly #address: string;
   readonly #base_url: string;
   readonly #name: string;
+  readonly #network: NetID;
 
-  constructor(address: string, name: string, domain: string) {
+  /**
+   * constructs a wallet given a public key, name, network, and url of melwalletd
+   * this constructor assumes that all these parameters are valid
+   * use the `MelwalletdClient` instance method `get_wallet` for safe and consistent MelwalletdWallet initialization
+   *
+   * @param  {string} address
+   * @param  {string} name
+   * @param  {string} base_url
+   * @param  {NetID}  network
+   */
+  constructor(address: string, name: string, network: NetID, base_url: string) {
     this.#address = address;
     this.#name = name;
-    this.#base_url = domain;
+    this.#base_url = base_url;
+    this.#network = network;
   }
+  /**
+   * Get the name of this wallet
+   * @returns Promise<string>
+   */
   async get_name(): Promise<string> {
     return this.#name;
   }
-
+  /**
+   * Get the wallet's public key
+   * @returns Promise
+   */
   async get_address(): Promise<string> {
     return this.#address;
   }
-
+  /**
+   * Get the associated WalletSummary
+   * @returns Promise<WalletSummary>
+   */
   async get_summary(): Promise<WalletSummary> {
     let name = await this.get_name();
     let res: JSONValue = (await this.melwalletd_request(
@@ -250,13 +288,18 @@ export class MelwalletdWallet implements Wallet {
 
     return wallet_summary_from_raw(raw_summary);
   }
-
+  /**
+   * Get the NetID of the network to which this wallet belongs
+   * @returns Promise<NetID>
+   */
   async get_network(): Promise<NetID> {
-    let summary = await this.get_summary();
-    let network: NetID = summary.network;
-    return network;
+    return this.#network;
   }
-
+  /**
+   * locks this wallet
+   * returns true if the request completes successfully
+   * @returns Promise<boolean>
+   */
   async lock(): Promise<boolean> {
     let name = await this.get_name();
     try {
@@ -266,7 +309,12 @@ export class MelwalletdWallet implements Wallet {
       return false;
     }
   }
-
+  /**
+   * unlocks this wallet given a password
+   * returns true if the request completes successfully
+   * @param  {string} password?
+   * @returns Promise<boolean>
+   */
   async unlock(password?: string): Promise<boolean> {
     password = password || '';
     let name = await this.get_name();
@@ -280,7 +328,12 @@ export class MelwalletdWallet implements Wallet {
       return false;
     }
   }
-
+  /**
+   * exports the wallets secret key
+   * this needs the wallet password even if the wallet is unlocked
+   * @param  {string} password?
+   * @returns Promise<string>
+   */
   async export_sk(password?: string): Promise<string> {
     password = password || '';
     let name = await this.get_name();
@@ -290,12 +343,18 @@ export class MelwalletdWallet implements Wallet {
     );
     return res.text();
   }
-
+  /**
+   * returns a map between a Denom and the amount of that denom in this wallet
+   * @returns Promise<Map<Denom,bigint>>
+   */
   async get_balances(): Promise<Map<Denom, bigint>> {
     let summary: WalletSummary = await this.get_summary();
     return summary.detailed_balance;
   }
-
+  /**
+   * @param  {PreparedTransaction} prepare_tx
+   * @returns Promise<Transaction>
+   */
   async prepare_transaction(
     prepare_tx: PreparedTransaction,
   ): Promise<Transaction> {
@@ -311,11 +370,26 @@ export class MelwalletdWallet implements Wallet {
 
     return tx;
   }
-  async send_faucet(): Promise<string> {
+
+  /**
+   * send a faucet transaction
+   * throws an error if attempting this on the mainnet
+   * @param  {bigint} amount?
+   * @returns Promise
+   */
+  async send_faucet(amount?: bigint): Promise<string> {
+    if ((await this.get_network()) === NetID.Mainnet)
+      throw 'Cannot Tap faucet on Mainnet';
+    if (!amount) amount = 1001000000n;
     let wallet = this;
-    let tx: Transaction = prepare_faucet(await wallet.get_address(), 1001000000n);
+    let tx: Transaction = prepare_faucet(await wallet.get_address(), amount);
     return await this.send_tx(tx);
   }
+  /**
+   * send a transaction
+   * @param  {Transaction} tx
+   * @returns Promise<string>
+   */
   async send_tx(tx: Transaction): Promise<string> {
     let wallet = this;
     let res = await this.melwalletd_request_raw(
@@ -328,7 +402,11 @@ export class MelwalletdWallet implements Wallet {
     // txhash.forEach((c: string)=>assertType<HexChar>(c))
     return txhash;
   }
-
+  /**
+   * request transaction information
+   * @param  {string} txhash
+   * @returns Promise
+   */
   async get_transaction(txhash: string): Promise<Transaction> {
     let wallet = this;
     let name = await wallet.get_name();
@@ -341,16 +419,29 @@ export class MelwalletdWallet implements Wallet {
     let raw_tx: RawTransaction = maybe_tx_info!.raw;
     return tx_from_raw(raw_tx);
   }
-
+  /**
+   * submits a request to melwalletd and parses the request as a json object
+   * @param  {Endpoint} endpoint
+   * @param  {any} body?
+   * @param  {any} metadata?
+   * @returns Promise<JsonValue | Object>
+   */
   async melwalletd_request(
     endpoint: Endpoint,
-    body?: any,
+    body?: JSONValue,
     metadata?: any,
   ): Promise<JSONValue | Object> {
     let res = await this.melwalletd_request_raw(endpoint, body, metadata);
     let data = await res.text();
     return ThemelioJson.parse(data);
   }
+  /**
+   * submits a request to melwalletd
+   * @param  {Endpoint} endpoint
+   * @param  {any} body?
+   * @param  {any} metadata?
+   * @returns Promise<Response>
+   */
   async melwalletd_request_raw(
     endpoint: Endpoint,
     body?: any,

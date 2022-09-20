@@ -11,7 +11,6 @@
   "plugins": [
     "eslint-plugin-import",
     "eslint-plugin-jsdoc",
-    "eslint-plugin-react",
     "@typescript-eslint",
     "@typescript-eslint/tslint",
     "unused-imports"
@@ -124,16 +123,6 @@
     "quote-props": "off",
     "quotes": "off",
     "radix": "error",
-    "react/jsx-curly-spacing": "off",
-    "react/jsx-equals-spacing": "off",
-    "react/jsx-tag-spacing": [
-      "off",
-      {
-        "afterOpening": "allow",
-        "closingSlash": "allow"
-      }
-    ],
-    "react/jsx-wrap-multilines": "off",
     "semi": "off",
     "space-before-function-paren": "off",
     "space-in-parens": ["off", "never"],

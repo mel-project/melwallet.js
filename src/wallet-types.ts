@@ -36,8 +36,6 @@ export interface Wallet {
   prepare_transaction(ptx: PreparedTransaction): Promise<Transaction>;
 
   get_transaction(txhash: string): Promise<Transaction>;
-
-  
 }
 
 export interface PreparedTransaction {

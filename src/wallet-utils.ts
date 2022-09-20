@@ -1,22 +1,28 @@
 import { assertType } from 'typescript-is';
 import { RawTransaction, RawWalletSummary } from './request-types';
-import { CoinData, Denom, NetID, PoolKey, Transaction, TxKind } from './themelio-types';
+import {
+  CoinData,
+  Denom,
+  NetID,
+  PoolKey,
+  Transaction,
+  TxKind,
+} from './themelio-types';
 import { map_from_entries, random_hex_string } from './utils';
 import { Wallet, PreparedTransaction, WalletSummary } from './wallet-types';
 
 export function int_to_netid(num: bigint): NetID {
   if (num === BigInt(NetID.Mainnet)) return NetID.Mainnet;
   if (num === BigInt(NetID.Testnet)) return NetID.Testnet;
-  throw "Unsupported network: " + num
+  throw 'Unsupported network: ' + num;
 }
 
 export function string_to_denom(str: string): Denom {
   if (str == 'MEL') return Denom.MEL;
   if (str == 'SYM') return Denom.SYM;
   if (str == 'ERG') return Denom.ERG;
-  throw "Unsupported denom: " + str
+  throw 'Unsupported denom: ' + str;
 }
-
 
 export function hex_to_denom(hex: string): Denom {
   let denom_val = Number(hex);
@@ -27,7 +33,7 @@ export function number_to_denom(num: number): Denom {
   if (num == 109) return Denom.MEL;
   if (num == 115) return Denom.SYM;
   if (num == 100) return Denom.ERG;
-  throw "Unsupported Denom: " + num
+  throw 'Unsupported Denom: ' + num;
 }
 
 export function prepare_faucet(address: string, amount: bigint): Transaction {

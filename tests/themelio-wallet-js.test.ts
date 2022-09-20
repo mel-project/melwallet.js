@@ -1,12 +1,16 @@
 
 
 import { MelwalletdWallet, MelwalletdClient } from '../src/themelio-wallet';
-import {describe as _describe, it as _it, expect} from '@jest/globals';
+import { describe as _describe, it as _it, expect } from '@jest/globals';
 
 import { promise_or_false, random_hex_string, ThemelioJson, unwrap_nullable_promise } from '../src/utils';
 import { CoinData, Denom, Header, NetID, Transaction, TxKind } from '../src/themelio-types';
 import { assertType, is } from 'typescript-is';
 import { PreparedTransaction, WalletList } from '../src/wallet-types';
+
+
+/// ONLY RUN TESTS ON TESTNET WALLETS UNLESS YOU KNOW WHAT YOU ARE DOING
+const TESTNET_ONLY=true
 
 /// many of the tests simply run methods with known valid data
 /// The library was written using `typescript-is` `assertType` to verify type safety.
@@ -30,25 +34,31 @@ interface Store {
 const get_store: () => Promise<Store> = (() => {
   const test_wallet_name = 'test_wallet';
   const test_wallet_password = '123';
-  const melwalletd_addr = 'http://127.0.0.1:11773';
+  const melwalletd_base_url = 'http://127.0.0.1:11773';
 
   var store: Store;
   var attempts: number = 0
-  expect(attempts).toBeLessThan(2); 
-  
+  expect(attempts).toBeLessThan(2);
+
   // always returns a store if test passes
   return async () => {
-
-    if (!store) {
+    if (!store ) {
       attempts += 1
       const wallet_info: WalletInfo = {
         name: test_wallet_name,
         password: test_wallet_password,
       };
-      const client: MelwalletdClient = new MelwalletdClient(melwalletd_addr);
+      const client: MelwalletdClient = new MelwalletdClient(melwalletd_base_url);
+      const header: Header = await client.get_summary();
+      expect(expect(is<Header>(header)).toBeTruthy()) // melwalletd is running
 
-      expect(is<Header>(await client.get_summary())).toBeTruthy()
-      let created = await client.create_wallet(wallet_info.name, wallet_info.password, null);
+      if(TESTNET_ONLY) /// fail if not testnet and TESTNET_ONLY
+        expect(header.network === NetID.Testnet).toBeTruthy()
+      
+      try{
+        await client.create_wallet(wallet_info.name, wallet_info.password, null);
+      }
+      catch{}
       const wallet: MelwalletdWallet | false = await promise_or_false(unwrap_nullable_promise(
         client.get_wallet(wallet_info.name),
       ));
@@ -74,7 +84,7 @@ describe('Test Basic util features', () => {
   })
 })
 
-describe("Initialize Store, end tests otherwise", ()=>{
+describe("Initialize Store, end tests otherwise", () => {
   /// initializes the store 
   it('Creates Client and MelwalletdWallet', async () => {
     let store = await get_store();
@@ -83,11 +93,11 @@ describe("Initialize Store, end tests otherwise", ()=>{
 })
 
 describe('Client Features', () => {
-  const WALLET_NAMES = [...Array(10).keys()].map(()=>random_hex_string(32));
+  const WALLET_NAMES = [...Array(10).keys()].map(() => random_hex_string(32));
 
   /// tests for failure of method
   it('tests get_wallet', async () => {
-    let { client,wallet_info } = await get_store()
+    let { client, wallet_info } = await get_store()
     await client.get_wallet(wallet_info.name)
 
   });
@@ -95,11 +105,11 @@ describe('Client Features', () => {
   /// if this fails, the next test should also fail
   it('create a few different wallets', async () => {
     let { client } = await get_store()
-    let creations = await Promise.all(WALLET_NAMES
-    .map(async (name:string)=>
-      client.create_wallet(name, name, null)
-    ));
-    let created_all_wallets = creations.reduce((r,v) => r && v, true)
+    let created_all_wallets = await Promise.all(WALLET_NAMES
+      .map(async (name: string) =>
+        client.create_wallet(name, name, null)
+      )).catch(()=>false)
+      .then(()=>true);
     expect(created_all_wallets).toBeTruthy()
   });
 
@@ -107,8 +117,13 @@ describe('Client Features', () => {
   it('tests list_wallets', async () => {
     let { client } = await get_store()
     let wallets: WalletList = await client.list_wallets()
-    expect(wallets.has(WALLET_NAMES[0])).toBeTruthy()
-    let is_wallet_in_list = WALLET_NAMES.map((name)=>wallets.has(name))
+
+    // check if each wallet_name is contained in the list
+    // this should be true for every wallet since every wallet was created in the test above
+    let is_wallet_in_list = WALLET_NAMES.map((name) => wallets.has(name))
+
+    // if there is even one false, then this whole reduce is false
+    // true if all wallets are in the summary
     let all_wallets_in_list = is_wallet_in_list.reduce((r, v) => r && v, true)
     expect(all_wallets_in_list).toBeTruthy()
   });
@@ -116,7 +131,7 @@ describe('Client Features', () => {
   /// Get the MEL/SYM pool
   it('tests get_pool', async () => {
     let { client } = await get_store()
-    let pool = await client.get_pool({left: Denom.MEL, right: Denom.SYM})
+    let pool = await client.get_pool({ left: Denom.MEL, right: Denom.SYM })
     expect(pool)
   });
 
@@ -143,6 +158,7 @@ describe('Themelio Wallet', () => {
   it('Get wallet summary', async () => {
     let { wallet } = await get_store();
     let summary = await wallet.get_summary();
+    expect(summary).toBeTruthy()
   });
 
   ///
@@ -176,15 +192,15 @@ describe('Themelio Wallet', () => {
   });
 
   ///
-  it('prepare_transactions', async ()=>{
-    let {wallet} = await get_store();
+  it('prepare_transactions', async () => {
+    let { wallet } = await get_store();
     let outputs: CoinData[] = [{
       covhash: await wallet.get_address(),
       value: 1001000000n,
       denom: Denom.MEL,
       additional_data: ""
     }]
-  
+
     let ptx: PreparedTransaction = {
       kind: TxKind.Faucet,
       inputs: [],
@@ -200,9 +216,9 @@ describe('Themelio Wallet', () => {
   });
 
   /// it gets a transaction based on hash
-  it('send a transaction and fetch it by hash', async ()=>{
-    let {wallet} = await get_store()
-    let txhash: string  = await wallet.send_faucet()
+  it('send a transaction and fetch it by hash', async () => {
+    let { wallet } = await get_store()
+    let txhash: string = await wallet.send_faucet()
     let tx: Transaction = await wallet.get_transaction(txhash)
   })
   /// After testing is complete, lock the wallet
