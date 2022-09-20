@@ -6,7 +6,7 @@ import {
   PoolState,
   Transaction,
 } from './themelio-types';
-import { PreparedTransaction, Wallet, WalletSummary } from './wallet-types';
+import { PreparedTransaction, ThemelioWallet, WalletSummary } from './wallet-types';
 import { assertType } from 'typescript-is';
 import { ThemelioJson, map_from_entries, JSONValue } from './utils';
 import { RawTransaction, RawWalletSummary } from './request-types';
@@ -18,7 +18,6 @@ import {
 import fetch from 'node-fetch';
 import { Response } from 'node-fetch';
 
-import { assert } from 'console';
 
 enum HTTPMethod {
   CONNECT = 'CONNECT',
@@ -237,7 +236,7 @@ export class MelwalletdClient {
   }
 }
 
-export class MelwalletdWallet implements Wallet {
+export class MelwalletdWallet implements ThemelioWallet {
   readonly #address: string;
   readonly #base_url: string;
   readonly #name: string;

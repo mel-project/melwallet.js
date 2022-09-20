@@ -16,7 +16,7 @@ export interface WalletSummary {
   locked: boolean;
 }
 
-export interface Wallet {
+export interface ThemelioWallet {
   get_name(): Promise<string>;
 
   get_address(): Promise<string>;

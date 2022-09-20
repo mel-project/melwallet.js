@@ -4,7 +4,17 @@ The reference implementation of a wallet client in javascript.
 
 `melwallet.js` is a client library for interacting with melwalletd. It exposes all endpoints through `MelwalletdClient` and nicely wraps wallet-specific endpoints in `MelwalletdWallet`. If you are familiar with our cli tool [`melwallet-cli`](https://github.com/themeliolabs/melwallet-client), that is starting point for the functionality to can expect.
 
+## Library Priorities
 
+* type safety
+* ease of use
+* flexibility
+
+`melwallet.js` uses `typescript-is` to ensure type safety at runtime; a method will never return an unexpected or incomplete type. 
+
+These api's were designed with ease of use in mind withcout sacrificing the ability to perform in advanced usecases.
+
+Lastly, this library aims to provide a minimal interface, `ThemelioWallet` to create wallets on other backends. Our hope is that some day many different wallet backends and providers may be unified under the `ThemelioWallet` interface.
 ## Basic Usage
 
 

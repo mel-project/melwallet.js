@@ -9,7 +9,7 @@ import {
   TxKind,
 } from './themelio-types';
 import { map_from_entries, random_hex_string } from './utils';
-import { Wallet, PreparedTransaction, WalletSummary } from './wallet-types';
+import { ThemelioWallet, PreparedTransaction, WalletSummary } from './wallet-types';
 
 export function int_to_netid(num: bigint): NetID {
   if (num === BigInt(NetID.Mainnet)) return NetID.Mainnet;
