@@ -34,7 +34,8 @@ interface Store {
 const get_store: () => Promise<Store> = (() => {
   const test_wallet_name = 'test_wallet';
   const test_wallet_password = '123';
-  const melwalletd_base_url = 'http://127.0.0.1:11773';
+  const melwalletd_base_url = 'http://127.0.0.1';
+  const melwalletd_port = 11773
 
   var store: Store;
   var attempts: number = 0
@@ -48,7 +49,7 @@ const get_store: () => Promise<Store> = (() => {
         name: test_wallet_name,
         password: test_wallet_password,
       };
-      const client: MelwalletdClient = new MelwalletdClient(melwalletd_base_url);
+      const client: MelwalletdClient = new MelwalletdClient(melwalletd_base_url, melwalletd_port);
       const header: Header = await client.get_summary();
       expect(expect(is<Header>(header)).toBeTruthy()) // melwalletd is running
 
@@ -56,7 +57,7 @@ const get_store: () => Promise<Store> = (() => {
         expect(header.network === NetID.Testnet).toBeTruthy()
       
       try{
-        await client.create_wallet(wallet_info.name, wallet_info.password, null);
+        await client.create_wallet(wallet_info.name, wallet_info.password);
       }
       catch{}
       const wallet: MelwalletdWallet | false = await promise_or_false(unwrap_nullable_promise(
@@ -107,7 +108,7 @@ describe('Client Features', () => {
     let { client } = await get_store()
     let created_all_wallets = await Promise.all(WALLET_NAMES
       .map(async (name: string) =>
-        client.create_wallet(name, name, null)
+        client.create_wallet(name, name)
       )).catch(()=>false)
       .then(()=>true);
     expect(created_all_wallets).toBeTruthy()

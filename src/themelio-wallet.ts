@@ -112,7 +112,7 @@ export class MelwalletdClient {
     let url = url_or || 'http://127.0.0.1'
     let port = port_or || 11773
     let base_url = url + ":" + port.toString();
-    this.#base_url = base_url;
+     this.#base_url = base_url;
   }
   /**
    * make a request to melwalletd
@@ -439,7 +439,7 @@ export class MelwalletdWallet implements ThemelioWallet {
     let maybe_tx_info: Object = await this.melwalletd_request(
       melwalletd_endpoints.get_wallet_transaction(name, txhash),
     );
-    if(maybe_tx_info.hasOwnProperty("raw")){
+    if((maybe_tx_info as any).raw){
       let raw_tx: RawTransaction = (maybe_tx_info as any).raw;
       assertType<RawTransaction>(raw_tx);
       return tx_from_raw(raw_tx);
