@@ -1,5 +1,4 @@
-import { CoinData, CoinID } from './themelio-types';
-import { JSONObject } from './utils';
+import { AnnCoinID, CoinData, CoinID } from './themelio-types';
 
 export interface RawWalletSummary {
   total_micromel: bigint;
@@ -18,4 +17,10 @@ export interface RawTransaction {
   covenants: string[];
   data: string;
   sigs: string[];
+}
+
+export interface RawTransactionInfo {
+  outputs: AnnCoinID[],
+  confirmed_height: bigint | null
+  raw: RawTransaction,
 }

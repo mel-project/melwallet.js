@@ -1,6 +1,6 @@
 {
-  "name": "themelio-wallet-js",
-  "version": "0.0.0",
+  "name": "melwallet.js",
+  "version": "0.0.1",
   "type": "module",
   "description": "",
   "keywords": [],
@@ -10,7 +10,7 @@
   "files": [
     "dist"
   ],
-  "author": "Shane Mendez <mendezsoftware@gmail.com>",
+  "author": "Shane Mendez <shane@themelio.org>",
   "repository": {
     "type": "git",
     "url": ""

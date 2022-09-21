@@ -2,11 +2,11 @@
 
 import { MelwalletdWallet, MelwalletdClient } from '../src/themelio-wallet';
 import { describe as _describe, it as _it, expect } from '@jest/globals';
-
 import { promise_or_false, random_hex_string, ThemelioJson, unwrap_nullable_promise } from '../src/utils';
 import { CoinData, Denom, Header, NetID, Transaction, TxKind } from '../src/themelio-types';
 import { assertType, is } from 'typescript-is';
 import { PreparedTransaction, WalletList } from '../src/wallet-types';
+import { get_faucet_confirmation } from '../examples/wait_for_faucet_transaction';
 
 
 /// ONLY RUN TESTS ON TESTNET WALLETS UNLESS YOU KNOW WHAT YOU ARE DOING
@@ -234,3 +234,7 @@ describe('Themelio Wallet', () => {
     expect(new_summary.locked).toEqual(locked);
   });
 });
+
+describe.skip("run examples", ()=>{
+  it("wait for faucet confirmation", get_faucet_confirmation, 60 * 1000)
+})

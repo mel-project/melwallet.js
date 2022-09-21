@@ -9,7 +9,7 @@ import {
 import { PreparedTransaction, ThemelioWallet, WalletSummary } from './wallet-types';
 import { assertType } from 'typescript-is';
 import { ThemelioJson, map_from_entries, JSONValue } from './utils';
-import { RawTransaction, RawWalletSummary } from './request-types';
+import { RawTransaction, RawTransactionInfo, RawWalletSummary } from './request-types';
 import {
   prepare_faucet,
   tx_from_raw,
@@ -31,7 +31,7 @@ enum HTTPMethod {
   TRACE = 'TRACE',
 }
 
-interface MelwalletdEndpoint {
+interface MelwalletdEndpoint{
   path: string[];
   method: HTTPMethod;
 }
@@ -108,12 +108,14 @@ let melwalletd_endpoints = {
 };
 export class MelwalletdClient {
   readonly #base_url: string;
-  constructor(url_or: string, port_or?: number) {
+  constructor(url_or?: string, port_or?: number) {
     let url = url_or || 'http://127.0.0.1'
     let port = port_or || 11773
     let base_url = url + ":" + port.toString();
      this.#base_url = base_url;
   }
+
+
   /**
    * make a request to melwalletd
    * A `MelwalletdEndpoint` is just a string[] and an http method. 
@@ -122,7 +124,7 @@ export class MelwalletdClient {
    * @param  {MelwalletdEndpoint} endpoint
    * @param  {BodyInit} body
    * @param  {Omit<RequestInit, "method" | "body">} additional_options 
-   * @returns Promise<Response>
+   * @returns {Promise<Response>}
    */
   static async request(
     melwalletd_url: string,
@@ -149,9 +151,9 @@ export class MelwalletdClient {
   }
   /**
    * @param  {MelwalletdEndpoint} endpoint
-   * @param  {string} body?
-   * @param  {any} additional_options?
-   * @returns Promise
+   * @param  {string} [body]
+   * @param  {Omit<RequestInit, "method" | "body">} [additional_options]
+   * @returns {Promise<Response>}
    */
   async request(
     endpoint: MelwalletdEndpoint,
@@ -164,7 +166,7 @@ export class MelwalletdClient {
   }
   /**
    * A list of all wallets represented as a mapping between the wallet's name to it's summary
-   * @returns Promise<Map<string, WalletSummary>>
+   * @returns {Promise<Map<string, WalletSummary>>}
    */
   async list_wallets(): Promise<Map<string, WalletSummary>> {
     let res = await this.request(melwalletd_endpoints.wallet_list());
@@ -172,7 +174,7 @@ export class MelwalletdClient {
     type RawWalletList = Record<string, RawWalletSummary>;
     let maybe_list = ThemelioJson.parse(data) as Object;
     assertType<RawWalletList>(maybe_list);
-    let raw_summaries: RawWalletList = maybe_list as any;
+    let raw_summaries: RawWalletList = maybe_list as RawWalletList;
     let entries: [string, WalletSummary][] = Object.entries(raw_summaries).map(
       ([key, value]) => [key, wallet_summary_from_raw(value)],
     );
@@ -182,7 +184,7 @@ export class MelwalletdClient {
   /**
    * get a wallet by it's name
    * @param  {string} wallet_name
-   * @returns Promise<MelwalletdWallet>
+   * @returns {Promise<MelwalletdWallet>}
    */
   async get_wallet(wallet_name: string): Promise<MelwalletdWallet> {
     let res = await this.request(
@@ -195,9 +197,8 @@ export class MelwalletdClient {
     let summary = maybe_summary as any as WalletSummary;
     if (summary?.address) {
       let { address } = summary;
-      let base_url = this.#base_url;
       let name = wallet_name;
-      return new MelwalletdWallet(address, name, summary.network, base_url);
+      return new MelwalletdWallet(address, name, summary.network, this);
     }
     throw `Unable to get Wallet ${wallet_name}`;
   }
@@ -237,7 +238,7 @@ export class MelwalletdClient {
   }
   /**
    * @param  {PoolKey} poolkey
-   * @returns Promise
+   * @returns {Promise<PoolState>}
    */
   async get_pool(poolkey: PoolKey): Promise<PoolState> {
     let res = await this.request(melwalletd_endpoints.pools(poolkey));
@@ -249,7 +250,7 @@ export class MelwalletdClient {
     return pool;
   }
   /**
-   * @returns Promise
+   * @returns {Promise<Header>}
    */
   async get_summary(): Promise<Header> {
     let res = await this.request(melwalletd_endpoints.summary());
@@ -261,11 +262,24 @@ export class MelwalletdClient {
     let header: Header = unsafe_header!;
     return header;
   }
+  /**
+   * @param  {string} name
+   * @param  {string} txhash
+   * @returns {Promise<RawTransactionInfo>}
+   */
+  async get_transaction(name: string, txhash: string): Promise<RawTransactionInfo> {
+    let tx_endpoint = melwalletd_endpoints.get_wallet_transaction(name, txhash);
+    let res = await this.request(tx_endpoint);
+    let data = await res.text();
+    let maybe_tx_info: Object = ThemelioJson.parse(data);
+    assertType<RawTransactionInfo>(maybe_tx_info);
+    return maybe_tx_info as RawTransactionInfo
+  }
 }
 
 export class MelwalletdWallet implements ThemelioWallet {
   readonly #address: string;
-  readonly #base_url: string;
+  readonly #client: MelwalletdClient;
   readonly #name: string;
   readonly #network: NetID;
 
@@ -276,32 +290,33 @@ export class MelwalletdWallet implements ThemelioWallet {
    *
    * @param  {string} address
    * @param  {string} name
-   * @param  {string} base_url
    * @param  {NetID}  network
+   * @param  {MelwalletdClient} client
+
    */
-  constructor(address: string, name: string, network: NetID, base_url: string) {
+  constructor(address: string, name: string, network: NetID, client: MelwalletdClient) {
     this.#address = address;
     this.#name = name;
-    this.#base_url = base_url;
+    this.#client = client;
     this.#network = network;
   }
   /**
    * Get the name of this wallet
-   * @returns Promise<string>
+   * @returns {Promise<string>}
    */
   async get_name(): Promise<string> {
     return this.#name;
   }
   /**
    * Get the wallet's public key
-   * @returns Promise
+   * @returns {Promise<string>}
    */
   async get_address(): Promise<string> {
     return this.#address;
   }
   /**
    * Get the associated WalletSummary
-   * @returns Promise<WalletSummary>
+   * @returns {Promise<WalletSummary>}
    */
   async get_summary(): Promise<WalletSummary> {
     let name = await this.get_name();
@@ -316,7 +331,7 @@ export class MelwalletdWallet implements ThemelioWallet {
   }
   /**
    * Get the NetID of the network to which this wallet belongs
-   * @returns Promise<NetID>
+   * @returns {Promise<NetID>}
    */
   async get_network(): Promise<NetID> {
     return this.#network;
@@ -324,7 +339,7 @@ export class MelwalletdWallet implements ThemelioWallet {
   /**
    * locks this wallet
    * returns true if the request completes successfully
-   * @returns Promise<boolean>
+   * @returns {Promise<boolean>}
    */
   async lock(): Promise<boolean> {
     let name = await this.get_name();
@@ -338,8 +353,8 @@ export class MelwalletdWallet implements ThemelioWallet {
   /**
    * unlocks this wallet given a password
    * returns true if the request completes successfully
-   * @param  {string} password?
-   * @returns Promise<boolean>
+   * @param  {string} [password]
+   * @returns {Promise<boolean>}
    */
   async unlock(password?: string): Promise<boolean> {
     password = password || '';
@@ -357,8 +372,8 @@ export class MelwalletdWallet implements ThemelioWallet {
   /**
    * exports the wallets secret key
    * this needs the wallet password even if the wallet is unlocked
-   * @param  {string} password?
-   * @returns Promise<string>
+   * @param  {string} [password]
+   * @returns {Promise<string>}
    */
   async export_sk(password?: string): Promise<string> {
     password = password || '';
@@ -371,7 +386,7 @@ export class MelwalletdWallet implements ThemelioWallet {
   }
   /**
    * returns a map between a Denom and the amount of that denom in this wallet
-   * @returns Promise<Map<Denom,bigint>>
+   * @returns {Promise<Map<Denom,bigint>>}
    */
   async get_balances(): Promise<Map<Denom, bigint>> {
     let summary: WalletSummary = await this.get_summary();
@@ -379,7 +394,7 @@ export class MelwalletdWallet implements ThemelioWallet {
   }
   /**
    * @param  {PreparedTransaction} prepare_tx
-   * @returns Promise<Transaction>
+   * @returns {Promise<Transaction>}
    */
   async prepare_transaction(
     prepare_tx: PreparedTransaction,
@@ -399,9 +414,11 @@ export class MelwalletdWallet implements ThemelioWallet {
 
   /**
    * send a faucet transaction
+   * 
    * throws an error if attempting this on the mainnet
-   * @param  {bigint} amount?
-   * @returns Promise
+   * 
+   * @param  {bigint} [amount]
+   * @returns {Promise<string>}
    */
   async send_faucet(amount?: bigint): Promise<string> {
     if ((await this.get_network()) === NetID.Mainnet)
@@ -414,7 +431,7 @@ export class MelwalletdWallet implements ThemelioWallet {
   /**
    * send a transaction
    * @param  {Transaction} tx
-   * @returns Promise<string>
+   * @returns {Promise<string>}
    */
   async send_tx(tx: Transaction): Promise<string> {
     let wallet = this;
@@ -431,43 +448,37 @@ export class MelwalletdWallet implements ThemelioWallet {
   /**
    * request transaction information
    * @param  {string} txhash
-   * @returns Promise
+   * @returns {Promise<Transaction>}
    */
   async get_transaction(txhash: string): Promise<Transaction> {
     let wallet = this;
     let name = await wallet.get_name();
-    let maybe_tx_info: Object = await this.melwalletd_request(
-      melwalletd_endpoints.get_wallet_transaction(name, txhash),
-    );
-    if((maybe_tx_info as any).raw){
-      let raw_tx: RawTransaction = (maybe_tx_info as any).raw;
-      assertType<RawTransaction>(raw_tx);
-      return tx_from_raw(raw_tx);
-    }
-    throw `Unexpected Response: ${maybe_tx_info}`
+    let raw_tx_info = await this.#client.get_transaction(name, txhash)
+    return tx_from_raw(raw_tx_info.raw)
   }
   /**
    * submits a request to melwalletd and parses the request as a json object
    * @param  {MelwalletdEndpoint} endpoint
-   * @param  {any} body?
-   * @param  {any} additional_options?
-   * @returns Promise<JsonValue | Object>
+   * @param  {any} [body]
+   * @param  {any} [additional_options]
+   * @returns {Promise<JsonValue | Object>}
    */
   async melwalletd_request(
     endpoint: MelwalletdEndpoint,
     body?: JSONValue,
     additional_options?: any,
   ): Promise<JSONValue | Object> {
-    let res = await this.melwalletd_request_raw(endpoint, body, additional_options);
+    let wallet = this
+    let res = await wallet.melwalletd_request_raw(endpoint, body, additional_options);
     let data = await res.text();
     return ThemelioJson.parse(data);
   }
   /**
    * submits a request to melwalletd
    * @param  {MelwalletdEndpoint} endpoint
-   * @param  {any} body?
-   * @param  {any} additional_options?
-   * @returns Promise<Response>
+   * @param  {any} [body]
+   * @param  {any} [additional_options]
+   * @returns {Promise<Response>}
    */
   async melwalletd_request_raw(
     endpoint: MelwalletdEndpoint,
@@ -475,8 +486,7 @@ export class MelwalletdWallet implements ThemelioWallet {
     additional_options?: any,
   ): Promise<Response> {
     let wallet = this;
-    return await MelwalletdClient.request(
-      `${wallet.#base_url}`,
+    return await wallet.#client.request(
       endpoint,
       body,
       additional_options,
