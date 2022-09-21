@@ -9,7 +9,11 @@ import {
   TxKind,
 } from './themelio-types';
 import { map_from_entries, random_hex_string } from './utils';
-import { ThemelioWallet, PreparedTransaction, WalletSummary } from './wallet-types';
+import {
+  ThemelioWallet,
+  PreparedTransaction,
+  WalletSummary,
+} from './wallet-types';
 
 export function int_to_netid(num: bigint): NetID {
   if (num === BigInt(NetID.Mainnet)) return NetID.Mainnet;
@@ -112,4 +116,15 @@ export function wallet_summary_from_raw(
     locked,
   };
   return summary;
+}
+
+// Compute total value flowing out of wallet from a list of coins
+export function net_spent(tx: Transaction, self_covhash: string): bigint {
+  return (
+    tx.outputs
+      .filter(cd => cd.covhash != self_covhash)
+      .filter(cd => cd.denom == Denom.MEL)
+      .map(cd => cd.value)
+      .reduce((a, b) => a + b, 0n) + tx.fee
+  );
 }

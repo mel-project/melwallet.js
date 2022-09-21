@@ -1,12 +1,12 @@
 {
   "name": "melwallet.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "description": "",
   "keywords": [],
-  "main": "dist/themelio-wallet.umd.js",
-  "module": "dist/themelio-wallet.es5.js",
-  "typings": "dist/types/themelio-wallet.d.ts",
+  "main": "index.umd.js",
+  "module": "index.es5.js",
+  "typings": "index.d.ts",
   "files": [
     "dist"
   ],

@@ -20,7 +20,7 @@ export interface RawTransaction {
 }
 
 export interface RawTransactionInfo {
-  outputs: AnnCoinID[],
-  confirmed_height: bigint | null
-  raw: RawTransaction,
+  outputs: AnnCoinID[];
+  confirmed_height: bigint | null;
+  raw: RawTransaction;
 }
