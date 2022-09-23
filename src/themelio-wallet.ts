@@ -357,6 +357,7 @@ export class MelwalletdWallet implements ThemelioWallet {
     return this.#network;
   }
   /**
+   * //TODO: reconsider return type and errors
    * locks this wallet
    * returns true if the request completes successfully
    * @returns {Promise<boolean>}

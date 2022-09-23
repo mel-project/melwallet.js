@@ -14,6 +14,9 @@ export enum Denom {
   NEWCOIN = '(NEWCOIN)',
 }
 
+export type TXHash = string & { __brand: "Valid Transaction Hash" }
+
+
 export enum NetID {
   Testnet = 0x01,
   Custom02 = 0x02,
@@ -80,7 +83,7 @@ export interface PoolState {
 }
 
 export interface CoinID {
-  txhash: string;
+  txhash: TXHash;
   index: bigint;
 }
 
@@ -101,11 +104,6 @@ export interface Transaction {
   sigs: string[];
 }
 
-export interface CoinID {
-  txhash: string;
-  index: bigint;
-}
-
 export interface CoinDataHeight {
   coin_data: CoinData;
   height: bigint;
@@ -113,7 +111,7 @@ export interface CoinDataHeight {
 
 export interface CoinSpend {
   coinid: CoinID;
-  txhash: string;
+  txhash: TXHash;
   height: bigint;
 }
 
@@ -133,3 +131,7 @@ export interface StakeDoc {
   /// Number of syms staked.
   syms_staked: bigint;
 }
+
+
+
+
