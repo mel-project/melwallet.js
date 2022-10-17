@@ -4,7 +4,6 @@ import {
   CoinData,
   Denom,
   NetID,
-  PoolKey,
   Transaction,
   TxKind,
 } from './themelio-types';
@@ -86,7 +85,7 @@ export function tx_from_raw(raw_tx: RawTransaction): Transaction {
     kind: Number(raw_tx.kind),
   });
   assertType<Transaction>(tx);
-  return tx;
+  return tx ;
 }
 
 export function wallet_summary_from_raw(

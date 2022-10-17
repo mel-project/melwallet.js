@@ -425,7 +425,6 @@ export class MelwalletdWallet implements ThemelioWallet {
       melwalletd_endpoints.prepare_tx(name),
       ThemelioJson.stringify(prepare_tx),
     );
-
     assertType<RawTransaction>(res);
     let raw_tx: RawTransaction = res as any as RawTransaction;
     let tx: Transaction = tx_from_raw(raw_tx);

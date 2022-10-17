@@ -6,7 +6,7 @@ export enum DenomNum {
   NEWCOIN = 0,
 }
 
-export enum Denom {
+export enum _Denom {
   MEL = 'MEL',
   SYM = 'SYM',
   ERG = 'ERG',
@@ -14,7 +14,23 @@ export enum Denom {
   NEWCOIN = '(NEWCOIN)',
 }
 
-export type TXHash = string & { __brand: "Valid Transaction Hash" }
+
+type t = keyof _Denom;
+
+type PickKey<T, K extends keyof T> = Extract<keyof T, K>;
+type PickDenom<K extends keyof _Denom> = PickKey<_Denom, K>
+
+interface DenomStruct {
+  MEL: 'MEL',
+  SYM: 'SYM',
+  ERG: 'ERG',
+  CUSTOM: String,
+  NEWCOIN: '(NEWCOIN)',
+}
+
+export type DenomType = Pick<DenomStruct, keyof DenomStruct>
+
+// export type TXHash = string & { __brand: "Valid Transaction Hash" }
 
 
 export enum NetID {
@@ -83,7 +99,7 @@ export interface PoolState {
 }
 
 export interface CoinID {
-  txhash: TXHash;
+  txhash: string;
   index: bigint;
 }
 
@@ -111,7 +127,7 @@ export interface CoinDataHeight {
 
 export interface CoinSpend {
   coinid: CoinID;
-  txhash: TXHash;
+  txhash: string;
   height: bigint;
 }
 

@@ -10,7 +10,7 @@ import { get_faucet_confirmation } from '../examples/wait_for_faucet_transaction
 
 
 /// ONLY RUN TESTS ON TESTNET WALLETS UNLESS YOU KNOW WHAT YOU ARE DOING
-const TESTNET_ONLY=true
+const TESTNET_ONLY = false
 
 /// many of the tests simply run methods with known valid data
 /// The library was written using `typescript-is` `assertType` to verify type safety.
@@ -43,7 +43,7 @@ const get_store: () => Promise<Store> = (() => {
 
   // always returns a store if test passes
   return async () => {
-    if (!store ) {
+    if (!store) {
       attempts += 1
       const wallet_info: WalletInfo = {
         name: test_wallet_name,
@@ -53,13 +53,13 @@ const get_store: () => Promise<Store> = (() => {
       const header: Header = await client.get_summary();
       expect(expect(is<Header>(header)).toBeTruthy()) // melwalletd is running
 
-      if(TESTNET_ONLY) /// fail if not testnet and TESTNET_ONLY
+      if (TESTNET_ONLY) /// fail if not testnet and TESTNET_ONLY
         expect(header.network === NetID.Testnet).toBeTruthy()
-      
-      try{
+
+      try {
         await client.create_wallet(wallet_info.name, wallet_info.password);
       }
-      catch{}
+      catch { }
       const wallet: MelwalletdWallet | false = await promise_or_false(unwrap_nullable_promise(
         client.get_wallet(wallet_info.name),
       ));
@@ -109,8 +109,8 @@ describe('Client Features', () => {
     let created_all_wallets = await Promise.all(WALLET_NAMES
       .map(async (name: string) =>
         client.create_wallet(name, name)
-      )).catch(()=>false)
-      .then(()=>true);
+      )).catch(() => false)
+      .then(() => true);
     expect(created_all_wallets).toBeTruthy()
   });
 
@@ -235,6 +235,6 @@ describe('Themelio Wallet', () => {
   });
 });
 
-describe.skip("run examples", ()=>{
+describe.skip("run examples", () => {
   it("wait for faucet confirmation", get_faucet_confirmation, 60 * 1000)
 })
