@@ -3,32 +3,26 @@ export enum DenomNum {
   SYM = 115,
   ERG = 100,
   CUSTOM = 0,
-  NEWCOIN = 0,
+  NEWCOIN = -1,
 }
 
-export enum _Denom {
-  MEL = 'MEL',
-  SYM = 'SYM',
-  ERG = 'ERG',
-  CUSTOM = 'CUSTOM()',
-  NEWCOIN = '(NEWCOIN)',
+interface _DenomNames {
+ MEL: 'MEL',
+ SYM: 'SYM',
+ ERG: 'ERG',
+ NEWCOIN: '(NEWCOIN)',
+}
+
+export const DenomNames: _DenomNames = {
+  MEL: "MEL",
+  SYM: "SYM",
+  ERG: "ERG",
+  NEWCOIN: "(NEWCOIN)",
 }
 
 
-type t = keyof _Denom;
+export type Denom = string
 
-type PickKey<T, K extends keyof T> = Extract<keyof T, K>;
-type PickDenom<K extends keyof _Denom> = PickKey<_Denom, K>
-
-interface DenomStruct {
-  MEL: 'MEL',
-  SYM: 'SYM',
-  ERG: 'ERG',
-  CUSTOM: String,
-  NEWCOIN: '(NEWCOIN)',
-}
-
-export type DenomType = Pick<DenomStruct, keyof DenomStruct>
 
 // export type TXHash = string & { __brand: "Valid Transaction Hash" }
 

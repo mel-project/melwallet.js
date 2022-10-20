@@ -41,6 +41,7 @@ enum HTTPMethod {
 interface MelwalletdEndpoint {
   path: string[];
   method: HTTPMethod;
+  body?: BodyInit;
 }
 
 interface RequestError {
@@ -56,10 +57,11 @@ let melwalletd_endpoints = {
     path: [`pools`, `${poolkey.left}:${poolkey.right}`],
     method: HTTPMethod.GET,
   }),
-  poolinfo: (): MelwalletdEndpoint => ({
-    path: [`pool_info`],
-    method: HTTPMethod.POST,
-  }),
+  simulate_swap: (from: string, to: string,value: bigint,): MelwalletdEndpoint => ({
+      path: [`pool_info`],
+      body: ThemelioJson.stringify({from, to, value}),
+      method: HTTPMethod.POST,
+    }),
   wallet_list: (): MelwalletdEndpoint => ({
     path: [`wallets`],
     method: HTTPMethod.GET,
@@ -144,13 +146,19 @@ export class MelwalletdClient {
     body?: BodyInit,
     additional_options?: Omit<RequestInit, 'method' | 'body'>,
   ): Promise<Response> {
+
+    if(endpoint.body && body){
+      throw "Ambiguously specified body in both params and endpoint"
+    }
+
     let { method, path } = endpoint;
     var str_endpoint = '';
     if (path.length > 0) {
       str_endpoint = '/' + path.join('/');
     }
+    let request_body = endpoint.body ? endpoint.body : body;
     let url = `${melwalletd_url}` + str_endpoint;
-    let response = await fetch(url, { ...additional_options, method, body });
+    let response = await fetch(url, { ...additional_options, method, body:request_body });
     if (response.ok) {
       return response;
     } else {
@@ -195,7 +203,6 @@ export class MelwalletdClient {
     );
     return map_from_entries(entries);
   }
-
   /**
    * get a wallet by it's name
    * @param  {string} wallet_name
@@ -230,7 +237,6 @@ export class MelwalletdClient {
     });
     await this.request(melwalletd_endpoints.create_wallet(name), body);
   }
-
   /**
    * Import a wallet given a name, password, and secret key
    * @param  {string} name
@@ -290,6 +296,15 @@ export class MelwalletdClient {
     assertType<RawTransactionInfo>(maybe_tx_info);
     return maybe_tx_info as RawTransactionInfo;
   }
+  async simulate_swap(to: string, from: string, value: bigint): Promise<PoolState | null> {
+    let res = await this.request(melwalletd_endpoints.simulate_swap(to, from, value));
+    let data: string = await res.text();
+
+    let maybe_pool: Object = ThemelioJson.parse(data);
+    assertType<PoolState>(maybe_pool);
+    let pool: PoolState = maybe_pool as any;
+    return pool;
+  }
 }
 
 export class MelwalletdWallet implements ThemelioWallet {
@@ -319,6 +334,9 @@ export class MelwalletdWallet implements ThemelioWallet {
     this.#name = name;
     this.#client = client;
     this.#network = network;
+  }
+  swap(from: string, to: string): Promise<string> {
+    throw new Error('Method not implemented.');
   }
   /**
    * Get the name of this wallet
@@ -446,6 +464,7 @@ export class MelwalletdWallet implements ThemelioWallet {
     if (!amount) amount = 1001000000n;
     let wallet = this;
     let tx: Transaction = prepare_faucet(await wallet.get_address(), amount);
+    console.log(ThemelioJson.stringify(tx))
     return await this.send_tx(tx);
   }
   /**

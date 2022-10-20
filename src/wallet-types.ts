@@ -36,6 +36,8 @@ export interface ThemelioWallet {
   prepare_transaction(ptx: PreparedTransaction): Promise<Transaction>;
 
   get_transaction(txhash: string): Promise<Transaction>;
+
+  swap(from: Denom, to: Denom): Promise<string>;
 }
 
 export interface PreparedTransaction {

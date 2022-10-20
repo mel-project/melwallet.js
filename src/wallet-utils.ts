@@ -3,6 +3,7 @@ import { RawTransaction, RawWalletSummary } from './request-types';
 import {
   CoinData,
   Denom,
+  DenomNames,
   NetID,
   Transaction,
   TxKind,
@@ -21,10 +22,11 @@ export function int_to_netid(num: bigint): NetID {
 }
 
 export function string_to_denom(str: string): Denom {
-  if (str == 'MEL') return Denom.MEL;
-  if (str == 'SYM') return Denom.SYM;
-  if (str == 'ERG') return Denom.ERG;
-  throw 'Unsupported denom: ' + str;
+  let Denom = DenomNames;
+  if(Object.keys(Denom).findIndex((s: string) => s == str)){
+    return str
+  }
+  return str
 }
 
 export function hex_to_denom(hex: string): Denom {
@@ -33,14 +35,19 @@ export function hex_to_denom(hex: string): Denom {
 }
 
 export function number_to_denom(num: number): Denom {
+  let Denom = DenomNames;
   if (num == 109) return Denom.MEL;
   if (num == 115) return Denom.SYM;
   if (num == 100) return Denom.ERG;
-  throw 'Unsupported Denom: ' + num;
+  if (num == 0)   return Denom.NEWCOIN;
+  return num.toString(16);
+  
 }
 
 export function prepare_faucet(address: string, amount: bigint): Transaction {
   let data = random_hex_string(32);
+  let Denom = DenomNames;
+
   let outputs: CoinData[] = [
     {
       covhash: address,
@@ -119,6 +126,7 @@ export function wallet_summary_from_raw(
 
 // Compute total value flowing out of wallet from a list of coins
 export function net_spent(tx: Transaction, self_covhash: string): bigint {
+  let Denom = DenomNames;
   return (
     tx.outputs
       .filter(cd => cd.covhash != self_covhash)
@@ -127,3 +135,4 @@ export function net_spent(tx: Transaction, self_covhash: string): bigint {
       .reduce((a, b) => a + b, 0n) + tx.fee
   );
 }
+

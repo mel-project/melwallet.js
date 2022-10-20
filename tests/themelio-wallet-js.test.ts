@@ -3,14 +3,14 @@
 import { MelwalletdWallet, MelwalletdClient } from '../src/themelio-wallet';
 import { describe as _describe, it as _it, expect } from '@jest/globals';
 import { promise_or_false, random_hex_string, ThemelioJson, unwrap_nullable_promise } from '../src/utils';
-import { CoinData, Denom, Header, NetID, Transaction, TxKind } from '../src/themelio-types';
+import { CoinData, DenomNames as Denom, Header, NetID, Transaction, TxKind } from '../src/themelio-types';
 import { assertType, is } from 'typescript-is';
 import { PreparedTransaction, WalletList } from '../src/wallet-types';
 import { get_faucet_confirmation } from '../examples/wait_for_faucet_transaction';
 
 
 /// ONLY RUN TESTS ON TESTNET WALLETS UNLESS YOU KNOW WHAT YOU ARE DOING
-const TESTNET_ONLY = false
+const TESTNET_ONLY = true
 
 /// many of the tests simply run methods with known valid data
 /// The library was written using `typescript-is` `assertType` to verify type safety.
@@ -184,7 +184,7 @@ describe('Themelio Wallet', () => {
   ///
   it('Each balance is a `bigint`', async () => {
     let { wallet } = await get_store();
-    let balances: Map<Denom, bigint> = await wallet.get_balances();
+    let balances: Map<string, bigint> = await wallet.get_balances();
     Object.entries(balances.entries()).forEach((entry) => {
       let [denom, value] = entry
       expect(typeof value).toBe('bigint')
