@@ -44,7 +44,7 @@ export interface PreparedTransaction {
   inputs: CoinID[];
   outputs: CoinData[];
   signing_key: string | null;
-  kind: TxKind | null;
+  kind: TxKind | TxKind.Normal;
   data: string | null;
   covenants: string[];
   nobalance: Denom[];

@@ -100,7 +100,6 @@
   },
   "dependencies": {
     "json-bigint": "^1.0.0",
-    "melwallet.js": "^0.0.7",
     "node-fetch": "^3.2.10"
   }
 }
