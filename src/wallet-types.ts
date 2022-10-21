@@ -40,14 +40,25 @@ export interface ThemelioWallet {
   swap(from: Denom, to: Denom): Promise<string>;
 }
 
+
+// #[serde(default)]
+// inputs: Vec<CoinID>,
+// outputs: Vec<CoinData>,
+// signing_key: Option<String>,
+// kind: Option<TxKind>,
+// data: Option<String>,
+// #[serde(default, with = "stdcode::hexvec")]
+// covenants: Vec<Vec<u8>>,
+// #[serde(default)]
+// nobalance: Vec<Denom>,
 export interface PreparedTransaction {
-  inputs: CoinID[];
+  inputs?: CoinID[];
   outputs: CoinData[];
-  signing_key: string | null;
-  kind: TxKind | TxKind.Normal;
-  data: string | null;
-  covenants: string[];
-  nobalance: Denom[];
-  fee_ballast: bigint;
+  signing_key?: string;
+  kind?: TxKind;
+  data?: string;
+  covenants?: string[];
+  nobalance?: Denom[];
+  fee_ballast?: bigint;
 }
 export type WalletList = Map<string, WalletSummary>;
