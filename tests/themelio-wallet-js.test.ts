@@ -5,7 +5,7 @@ import { describe as _describe, it as _it, expect } from '@jest/globals';
 import { promise_or_false, random_hex_string, ThemelioJson, unwrap_nullable_promise } from '../src/utils';
 import { CoinData, DenomNames as Denom, Header, NetID, Transaction, TxKind } from '../src/themelio-types';
 import { assertType, is } from 'typescript-is';
-import { PreparedTransaction, WalletList } from '../src/wallet-types';
+import { PreparedTransaction, TransactionDump, WalletList } from '../src/wallet-types';
 import { get_faucet_confirmation } from '../examples/wait_for_faucet_transaction';
 
 
@@ -210,7 +210,7 @@ describe('Themelio Wallet', () => {
       data: "",
       nobalance: [],
       fee_ballast: 0n,
-      signing_key: null
+      signing_key: undefined
     }
     let tx: Transaction = await wallet.prepare_transaction(ptx)
     expect(tx);
@@ -221,6 +221,11 @@ describe('Themelio Wallet', () => {
     let { wallet } = await get_store()
     let txhash: string = await wallet.send_faucet()
     let tx: Transaction = await wallet.get_transaction(txhash)
+  })
+  it('get all transactions from this wallet', async () => {
+    let { wallet } = await get_store()
+    let dump: TransactionDump = await wallet.list_transactions()
+    console.log(dump)
   })
   /// After testing is complete, lock the wallet
   it('Lock the wallet', async () => {

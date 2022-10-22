@@ -62,3 +62,5 @@ export interface PreparedTransaction {
   fee_ballast?: bigint;
 }
 export type WalletList = Map<string, WalletSummary>;
+
+export type TransactionDump = [string, bigint | null][];
