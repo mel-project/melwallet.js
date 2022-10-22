@@ -10,6 +10,7 @@ import {
   PreparedTransaction,
   ThemelioWallet,
   TransactionDump,
+  TxBalance,
   WalletSummary,
 } from './wallet-types';
 import { assertType } from 'typescript-is';
@@ -515,13 +516,13 @@ export class MelwalletdWallet implements ThemelioWallet {
   * @param  {string} txhash
   * @returns {Promise<Transaction>}
   */
-  async get_transaction_balance(txhash: string): Promise<TransactionDump> {
+  async get_transaction_balance(txhash: string): Promise<TxBalance> {
     let wallet = this;
     let name = await wallet.get_name();
     let get_transaction_balance_endpoint = await melwalletd_endpoints.get_transaction_balance(name, txhash);
-    let raw_transactions = await this.melwalletd_request(get_transaction_balance_endpoint)
-    assertType<TransactionDump>(raw_transactions)
-    let dump: TransactionDump = raw_transactions as any;
+    let raw_balance = await this.melwalletd_request(get_transaction_balance_endpoint)
+    assertType<TxBalance>(raw_balance)
+    let dump: TxBalance = raw_balance as any;
     return dump;
   }
   /**
