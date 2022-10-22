@@ -64,4 +64,4 @@ export interface PreparedTransaction {
 export type WalletList = Map<string, WalletSummary>;
 
 export type TransactionDump = [string, bigint | null][];
-export type TxBalance = [boolean, TxKind, Map<String, bigint>];
+export type TxBalance = [boolean, TxKind, Map<string, bigint>];
