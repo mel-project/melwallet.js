@@ -58,11 +58,11 @@ let melwalletd_endpoints = {
     path: [`pools`, `${poolkey.left}:${poolkey.right}`],
     method: HTTPMethod.GET,
   }),
-  simulate_swap: (from: string, to: string,value: bigint,): MelwalletdEndpoint => ({
-      path: [`pool_info`],
-      body: ThemelioJson.stringify({from, to, value}),
-      method: HTTPMethod.POST,
-    }),
+  simulate_swap: (from: string, to: string, value: bigint,): MelwalletdEndpoint => ({
+    path: [`pool_info`],
+    body: ThemelioJson.stringify({ from, to, value }),
+    method: HTTPMethod.POST,
+  }),
   wallet_list: (): MelwalletdEndpoint => ({
     path: [`wallets`],
     method: HTTPMethod.GET,
@@ -148,7 +148,7 @@ export class MelwalletdClient {
     additional_options?: Omit<RequestInit, 'method' | 'body'>,
   ): Promise<Response> {
 
-    if(endpoint.body && body){
+    if (endpoint.body && body) {
       throw "Ambiguously specified body in both params and endpoint"
     }
 
@@ -159,7 +159,7 @@ export class MelwalletdClient {
     }
     let request_body = endpoint.body ? endpoint.body : body;
     let url = `${melwalletd_url}` + str_endpoint;
-    let response = await fetch(url, { ...additional_options, method, body:request_body });
+    let response = await fetch(url, { ...additional_options, method, body: request_body });
     if (response.ok) {
       return response;
     } else {
@@ -496,20 +496,34 @@ export class MelwalletdWallet implements ThemelioWallet {
     let raw_tx_info = await this.#client.get_transaction(name, txhash);
     return tx_from_raw(raw_tx_info.raw);
   }
-    /**
-   * request transaction information
-   * @param  {string} txhash
-   * @returns {Promise<Transaction>}
-   */
-     async list_transactions(): Promise<TransactionDump> {
-      let wallet = this;
-      let name = await wallet.get_name();
-      let get_all_transactions_endpoint = await melwalletd_endpoints.get_wallet_transaction_list(name);
-      let raw_transactions = await this.melwalletd_request(get_all_transactions_endpoint)
-      assertType<TransactionDump>(raw_transactions)
-      let dump: TransactionDump = raw_transactions as any;
-      return dump;
-    }
+  /**
+ * request transaction information
+ * @param  {string} txhash
+ * @returns {Promise<Transaction>}
+ */
+  async list_transactions(): Promise<TransactionDump> {
+    let wallet = this;
+    let name = await wallet.get_name();
+    let get_all_transactions_endpoint = await melwalletd_endpoints.get_wallet_transaction_list(name);
+    let raw_transactions = await this.melwalletd_request(get_all_transactions_endpoint)
+    assertType<TransactionDump>(raw_transactions)
+    let dump: TransactionDump = raw_transactions as any;
+    return dump;
+  }
+  /**
+  * get transaction balance
+  * @param  {string} txhash
+  * @returns {Promise<Transaction>}
+  */
+  async get_transaction_balance(txhash: string): Promise<TransactionDump> {
+    let wallet = this;
+    let name = await wallet.get_name();
+    let get_transaction_balance_endpoint = await melwalletd_endpoints.get_transaction_balance(name, txhash);
+    let raw_transactions = await this.melwalletd_request(get_transaction_balance_endpoint)
+    assertType<TransactionDump>(raw_transactions)
+    let dump: TransactionDump = raw_transactions as any;
+    return dump;
+  }
   /**
    * submits a request to melwalletd and parses the request as a json object
    * @param  {MelwalletdEndpoint} endpoint
