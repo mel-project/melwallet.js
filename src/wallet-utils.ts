@@ -23,7 +23,7 @@ export function int_to_netid(num: bigint): NetID {
 
 export function string_to_denom(str: string): Denom {
   let Denom = DenomNames;
-  if(Object.keys(Denom).findIndex((s: string) => s == str)){
+  if (Object.keys(Denom).findIndex((s: string) => s == str)) {
     return str
   }
   return str
@@ -34,14 +34,27 @@ export function hex_to_denom(hex: string): Denom {
   return number_to_denom(denom_val);
 }
 
-export function number_to_denom(num: number): Denom {
+export function number_to_denom(num: number | bigint): Denom {
   let Denom = DenomNames;
   if (num == 109) return Denom.MEL;
   if (num == 115) return Denom.SYM;
   if (num == 100) return Denom.ERG;
-  if (num == 0)   return Denom.NEWCOIN;
+  if (num == 0) return Denom.NEWCOIN;
   return num.toString(16);
-  
+
+}
+
+export function number_to_txkind(num: number | bigint): TxKind {
+  if (num == TxKind.DoscMint) return TxKind.DoscMint;
+  if (num == TxKind.Faucet) return TxKind.Faucet;
+  if (num == TxKind.LiqDeposit) return TxKind.LiqDeposit;
+  if (num == TxKind.LiqWithdraw) return TxKind.LiqWithdraw;
+  if (num == TxKind.Normal) return TxKind.Normal;
+  if (num == TxKind.Stake) return TxKind.Stake;
+  if (num == TxKind.Swap) return TxKind.Swap;
+  throw "Unknown Txkind"
+
+
 }
 
 export function prepare_faucet(address: string, amount: bigint): Transaction {
@@ -92,7 +105,7 @@ export function tx_from_raw(raw_tx: RawTransaction): Transaction {
     kind: Number(raw_tx.kind),
   });
   assertType<Transaction>(tx);
-  return tx ;
+  return tx;
 }
 
 export function wallet_summary_from_raw(

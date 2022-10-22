@@ -1,4 +1,4 @@
-import { AnnCoinID, CoinData, CoinID } from './themelio-types';
+import { AnnCoinID, CoinData, CoinID, TxKind } from './themelio-types';
 
 export interface RawWalletSummary {
   total_micromel: bigint;
@@ -25,3 +25,5 @@ export interface RawTransactionInfo {
   confirmed_height: bigint | null;
   raw: RawTransaction;
 }
+
+export type RawTxBalance = [boolean, bigint, Record<string, bigint>];

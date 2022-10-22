@@ -5,6 +5,7 @@ import {
   PoolKey,
   PoolState,
   Transaction,
+  TxKind,
 } from './themelio-types';
 import {
   PreparedTransaction,
@@ -18,9 +19,12 @@ import { ThemelioJson, map_from_entries, JSONValue } from './utils';
 import {
   RawTransaction,
   RawTransactionInfo,
+  RawTxBalance,
   RawWalletSummary,
 } from './request-types';
 import {
+  number_to_denom,
+  number_to_txkind,
   prepare_faucet,
   tx_from_raw,
   wallet_summary_from_raw,
@@ -520,10 +524,14 @@ export class MelwalletdWallet implements ThemelioWallet {
     let wallet = this;
     let name = await wallet.get_name();
     let get_transaction_balance_endpoint = await melwalletd_endpoints.get_transaction_balance(name, txhash);
-    let raw_balance = await this.melwalletd_request(get_transaction_balance_endpoint)
-    assertType<TxBalance>(raw_balance)
-    let dump: TxBalance = raw_balance as any;
-    return dump;
+    let raw_balance: RawTxBalance | TxBalance = await this.melwalletd_request(get_transaction_balance_endpoint) as any;
+    assertType<RawTxBalance>(raw_balance)
+    /// we now know [boolean, bigint, Record<string, bigint>]
+    raw_balance[1] = number_to_txkind(raw_balance[1] as bigint); // turn to txkind
+    raw_balance[2] = map_from_entries(Object.entries(raw_balance[2])) // turn to map
+    /// [boolean, TxKind, Map<string, bigint>]
+    let balance: TxBalance = raw_balance as TxBalance
+    return balance;
   }
   /**
    * submits a request to melwalletd and parses the request as a json object
