@@ -44,6 +44,11 @@ export function number_to_denom(num: number | bigint): Denom {
 
 }
 
+export function denom_to_string(denom: Denom): string {
+  return denom
+
+}
+
 export function number_to_txkind(num: number | bigint): TxKind {
   if (num == TxKind.DoscMint) return TxKind.DoscMint;
   if (num == TxKind.Faucet) return TxKind.Faucet;
