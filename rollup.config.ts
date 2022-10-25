@@ -18,7 +18,7 @@ export default {
       format: 'umd',
       sourcemap: true,
       globals: {
-        "node-fetch": "fetch"
+        "fetch": "node-fetch"
       },
 
     },

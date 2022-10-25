@@ -29,8 +29,6 @@ import {
   tx_from_raw,
   wallet_summary_from_raw,
 } from './wallet-utils';
-import fetch from 'node-fetch';
-import { Response, BodyInit, RequestInit } from 'node-fetch';
 
 enum HTTPMethod {
   CONNECT = 'CONNECT',
