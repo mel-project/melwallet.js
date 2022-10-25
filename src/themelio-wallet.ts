@@ -470,7 +470,6 @@ export class MelwalletdWallet implements ThemelioWallet {
     if (!amount) amount = 1001000000n;
     let wallet = this;
     let tx: Transaction = prepare_faucet(await wallet.get_address(), amount);
-    console.log(ThemelioJson.stringify(tx))
     return await this.send_tx(tx);
   }
   /**

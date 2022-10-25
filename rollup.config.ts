@@ -7,7 +7,7 @@ import tsPlugin from 'rollup-plugin-typescript2'
 
 const pkg = require('./package.json')
 
-const libraryName = 'themelio-wallet'
+const libraryName = 'index'
 
 export default {
   input: `src/${libraryName}.ts`,
