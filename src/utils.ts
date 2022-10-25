@@ -1,4 +1,4 @@
-import JSONBig from 'json-bigint';
+let JSONBig = require('json-bigint');
 
 export type JSONValue =
   | string
@@ -8,7 +8,7 @@ export type JSONValue =
   | JSONArray
   | JSONObject;
 
-console.log(JSONBig)
+
 export type JSONObject = { [key: string]: JSONValue };
 export type JSONArray = Array<JSONValue>;
 
@@ -52,6 +52,7 @@ export function map_from_entries<T, K>(entries: [T, K][]): Map<T, K> {
   }
   return map;
 }
+
 
 const JSONAlwaysBig = JSONBig({
   useNativeBigInt: true,
