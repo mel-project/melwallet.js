@@ -12,7 +12,16 @@ const libraryName = 'index'
 export default {
   input: `src/${libraryName}.ts`,
   output: [
-    { file: pkg.main, name: "index.js", format: 'umd', sourcemap: true },
+    {
+      file: pkg.main,
+      name: "index.js",
+      format: 'umd',
+      sourcemap: true,
+      globals: {
+        "node-fetch": "fetch"
+      },
+
+    },
     { file: pkg.module, format: 'es', sourcemap: true },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
