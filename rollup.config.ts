@@ -17,9 +17,9 @@ export default {
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: ["node-fetch"],
-  globals: {
-    "node-fetch": "fetch"
-  },
+  // globals: {
+  //   "node-fetch": "fetch"
+  // },
   watch: {
     include: 'src/*',
   },
