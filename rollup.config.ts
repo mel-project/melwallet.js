@@ -16,7 +16,7 @@ export default {
     { file: pkg.module, format: 'es', sourcemap: true },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
-  external: ["node-fetch"],
+  external: [],
   watch: {
     include: 'src/*',
   },
