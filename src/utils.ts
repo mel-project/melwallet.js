@@ -1,4 +1,4 @@
-import * as JSONBig from 'json-bigint';
+import JSONBig from 'json-bigint';
 
 export type JSONValue =
   | string
@@ -8,6 +8,7 @@ export type JSONValue =
   | JSONArray
   | JSONObject;
 
+console.log(JSONBig)
 export type JSONObject = { [key: string]: JSONValue };
 export type JSONArray = Array<JSONValue>;
 
