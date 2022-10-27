@@ -1,5 +1,9 @@
-import * as JSONBig from 'json-bigint';
-console.log((JSONBig as any)?.default)
+import * as JSONBigPackage from 'json-bigint';
+var JSONBig = JSONBigPackage
+if((JSONBigPackage as any).default){
+  JSONBig = (JSONBigPackage as any).default
+}
+
 export type JSONValue =
   | string
   | boolean
