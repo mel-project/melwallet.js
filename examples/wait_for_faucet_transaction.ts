@@ -1,6 +1,9 @@
 import { setTimeout } from 'timers/promises';
 import { RawTransactionInfo } from '../src/types/request-types';
-import { MelwalletdClient, MelwalletdWallet } from '../src/melwalletd-interfaces';
+import {
+  MelwalletdClient,
+  MelwalletdWallet,
+} from '../src/melwalletd-interfaces';
 import { send_faucet } from '../src/utils/wallet-utils';
 
 // return true if the transaction is confirmed

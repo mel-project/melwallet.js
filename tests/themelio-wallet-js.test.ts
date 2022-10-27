@@ -1,4 +1,7 @@
-import { MelwalletdWallet, MelwalletdClient } from '../src/melwalletd-interfaces';
+import {
+  MelwalletdWallet,
+  MelwalletdClient,
+} from '../src/melwalletd-interfaces';
 import { describe as _describe, it as _it, expect } from '@jest/globals';
 import { assertType, is } from 'typescript-is';
 import { get_faucet_confirmation } from '../examples/wait_for_faucet_transaction';
@@ -77,7 +80,7 @@ const get_store: () => Promise<Store> = (() => {
 
       try {
         await client.create_wallet(wallet_info.name, wallet_info.password);
-      } catch { }
+      } catch {}
       const wallet: MelwalletdWallet | false = await promise_or_false(
         unwrap_nullable_promise(client.get_wallet(wallet_info.name)),
       );
@@ -242,7 +245,7 @@ describe('Themelio Wallet', () => {
   });
   it('send a transaction and get its txbalance', async () => {
     let { wallet } = await get_store();
-    let txhash: string = await send_faucet(wallet)
+    let txhash: string = await send_faucet(wallet);
     let tx: TxBalance = await wallet.get_transaction_balance(txhash);
   });
   /// After testing is complete, lock the wallet

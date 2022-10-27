@@ -441,6 +441,18 @@ export class MelwalletdWallet implements ThemelioWallet {
   }
 
   /**
+   * request transaction information
+   * @param  {string} txhash
+   * @returns {Promise<Transaction>}
+   */
+  async get_transaction(txhash: string): Promise<Transaction> {
+    let wallet = this;
+    let name = await wallet.get_name();
+    let raw_tx_info = await this.#client.get_transaction(name, txhash);
+    return tx_from_raw(raw_tx_info.raw);
+  }
+
+  /**
    * returns a map between a Denom and the amount of that denom in this wallet
    * @returns {Promise<Map<Denom,bigint>>}
    */
@@ -465,17 +477,6 @@ export class MelwalletdWallet implements ThemelioWallet {
     // could assert type of each letter to be a hex string
     // txhash.forEach((c: string)=>assertType<HexChar>(c))
     return txhash;
-  }
-  /**
-   * request transaction information
-   * @param  {string} txhash
-   * @returns {Promise<Transaction>}
-   */
-  async get_transaction(txhash: string): Promise<Transaction> {
-    let wallet = this;
-    let name = await wallet.get_name();
-    let raw_tx_info = await this.#client.get_transaction(name, txhash);
-    return tx_from_raw(raw_tx_info.raw);
   }
   /**
    * request transaction information
