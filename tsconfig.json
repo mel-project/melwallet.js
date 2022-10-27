@@ -13,12 +13,22 @@
     "declarationDir": "dist/types",
     "outDir": "dist/lib",
     "typeRoots": ["node_modules/@types"],
-    "plugins": [{ "transform": "typescript-is/lib/transform-inline/transformer" }],
+    "plugins": [
+      { "transform": "typescript-is/lib/transform-inline/transformer" }
+    ],
     "importHelpers": true,
     "baseUrl": "src",
     "paths": {
-      "~/*": ["*"]
+      "~/*": ["*"],
+      "@utils/*": ["~/utils/*"],
+      "@types/*": ["~/types/*"]
     }
   },
-  "include": ["src/*"]
+  "include": [
+    "src/*",
+    "src/types/request-types.ts",
+    "src/types/themelio-types.ts",
+    "src/types/melwalletd-types.ts",
+    "src/utils/utils.ts"
+  ]
 }

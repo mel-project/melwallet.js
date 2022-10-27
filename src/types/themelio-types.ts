@@ -7,25 +7,22 @@ export enum DenomNum {
 }
 
 interface _DenomNames {
- MEL: 'MEL',
- SYM: 'SYM',
- ERG: 'ERG',
- NEWCOIN: '(NEWCOIN)',
+  MEL: 'MEL';
+  SYM: 'SYM';
+  ERG: 'ERG';
+  NEWCOIN: '(NEWCOIN)';
 }
 
 export const DenomNames: _DenomNames = {
-  MEL: "MEL",
-  SYM: "SYM",
-  ERG: "ERG",
-  NEWCOIN: "(NEWCOIN)",
-}
+  MEL: 'MEL',
+  SYM: 'SYM',
+  ERG: 'ERG',
+  NEWCOIN: '(NEWCOIN)',
+};
 
-
-export type Denom = string
-
+export type Denom = string;
 
 // export type TXHash = string & { __brand: "Valid Transaction Hash" }
-
 
 export enum NetID {
   Testnet = 0x01,
@@ -141,7 +138,3 @@ export interface StakeDoc {
   /// Number of syms staked.
   syms_staked: bigint;
 }
-
-
-
-

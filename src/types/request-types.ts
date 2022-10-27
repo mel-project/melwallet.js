@@ -9,7 +9,6 @@ export interface RawWalletSummary {
   locked: boolean;
 }
 
-
 export interface RawTransaction {
   kind: bigint;
   inputs: CoinID[];

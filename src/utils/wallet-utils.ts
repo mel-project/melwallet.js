@@ -1,19 +1,20 @@
 import { assertType } from 'typescript-is';
-import { RawTransaction, RawWalletSummary } from './request-types';
+import { RawTransaction, RawWalletSummary } from '../types/request-types';
 import {
   CoinData,
   Denom,
   DenomNames,
   NetID,
+  PoolKey,
   Transaction,
   TxKind,
-} from './themelio-types';
-import { map_from_entries, random_hex_string } from './utils';
+} from '../types/themelio-types';
+import { map_from_entries, random_hex_string, ThemelioJson } from './utils';
 import {
   ThemelioWallet,
-  PreparedTransaction,
+  UnpreparedTransaction,
   WalletSummary,
-} from './wallet-types';
+} from '../types/melwalletd-types';
 
 export function int_to_netid(num: bigint): NetID {
   if (num === BigInt(NetID.Mainnet)) return NetID.Mainnet;
@@ -24,9 +25,9 @@ export function int_to_netid(num: bigint): NetID {
 export function string_to_denom(str: string): Denom {
   let Denom = DenomNames;
   if (Object.keys(Denom).findIndex((s: string) => s == str)) {
-    return str
+    return str;
   }
-  return str
+  return str;
 }
 
 export function hex_to_denom(hex: string): Denom {
@@ -36,30 +37,20 @@ export function hex_to_denom(hex: string): Denom {
 
 export function number_to_denom(num: number | bigint): Denom {
   let Denom = DenomNames;
-  if (num == 109) return Denom.MEL;
-  if (num == 115) return Denom.SYM;
-  if (num == 100) return Denom.ERG;
-  if (num == 0) return Denom.NEWCOIN;
+  let denom_num = Number(num);
+  let denom_index = Object.values(TxKind).indexOf(denom_num);
+  if (denom_index >= 0) return Object.keys(Denom)[denom_index];
   return num.toString(16);
-
 }
 
 export function denom_to_string(denom: Denom): string {
-  return denom
-
+  return denom;
 }
 
 export function number_to_txkind(num: number | bigint): TxKind {
-  if (num == TxKind.DoscMint) return TxKind.DoscMint;
-  if (num == TxKind.Faucet) return TxKind.Faucet;
-  if (num == TxKind.LiqDeposit) return TxKind.LiqDeposit;
-  if (num == TxKind.LiqWithdraw) return TxKind.LiqWithdraw;
-  if (num == TxKind.Normal) return TxKind.Normal;
-  if (num == TxKind.Stake) return TxKind.Stake;
-  if (num == TxKind.Swap) return TxKind.Swap;
-  throw "Unknown Txkind"
-
-
+  let txkind = Number(num);
+  if (Object.values(TxKind).indexOf(txkind) >= 0) return txkind;
+  throw 'Unknown Txkind';
 }
 
 export function prepare_faucet(address: string, amount: bigint): Transaction {
@@ -85,26 +76,53 @@ export function prepare_faucet(address: string, amount: bigint): Transaction {
   };
   return tx;
 }
-// export function prepare_swap(address: string, value: bigint, from: Denom, to: Denom): PreparedTransaction{
-//   let output: CoinData = {
-//     covhash: address,
-//     value,
-//     denom: from,
-//     additional_data: ''
-//   }
-//   let poolkey: PoolKey = {left: from, right: to}
-//   let prepared_tx: PreparedTransaction = {
-//     inputs: [],
-//     outputs: [],
-//     signing_key: null,
-//     kind: null,
-//     data: [from,to].join("/"),
-//     covenants: [],
-//     nobalance: [],
-//     fee_ballast: 0n
-//   }
-//   return prepared_tx
-// }
+
+/**
+ * send a faucet transaction
+ *
+ * throws an error if attempting this on the mainnet
+ *
+ * @param  {bigint} [amount]
+ * @returns {Promise<string>}
+ */
+export async function send_faucet(
+  wallet: ThemelioWallet,
+  amount?: bigint,
+): Promise<string> {
+  if ((await wallet.get_network()) === NetID.Mainnet)
+    throw 'Cannot Tap faucet on Mainnet';
+  if (!amount) amount = 1001000000n;
+  let tx: Transaction = prepare_faucet(await wallet.get_address(), amount);
+  return await wallet.send_tx(tx);
+}
+
+export function poolkey_to_str(poolkey: PoolKey): string {
+  return `${poolkey.left}/${poolkey.right}`;
+}
+export async function prepare_swap(
+  wallet: ThemelioWallet,
+  value: bigint,
+  from: Denom,
+  to: Denom,
+  additional_data: string = '',
+): Promise<Transaction> {
+  let outputs: CoinData[] = [
+    {
+      covhash: await wallet.get_address(),
+      value,
+      denom: from,
+      additional_data,
+    },
+  ];
+  let poolkey: PoolKey = { left: from, right: to };
+  const unprepared: UnpreparedTransaction = {
+    kind: 0x51,
+    data: poolkey_to_str(poolkey),
+    outputs,
+  };
+  return wallet.prepare_transaction(unprepared);
+}
+
 export function tx_from_raw(raw_tx: RawTransaction): Transaction {
   let tx = Object.assign({}, raw_tx, {
     kind: Number(raw_tx.kind),
@@ -153,4 +171,3 @@ export function net_spent(tx: Transaction, self_covhash: string): bigint {
       .reduce((a, b) => a + b, 0n) + tx.fee
   );
 }
-

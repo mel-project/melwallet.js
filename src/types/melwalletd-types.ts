@@ -21,7 +21,7 @@ export interface ThemelioWallet {
 
   get_address(): Promise<string>;
 
-  get_balances(): Promise<Map<Denom, bigint>>;
+  get_network(): Promise<NetID>;
 
   lock(): Promise<boolean>;
 
@@ -29,17 +29,14 @@ export interface ThemelioWallet {
 
   export_sk(password: string): Promise<string | null>;
 
-  get_network(): Promise<NetID>;
-
   send_tx(tx: Transaction): Promise<string>;
 
-  prepare_transaction(ptx: PreparedTransaction): Promise<Transaction>;
+  prepare_transaction(ptx: UnpreparedTransaction): Promise<Transaction>;
 
   get_transaction(txhash: string): Promise<Transaction>;
 
-  swap(from: Denom, to: Denom): Promise<string>;
+  get_balances(): Promise<Map<Denom, bigint>>;
 }
-
 
 // #[serde(default)]
 // inputs: Vec<CoinID>,
@@ -51,7 +48,7 @@ export interface ThemelioWallet {
 // covenants: Vec<Vec<u8>>,
 // #[serde(default)]
 // nobalance: Vec<Denom>,
-export interface PreparedTransaction {
+export interface UnpreparedTransaction {
   inputs?: CoinID[];
   outputs: CoinData[];
   signing_key?: string;
@@ -66,3 +63,9 @@ export type WalletList = Map<string, WalletSummary>;
 export type TransactionDump = [string, bigint | null][];
 
 export type TxBalance = [boolean, TxKind, Map<string, bigint>];
+
+export interface SwapInfo {
+  result: bigint;
+  price_impact: bigint;
+  poolkey: string;
+}
