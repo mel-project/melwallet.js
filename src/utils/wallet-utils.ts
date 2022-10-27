@@ -16,9 +16,10 @@ import {
   WalletSummary,
 } from '../types/melwalletd-types';
 
-export function int_to_netid(num: bigint): NetID {
-  if (num === BigInt(NetID.Mainnet)) return NetID.Mainnet;
-  if (num === BigInt(NetID.Testnet)) return NetID.Testnet;
+export function int_to_netid(int: bigint | number): NetID {
+  let num = Number(int)
+  if (num === NetID.Mainnet) return NetID.Mainnet;
+  if (num === NetID.Testnet) return NetID.Testnet;
   throw 'Unsupported network: ' + num;
 }
 
