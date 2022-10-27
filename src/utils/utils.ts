@@ -1,5 +1,5 @@
 import * as JSONBig from 'json-bigint';
-console.log(JSONBig);
+console.log((JSONBig as any)?.default)
 export type JSONValue =
   | string
   | boolean
@@ -52,7 +52,6 @@ export function map_from_entries<T, K>(entries: [T, K][]): Map<T, K> {
   return map;
 }
 
-console.log(JSONBig);
 const JSONAlwaysBig = JSONBig({
   useNativeBigInt: true,
   alwaysParseAsBig: true,

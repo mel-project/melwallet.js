@@ -4,6 +4,7 @@ import {
   UnpreparedTransaction,
   TransactionDump,
   TxBalance,
+  SwapInfo,
 } from './types/melwalletd-types';
 import {
   RawWalletSummary,
@@ -22,7 +23,6 @@ import {
 import { ThemelioJson, map_from_entries, JSONValue } from './utils/utils';
 import {
   number_to_txkind,
-  prepare_faucet,
   tx_from_raw,
   wallet_summary_from_raw,
 } from './utils/wallet-utils';
@@ -310,15 +310,15 @@ export class MelwalletdClient {
     to: string,
     from: string,
     value: bigint,
-  ): Promise<PoolState | null> {
+  ): Promise<SwapInfo | null> {
     let res = await this.request(
       melwalletd_endpoints.simulate_swap(to, from, value),
     );
     let data: string = await res.text();
 
     let maybe_pool: Object = ThemelioJson.parse(data);
-    assertType<PoolState>(maybe_pool);
-    let pool: PoolState = maybe_pool as any;
+    assertType<SwapInfo>(maybe_pool);
+    let pool: SwapInfo = maybe_pool as any;
     return pool;
   }
 }

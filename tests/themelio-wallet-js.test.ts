@@ -25,7 +25,7 @@ import {
   ThemelioJson,
   random_hex_string,
 } from '../src/utils/utils';
-import { send_faucet } from '../src/utils/wallet-utils';
+import { prepare_swap, send_faucet } from '../src/utils/wallet-utils';
 
 /// ONLY RUN TESTS ON TESTNET WALLETS UNLESS YOU KNOW WHAT YOU ARE DOING
 const TESTNET_ONLY = true;
@@ -247,6 +247,13 @@ describe('Themelio Wallet', () => {
     let { wallet } = await get_store();
     let txhash: string = await send_faucet(wallet);
     let tx: TxBalance = await wallet.get_transaction_balance(txhash);
+  });
+  it('send a swap transaction', async () => {
+    let { wallet } = await get_store();
+    let tx: Transaction = await prepare_swap(wallet, 100n, Denom.MEL, Denom.SYM);
+    let txhash = await wallet.send_tx(tx);
+    console.log(txhash)
+    expect(tx);
   });
   /// After testing is complete, lock the wallet
   it('Lock the wallet', async () => {
