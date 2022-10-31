@@ -23,6 +23,13 @@ export function int_to_netid(int: bigint | number): NetID {
   throw 'Unsupported network: ' + num;
 }
 
+export function netid_to_string(netid: NetID): string {
+  if (netid === NetID.Mainnet) return "Mainnet";
+  if (netid === NetID.Testnet) return "Testnet";
+  throw 'Unsupported network: ' + netid;
+
+
+}
 export function string_to_denom(str: string): Denom {
   let Denom = DenomNames;
   if (Object.keys(Denom).findIndex((s: string) => s == str)) {
