@@ -1,10 +1,5 @@
-interface _DenomNum {
-  MEL: 109, // b"m"
-  SYM: 115, // b"s"
-  ERG: 100, // b"d"
-  CUSTOM: bigint, // txhash.to_vec
-  NEWCOIN: 0, // b""
-}
+import { Split } from "~/utils/utils";
+
 
 
 interface _DenomNames {
@@ -15,13 +10,6 @@ interface _DenomNames {
   CUSTOM: `CUSTOM-${string}`
 };
 
-export type Split<T> = keyof T extends infer Keys // turn on distributivity
-  ? (Keys extends PropertyKey
-    ? (Keys extends keyof T
-      ? T[Keys] // apply to each keyfor readability
-      : never)
-    : never)
-  : never
 
 export type Denom = Split<_DenomNames>
 export type DenomNum = Split<_DenomNum>

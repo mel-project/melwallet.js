@@ -3,6 +3,13 @@ var JSONBig = JSONBigPackage
 if((JSONBigPackage as any).default){
   JSONBig = (JSONBigPackage as any).default
 }
+export type Split<T> = keyof T extends infer Keys // turn on distributivity
+  ? (Keys extends PropertyKey
+    ? (Keys extends keyof T
+      ? T[Keys] // apply to each keyfor readability
+      : never)
+    : never)
+  : never
 
 export type JSONValue =
   | string

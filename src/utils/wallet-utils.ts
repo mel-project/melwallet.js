@@ -3,7 +3,6 @@ import { RawTransaction, RawWalletSummary } from '../types/request-types';
 import {
   CoinData,
   Denom,
-  DenomName,
   DenomNum,
   NetID,
   PoolKey,
