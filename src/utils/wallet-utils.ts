@@ -3,7 +3,8 @@ import { RawTransaction, RawWalletSummary } from '../types/request-types';
 import {
   CoinData,
   Denom,
-  DenomNames,
+  DenomName,
+  DenomNum,
   NetID,
   PoolKey,
   Transaction,
@@ -30,11 +31,8 @@ export function netid_to_string(netid: NetID): string {
 
 
 }
-export function string_to_denom(str: string): Denom {
-  let Denom = DenomNames;
-  if (Object.keys(Denom).findIndex((s: string) => s == str)) {
-    return str;
-  }
+export function num_to_denom_name(num: DenomNum): Denom {
+    if(num == )
   return str;
 }
 
@@ -43,16 +41,10 @@ export function hex_to_denom(hex: string): Denom {
   return number_to_denom(denom_val);
 }
 
-export function number_to_denom(num: number | bigint): Denom {
-  let Denom = DenomNames;
-  let denom_num = Number(num);
-  let denom_index = Object.values(TxKind).indexOf(denom_num);
-  if (denom_index >= 0) return Object.keys(Denom)[denom_index];
-  return num.toString(16);
-}
+
 
 export function denom_to_string(denom: Denom): string {
-  return denom;
+  
 }
 
 export function number_to_txkind(num: number | bigint): TxKind {

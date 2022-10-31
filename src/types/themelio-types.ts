@@ -1,26 +1,43 @@
-export enum DenomNum {
-  MEL = 109,
-  SYM = 115,
-  ERG = 100,
-  CUSTOM = 0,
-  NEWCOIN = -1,
+interface _DenomNum {
+  MEL: 109, // b"m"
+  SYM: 115, // b"s"
+  ERG: 100, // b"d"
+  CUSTOM: bigint, // txhash.to_vec
+  NEWCOIN: 0, // b""
 }
+
 
 interface _DenomNames {
-  MEL: 'MEL';
-  SYM: 'SYM';
-  ERG: 'ERG';
-  NEWCOIN: '(NEWCOIN)';
-}
-
-export const DenomNames: _DenomNames = {
   MEL: 'MEL',
   SYM: 'SYM',
   ERG: 'ERG',
   NEWCOIN: '(NEWCOIN)',
+  CUSTOM: `CUSTOM-${string}`
 };
 
-export type Denom = string;
+export type Split<T> = keyof T extends infer Keys // turn on distributivity
+  ? (Keys extends PropertyKey
+    ? (Keys extends keyof T
+      ? T[Keys] // apply to each keyfor readability
+      : never)
+    : never)
+  : never
+
+export type Denom = Split<_DenomNames>
+export type DenomNum = Split<_DenomNum>
+
+
+// Doesn't include `CUSTOM` since it's not 1 value by nature
+export namespace DenomNum {
+  const MEL = 109; // b"m"
+  const SYM = 115; // b"s"
+  const ERG = 100; // b"d"
+  const NEWCOIN = 0; // b""
+}
+/// modified from
+/// https://stackoverflow.com/questions/72515807/create-an-union-type-from-interface-properties
+
+
 
 // export type TXHash = string & { __brand: "Valid Transaction Hash" }
 
