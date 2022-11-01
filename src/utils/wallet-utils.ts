@@ -113,7 +113,7 @@ export function coin_data_from_raw(raw_coindata: RawCoinData): CoinData {
 
 export function tx_from_raw(raw_tx: RawTransaction): Transaction {
   let outputs: any = raw_tx.outputs;
-  assertType<RawCoinData>(outputs)
+  assertType<RawCoinData[]>(outputs)
   let tx: Transaction = Object.assign({}, raw_tx, {
     kind: Number(raw_tx.kind),
     outputs: outputs.map(coin_data_from_raw)

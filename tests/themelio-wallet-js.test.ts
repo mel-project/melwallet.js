@@ -208,7 +208,7 @@ describe('Themelio Wallet', () => {
   });
 
   ///
-  it('prepare_transactions', async () => {
+  it('prepare transactions', async () => {
     let { wallet } = await get_store();
     let outputs: CoinData[] = [
       {
@@ -229,7 +229,6 @@ describe('Themelio Wallet', () => {
       fee_ballast: 0n,
       signing_key: undefined,
     };
-    console.log(ThemelioJson.stringify(ptx, null, 2))
     let tx: Transaction = await wallet.prepare_transaction(ptx);
     expect(tx);
   });
@@ -253,7 +252,6 @@ describe('Themelio Wallet', () => {
     let { wallet } = await get_store();
     let tx: Transaction = await prepare_swap(wallet, 100n, Denom.MEL, Denom.SYM);
     let txhash = await wallet.send_tx(tx);
-    console.log(txhash)
     expect(tx);
   });
   /// After testing is complete, lock the wallet
