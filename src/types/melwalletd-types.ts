@@ -64,9 +64,10 @@ export interface UnpreparedTransaction {
 }
 export type WalletList = Map<string, WalletSummary>;
 
-export type TransactionDump = [string, bigint | null][];
+export type TransactionDump = [string, bigint | null][]; /// Vec<(TxHash, Option<BlockHeight>)
 
-export type TxBalance = [boolean, TxKind, Map<string, bigint>];
+export type TxBalance = [boolean, TxKind, Map<Denom, bigint>]; /// TxBalance(pub bool, pub TxKind, pub BTreeMap<String, i128>);
+
 
 export interface SwapInfo {
   result: bigint;

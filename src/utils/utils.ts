@@ -56,13 +56,25 @@ export async function promise_or_false<T>(
   }
 }
 
-export function map_from_entries<T, K>(entries: [T, K][]): Map<T, K> {
-  let map: Map<T, K> = new Map();
-  for (let entry of entries) {
-    // console.log(entry);
-    let [key, value] = entry;
-    map.set(key, value);
+export function map_from_entries<T, K, J, F extends ((k: K)=>J) | never>(entries: [T, K][], mapping: F): Map<T, F extends Function ? J : K> {
+  type Mapped = F extends Function ? J : K
+  let map: Map<T, Mapped> = new Map();
+  if(mapping){
+    for (let entry of entries) {
+      // console.log(entry);
+      let [key, value] = entry;
+      let mapped = mapping(value) as Mapped;
+      map.set(key, mapped);
+    }
   }
+  else {
+    for (let entry of entries) {
+      // console.log(entry);
+      let [key, value] = entry;
+      map.set(key, value as Mapped);
+    }
+  }
+
   return map;
 }
 

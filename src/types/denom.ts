@@ -21,7 +21,7 @@ export class Denom {
     private readonly value: DenomNum;
     //------ Instances ------//
 
-    static readonly MEL = new Denom(109);
+    static readonly MEL = new Denom(109);// b"m"
     static readonly SYM = new Denom(115) // b"s"
     static readonly ERG = new Denom(100) // b"d"
     static readonly CUSTOM = (value: bigint) => new Denom(value) // txhash.to_vec
