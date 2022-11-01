@@ -254,6 +254,11 @@ describe('Themelio Wallet', () => {
     let txhash = await wallet.send_tx(tx);
     expect(tx);
   });
+  it('simulate a swap transaction', async () => {
+    let { client } = await get_store();
+    let nfo = client.simulate_swap(Denom.MEL, Denom.SYM, 1000n)
+    expect(nfo);
+  });
   /// After testing is complete, lock the wallet
   it('Lock the wallet', async () => {
     let { wallet } = await get_store();
