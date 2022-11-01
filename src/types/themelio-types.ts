@@ -1,33 +1,8 @@
-import { Split } from "~/utils/utils";
-
-
-
-interface _DenomNames {
-  MEL: 'MEL',
-  SYM: 'SYM',
-  ERG: 'ERG',
-  NEWCOIN: '(NEWCOIN)',
-  CUSTOM: `CUSTOM-${string}`
-};
-
-
-export type Denom = Split<_DenomNames>
-export type DenomNum = Split<_DenomNum>
-
-
-// Doesn't include `CUSTOM` since it's not 1 value by nature
-export namespace DenomNum {
-  const MEL = 109; // b"m"
-  const SYM = 115; // b"s"
-  const ERG = 100; // b"d"
-  const NEWCOIN = 0; // b""
-}
-/// modified from
-/// https://stackoverflow.com/questions/72515807/create-an-union-type-from-interface-properties
-
 
 
 // export type TXHash = string & { __brand: "Valid Transaction Hash" }
+
+import Denom from "./denom";
 
 export enum NetID {
   Testnet = 0x01,

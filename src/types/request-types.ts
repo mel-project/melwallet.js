@@ -12,15 +12,20 @@ export interface RawWalletSummary {
 export interface RawTransaction {
   kind: bigint;
   inputs: CoinID[];
-  outputs: CoinData[];
+  outputs: RawCoinData[];
   fee: bigint;
   covenants: string[];
   data: string;
   sigs: string[];
 }
 
+
+export type RawCoinData = Omit<CoinData, 'denom'> & {denom: string}
+export type RawAnnCoinID = Omit<AnnCoinID, 'coin_data'> & {coin_data: RawCoinData}
+
+
 export interface RawTransactionInfo {
-  outputs: AnnCoinID[];
+  outputs: RawAnnCoinID[];
   confirmed_height: bigint | null;
   raw: RawTransaction;
 }

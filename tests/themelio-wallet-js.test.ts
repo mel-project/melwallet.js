@@ -17,7 +17,6 @@ import {
   CoinData,
   TxKind,
   Transaction,
-  DenomNames as Denom,
 } from '../src/types/themelio-types';
 import {
   promise_or_false,
@@ -26,6 +25,7 @@ import {
   random_hex_string,
 } from '../src/utils/utils';
 import { prepare_swap, send_faucet } from '../src/utils/wallet-utils';
+import Denom from '../src/types/denom';
 
 /// ONLY RUN TESTS ON TESTNET WALLETS UNLESS YOU KNOW WHAT YOU ARE DOING
 const TESTNET_ONLY = true;
@@ -200,7 +200,7 @@ describe('Themelio Wallet', () => {
   ///
   it('Each balance is a `bigint`', async () => {
     let { wallet } = await get_store();
-    let balances: Map<string, bigint> = await wallet.get_balances();
+    let balances: Map<Denom, bigint> = await wallet.get_balances();
     Object.entries(balances.entries()).forEach(entry => {
       let [denom, value] = entry;
       expect(typeof value).toBe('bigint');
@@ -229,6 +229,7 @@ describe('Themelio Wallet', () => {
       fee_ballast: 0n,
       signing_key: undefined,
     };
+    console.log(ThemelioJson.stringify(ptx, null, 2))
     let tx: Transaction = await wallet.prepare_transaction(ptx);
     expect(tx);
   });

@@ -1,5 +1,9 @@
-import { Transaction, Denom, AnnCoinID, NetID, TxKind } from './themelio-types';
+import { Split } from '..';
+import Denom from './denom';
+import { Transaction, AnnCoinID, NetID, TxKind } from './themelio-types';
 import { CoinData, CoinID } from './themelio-types';
+
+
 
 export interface TransactionStatus {
   raw: Transaction;

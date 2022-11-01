@@ -17,7 +17,6 @@ import {
   PoolState,
   Header,
   NetID,
-  Denom,
   Transaction,
 } from './types/themelio-types';
 import { ThemelioJson, map_from_entries, JSONValue } from './utils/utils';
@@ -27,6 +26,7 @@ import {
   wallet_summary_from_raw,
 } from './utils/wallet-utils';
 import { assertType } from 'typescript-is';
+import Denom, { DenomName } from './types/denom';
 
 enum HTTPMethod {
   CONNECT = 'CONNECT',
@@ -60,8 +60,8 @@ let melwalletd_endpoints = {
     method: HTTPMethod.GET,
   }),
   simulate_swap: (
-    from: string,
-    to: string,
+    from: DenomName,
+    to: DenomName,
     value: bigint,
   ): MelwalletdEndpoint => ({
     path: [`pool_info`],
@@ -307,12 +307,12 @@ export class MelwalletdClient {
     return maybe_tx_info as RawTransactionInfo;
   }
   async simulate_swap(
-    to: string,
-    from: string,
+    to: Denom,
+    from: Denom,
     value: bigint,
   ): Promise<SwapInfo | null> {
     let res = await this.request(
-      melwalletd_endpoints.simulate_swap(to, from, value),
+      melwalletd_endpoints.simulate_swap(to.toString(), from.toString(), value),
     );
     let data: string = await res.text();
 

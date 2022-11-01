@@ -3,6 +3,9 @@ var JSONBig = JSONBigPackage
 if((JSONBigPackage as any).default){
   JSONBig = (JSONBigPackage as any).default
 }
+
+/// modified from
+/// https://stackoverflow.com/questions/72515807/create-an-union-type-from-interface-properties
 export type Split<T> = keyof T extends infer Keys // turn on distributivity
   ? (Keys extends PropertyKey
     ? (Keys extends keyof T

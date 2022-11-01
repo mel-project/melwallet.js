@@ -1,9 +1,8 @@
 import { assertType } from 'typescript-is';
-import { RawTransaction, RawWalletSummary } from '../types/request-types';
+import { RawCoinData, RawTransaction, RawWalletSummary } from '../types/request-types';
+import { Denom } from '../types/denom'
 import {
   CoinData,
-  Denom,
-  DenomNum,
   NetID,
   PoolKey,
   Transaction,
@@ -30,22 +29,6 @@ export function netid_to_string(netid: NetID): string {
 
 
 }
-export function num_to_denom_name(num: DenomNum): Denom {
-    if(num == )
-  return str;
-}
-
-export function hex_to_denom(hex: string): Denom {
-  let denom_val = Number(hex);
-  return number_to_denom(denom_val);
-}
-
-
-
-export function denom_to_string(denom: Denom): string {
-  
-}
-
 export function number_to_txkind(num: number | bigint): TxKind {
   let txkind = Number(num);
   if (Object.values(TxKind).indexOf(txkind) >= 0) return txkind;
@@ -54,7 +37,6 @@ export function number_to_txkind(num: number | bigint): TxKind {
 
 export function prepare_faucet(address: string, amount: bigint): Transaction {
   let data = random_hex_string(32);
-  let Denom = DenomNames;
 
   let outputs: CoinData[] = [
     {
@@ -123,12 +105,19 @@ export async function prepare_swap(
 }
 
 
+export function coin_data_from_raw(raw_coindata: RawCoinData): CoinData {
+  let cd: any = raw_coindata;
+  cd.denom = Denom.fromString(cd.denom)
+  return cd;
+}
 
 export function tx_from_raw(raw_tx: RawTransaction): Transaction {
-  let tx = Object.assign({}, raw_tx, {
+  let outputs: any = raw_tx.outputs;
+  assertType<RawCoinData>(outputs)
+  let tx: Transaction = Object.assign({}, raw_tx, {
     kind: Number(raw_tx.kind),
+    outputs: outputs.map(coin_data_from_raw)
   });
-  assertType<Transaction>(tx);
   return tx;
 }
 
@@ -145,7 +134,7 @@ export function wallet_summary_from_raw(
   let detailed_balance: Map<Denom, bigint> = map_from_entries(
     balance_entries.map(entry => {
       let [key, value]: [string, bigint] = entry;
-      let mapped: [Denom, bigint] = [hex_to_denom('0x' + key), value];
+      let mapped: [Denom, bigint] = [Denom.fromHex('0x' + key), value];
       return mapped;
     }) as [Denom, bigint][],
   );
@@ -163,7 +152,6 @@ export function wallet_summary_from_raw(
 
 // Compute total value flowing out of wallet from a list of coins
 export function net_spent(tx: Transaction, self_covhash: string): bigint {
-  let Denom = DenomNames;
   return (
     tx.outputs
       .filter(cd => cd.covhash != self_covhash)
