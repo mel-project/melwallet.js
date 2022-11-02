@@ -512,22 +512,16 @@ export class MelwalletdWallet implements ThemelioWallet {
     )) as any;
     assertType<RawTxBalance>(raw_balance);
     /// we now know [boolean, bigint, Record<string, bigint>]
-    console.debug('got raw tx balance')
     raw_balance[1] = number_to_txkind(raw_balance[1] as bigint); // turn to txkind
 
     let raw_balances: [string, bigint][] = Object.entries(raw_balance[2] as Record<string, bigint>)
-    console.debug('raw balance entries')
 
     let balances: [Denom, bigint][] = raw_balances.map(
       ([denom, value])=>{
         return [Denom.fromHex('0x'+denom), value]
       }
     )
-    console.debug('got raw tx balance')
-
     raw_balance[2] = map_from_entries(balances); // turn to map
-    console.debug('converted to type')
-
     /// [boolean, TxKind, Map<string, bigint>]
     let balance: TxBalance = raw_balance as TxBalance;
     return balance;
