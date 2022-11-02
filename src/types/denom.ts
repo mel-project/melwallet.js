@@ -67,6 +67,9 @@ export class Denom {
     }
 
     //------ Methods ------//
+    public toNum(): DenomNum {
+        return this.value
+    }
     public toString(): DenomName {
         let n = this.value
         if (n === 109) return "MEL"

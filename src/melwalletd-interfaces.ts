@@ -26,7 +26,7 @@ import {
   wallet_summary_from_raw,
 } from './utils/wallet-utils';
 import { assertType } from 'typescript-is';
-import Denom, { DenomName } from './types/denom';
+import Denom, { DenomName, DenomNum } from './types/denom';
 
 enum HTTPMethod {
   CONNECT = 'CONNECT',
@@ -60,8 +60,8 @@ let melwalletd_endpoints = {
     method: HTTPMethod.GET,
   }),
   simulate_swap: (
-    from: DenomName,
-    to: DenomName,
+    from: DenomNum,
+    to: DenomNum,
     value: bigint,
   ): MelwalletdEndpoint => ({
     path: [`pool_info`],
@@ -312,8 +312,9 @@ export class MelwalletdClient {
     from: Denom,
     value: bigint,
   ): Promise<SwapInfo | null> {
+    throw Error("broken handler: simulate_swap")
     let res = await this.request(
-      melwalletd_endpoints.simulate_swap(to.toString(), from.toString(), value),
+      melwalletd_endpoints.simulate_swap(to.toNum(), from.toNum(), value),
     );
     let data: string = await res.text();
 
@@ -511,6 +512,7 @@ export class MelwalletdWallet implements ThemelioWallet {
     )) as any;
     assertType<RawTxBalance>(raw_balance);
     /// we now know [boolean, bigint, Record<string, bigint>]
+    console.debug('got raw tx balance')
     raw_balance[1] = number_to_txkind(raw_balance[1] as bigint); // turn to txkind
 
     let raw_balances: [string, bigint][] = Object.entries(raw_balance[2] as Record<string, bigint>)
@@ -520,6 +522,8 @@ export class MelwalletdWallet implements ThemelioWallet {
       }
     )
     raw_balance[2] = map_from_entries(balances); // turn to map
+    console.debug('converted to type')
+
     /// [boolean, TxKind, Map<string, bigint>]
     let balance: TxBalance = raw_balance as TxBalance;
     return balance;
