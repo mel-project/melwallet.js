@@ -153,7 +153,7 @@ export class MelwalletdClient {
     additional_options?: Omit<RequestInit, 'method' | 'body'>,
   ): Promise<Response> {
     if (endpoint.body && body) {
-      throw 'Ambiguously specified body in both params and endpoint';
+      throw 'Ambiguously specified body in both `body` and `endpoint`';
     }
 
     let { method, path } = endpoint;
@@ -171,6 +171,7 @@ export class MelwalletdClient {
     if (response.ok) {
       return response;
     } else {
+      console.debug(request_body)
       throw {
         message: `Error fetching \`${method} => \`${url}\`:\n\t${response.statusText}\n`,
         response,

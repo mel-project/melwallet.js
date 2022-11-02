@@ -256,7 +256,7 @@ describe('Themelio Wallet', () => {
   });
   it('simulate a swap transaction', async () => {
     let { client } = await get_store();
-    let nfo = client.simulate_swap(Denom.MEL, Denom.SYM, 1000n)
+    let nfo = await client.simulate_swap(Denom.MEL, Denom.SYM, 1000n)
     expect(nfo);
   });
   /// After testing is complete, lock the wallet
