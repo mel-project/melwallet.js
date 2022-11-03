@@ -24,7 +24,7 @@ import {
   ThemelioJson,
   random_hex_string,
 } from '../src/utils/utils';
-import {   send_faucet, unprepared_swap } from '../src/utils/wallet-utils';
+import { send_faucet, unprepared_swap } from '../src/utils/wallet-utils';
 import Denom from '../src/types/denom';
 
 /// ONLY RUN TESTS ON TESTNET WALLETS UNLESS YOU KNOW WHAT YOU ARE DOING
@@ -80,7 +80,7 @@ const get_store: () => Promise<Store> = (() => {
 
       try {
         await client.create_wallet(wallet_info.name, wallet_info.password);
-      } catch {}
+      } catch { }
       const wallet: MelwalletdWallet | false = await promise_or_false(
         unwrap_nullable_promise(client.get_wallet(wallet_info.name)),
       );
@@ -248,9 +248,14 @@ describe('Themelio Wallet', () => {
     let txhash: string = await send_faucet(wallet);
     let tx: TxBalance = await wallet.get_transaction_balance(txhash);
   });
-  it('send a swap transaction', async () => {
-    let { wallet } = await get_store();
+  it.only('send a swap transaction', async () => {
+    let store = await get_store();
+    let { wallet } = store;
+
+    expect(await wallet.unlock(store.wallet_info.password)).toBeTruthy();
+
     let untx: UnpreparedTransaction = await unprepared_swap(wallet, Denom.MEL, Denom.SYM, 100n);
+    console.log(ThemelioJson.stringify(untx, null, 2))
     let tx: Transaction = await wallet.prepare_transaction(untx);
     let txhash = await wallet.send_tx(tx);
     expect(tx);
