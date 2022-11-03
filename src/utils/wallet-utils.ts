@@ -78,15 +78,16 @@ export async function send_faucet(
 }
 
 export function poolkey_to_str(poolkey: PoolKey): string {
-  return `${poolkey.left}/${poolkey.right}`;
+  return `${poolkey.left.toJSON()}/${poolkey.right.toJSON()}`;
 }
-export async function prepare_swap(
+export async function unprepared_swap(
   wallet: ThemelioWallet,
-  value: bigint,
   from: Denom,
   to: Denom,
+  value: bigint,
+
   additional_data: string = '',
-): Promise<Transaction> {
+): Promise<UnpreparedTransaction> {
   let outputs: CoinData[] = [
     {
       covhash: await wallet.get_address(),
@@ -97,11 +98,11 @@ export async function prepare_swap(
   ];
   let poolkey: PoolKey = { left: from, right: to };
   const unprepared: UnpreparedTransaction = {
-    kind: 0x51,
+    kind: TxKind.Swap,
     data: poolkey_to_str(poolkey),
     outputs,
   };
-  return wallet.prepare_transaction(unprepared);
+  return unprepared;
 }
 
 

@@ -24,7 +24,7 @@ import {
   ThemelioJson,
   random_hex_string,
 } from '../src/utils/utils';
-import { prepare_swap, send_faucet } from '../src/utils/wallet-utils';
+import {   send_faucet, unprepared_swap } from '../src/utils/wallet-utils';
 import Denom from '../src/types/denom';
 
 /// ONLY RUN TESTS ON TESTNET WALLETS UNLESS YOU KNOW WHAT YOU ARE DOING
@@ -250,13 +250,14 @@ describe('Themelio Wallet', () => {
   });
   it('send a swap transaction', async () => {
     let { wallet } = await get_store();
-    let tx: Transaction = await prepare_swap(wallet, 100n, Denom.MEL, Denom.SYM);
+    let untx: UnpreparedTransaction = await unprepared_swap(wallet, Denom.MEL, Denom.SYM, 100n);
+    let tx: Transaction = await wallet.prepare_transaction(untx);
     let txhash = await wallet.send_tx(tx);
     expect(tx);
   });
   it('simulate a swap transaction', async () => {
     let { client } = await get_store();
-    let nfo = client.simulate_swap(Denom.MEL, Denom.SYM, 1000n)
+    let nfo = await client.simulate_swap(Denom.MEL, Denom.SYM, 1000n)
     expect(nfo);
   });
   /// After testing is complete, lock the wallet
