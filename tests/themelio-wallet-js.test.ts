@@ -1,7 +1,4 @@
-import {
-  MelwalletdWallet,
-  MelwalletdClient,
-} from '../src/melwalletd-interfaces';
+import { MelwalletdHttpWallet as MelwalletdWallet, MelwalletdHttpClient as MelwalletdClient } from '../src/melwalletd-legacy';
 import { describe as _describe, it as _it, expect } from '@jest/globals';
 import { assertType, is } from 'typescript-is';
 import { get_faucet_confirmation } from '../examples/wait_for_faucet_transaction';
@@ -80,7 +77,7 @@ const get_store: () => Promise<Store> = (() => {
 
       try {
         await client.create_wallet(wallet_info.name, wallet_info.password);
-      } catch { }
+      } catch {}
       const wallet: MelwalletdWallet | false = await promise_or_false(
         unwrap_nullable_promise(client.get_wallet(wallet_info.name)),
       );
@@ -248,21 +245,26 @@ describe('Themelio Wallet', () => {
     let txhash: string = await send_faucet(wallet);
     let tx: TxBalance = await wallet.get_transaction_balance(txhash);
   });
-  it.only('send a swap transaction', async () => {
+  it('send a swap transaction', async () => {
     let store = await get_store();
     let { wallet } = store;
 
     expect(await wallet.unlock(store.wallet_info.password)).toBeTruthy();
 
-    let untx: UnpreparedTransaction = await unprepared_swap(wallet, Denom.MEL, Denom.SYM, 100n);
-    console.log(ThemelioJson.stringify(untx, null, 2))
+    let untx: UnpreparedTransaction = await unprepared_swap(
+      wallet,
+      Denom.MEL,
+      Denom.SYM,
+      100n,
+    );
+    console.log(ThemelioJson.stringify(untx, null, 2));
     let tx: Transaction = await wallet.prepare_transaction(untx);
     let txhash = await wallet.send_tx(tx);
     expect(tx);
   });
   it('simulate a swap transaction', async () => {
     let { client } = await get_store();
-    let nfo = await client.simulate_swap(Denom.MEL, Denom.SYM, 1000n)
+    let nfo = await client.simulate_swap(Denom.MEL, Denom.SYM, 1000n);
     expect(nfo);
   });
   /// After testing is complete, lock the wallet

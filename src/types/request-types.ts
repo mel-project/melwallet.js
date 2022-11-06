@@ -19,10 +19,10 @@ export interface RawTransaction {
   sigs: string[];
 }
 
-
-export type RawCoinData = Omit<CoinData, 'denom'> & {denom: string}
-export type RawAnnCoinID = Omit<AnnCoinID, 'coin_data'> & {coin_data: RawCoinData}
-
+export type RawCoinData = Omit<CoinData, 'denom'> & { denom: string };
+export type RawAnnCoinID = Omit<AnnCoinID, 'coin_data'> & {
+  coin_data: RawCoinData;
+};
 
 export interface RawTransactionInfo {
   outputs: RawAnnCoinID[];
@@ -31,3 +31,5 @@ export interface RawTransactionInfo {
 }
 
 export type RawTxBalance = [boolean, bigint, Record<string, bigint>];
+
+

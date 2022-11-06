@@ -1,18 +1,19 @@
 import * as JSONBigPackage from 'json-bigint';
-var JSONBig = JSONBigPackage
-if((JSONBigPackage as any).default){
-  JSONBig = (JSONBigPackage as any).default
+import { JSONRPCResponse } from '~/types/jsonrpc';
+var JSONBig = JSONBigPackage;
+if ((JSONBigPackage as any).default) {
+  JSONBig = (JSONBigPackage as any).default;
 }
 
 /// modified from
 /// https://stackoverflow.com/questions/72515807/create-an-union-type-from-interface-properties
 export type Split<T> = keyof T extends infer Keys // turn on distributivity
-  ? (Keys extends PropertyKey
-    ? (Keys extends keyof T
+  ? Keys extends PropertyKey
+    ? Keys extends keyof T
       ? T[Keys] // apply to each keyfor readability
-      : never)
-    : never)
-  : never
+      : never
+    : never
+  : never;
 
 export type JSONValue =
   | string
@@ -57,15 +58,14 @@ export async function promise_or_false<T>(
 }
 
 export function map_from_entries<T, K>(entries: [T, K][]): Map<T, K> {
-  let map: Map<T,K> = new Map();
-    for (let entry of entries) {
-      // console.log(entry);
-      let [key, value] = entry;
-      map.set(key, value);
-    }
+  let map: Map<T, K> = new Map();
+  for (let entry of entries) {
+    // console.log(entry);
+    let [key, value] = entry;
+    map.set(key, value);
+  }
   return map;
 }
-
 
 const JSONAlwaysBig = JSONBig({
   useNativeBigInt: true,
@@ -85,3 +85,14 @@ export const ThemelioJson = {
     return JSONAlwaysBig.parse(text) as JSONValue;
   },
 };
+
+export function handle_jsonrpc (response: JSONRPCResponse): JSONValue{
+  if(response?.result){
+    return response.result
+  }
+  else if(response?.error){
+    let err = response.error;
+    throw Error(`RPC failed \ncode: ${err.code}\nmessage: ${err.message}\ndata:${err.data}`)
+  }
+  throw "Impossible JSONRPC Response without `result` or `error` field"
+}

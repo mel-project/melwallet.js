@@ -3,8 +3,6 @@ import Denom from './denom';
 import { Transaction, AnnCoinID, NetID, TxKind } from './themelio-types';
 import { CoinData, CoinID } from './themelio-types';
 
-
-
 export interface TransactionStatus {
   raw: Transaction;
   confirmed_height: bigint | null;
@@ -67,7 +65,6 @@ export type WalletList = Map<string, WalletSummary>;
 export type TransactionDump = [string, bigint | null][]; /// Vec<(TxHash, Option<BlockHeight>)
 
 export type TxBalance = [boolean, TxKind, Map<Denom, bigint>]; /// TxBalance(pub bool, pub TxKind, pub BTreeMap<String, i128>);
-
 
 export interface SwapInfo {
   result: bigint;

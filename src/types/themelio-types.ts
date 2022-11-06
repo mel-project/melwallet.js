@@ -1,8 +1,6 @@
-
-
 // export type TXHash = string & { __brand: "Valid Transaction Hash" }
 
-import Denom from "./denom";
+import Denom from './denom';
 
 export enum NetID {
   Testnet = 0x01,
