@@ -72,7 +72,9 @@ const get_store: () => Promise<Store> = (() => {
         melwalletd_port,
       );
       const header: Header = await client.latest_header();
-      expect(expect(is<Header>(header)).toBeTruthy()); // melwalletd is running
+      console.log("Checking header")
+      expect(is<Header>(header)).toBeTruthy(); // melwalletd is running
+      console.log("header valid")
 
       if (TESTNET_ONLY)
         /// fail if not testnet and TESTNET_ONLY
@@ -81,12 +83,11 @@ const get_store: () => Promise<Store> = (() => {
       try {
         await client.create_wallet(wallet_info.name, wallet_info.password);
       } catch { }
-      const wallet: MelwalletdWallet | false = await promise_or_false(
-        unwrap_nullable_promise(client.get_wallet(wallet_info.name)),
-      );
+      const wallet: MelwalletdWallet = await unwrap_nullable_promise(client.get_wallet(wallet_info.name));
       expect(wallet).toBeTruthy();
       expect(client).toBeTruthy();
       store = { wallet_info, client, wallet: wallet as MelwalletdWallet };
+      console.log("store created")
     }
     return store;
   };
@@ -133,7 +134,7 @@ describe.only('Client Features', () => {
     expect(created_all_wallets).toBeTruthy();
   });
 
-  ///compares the created wallets to the list of all wallets
+  /// compares the created wallets to the list of all wallets
   it('tests list_wallets', async () => {
     let { client } = await get_store();
     let wallets: Set<string> = new Set(await client.list_wallets());
@@ -203,8 +204,8 @@ describe('Themelio Wallet', () => {
   ///
   it('Each balance is a `bigint`', async () => {
     let { wallet } = await get_store();
-    let balances: Map<Denom, bigint> = await wallet.get_balances();
-    Object.entries(balances.entries()).forEach(entry => {
+    let balances: Record<Denom, bigint> = await wallet.get_balances();
+    Object.entries(balances).forEach(entry => {
       let [denom, value] = entry;
       expect(typeof value).toBe('bigint');
     });

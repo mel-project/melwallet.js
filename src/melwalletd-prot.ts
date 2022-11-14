@@ -16,8 +16,8 @@ import {
   Transaction,
 } from './types/themelio-types';
 
-export interface WalletGetter {
-  get_wallet(name: string): Promise<ThemelioWallet>;
+export interface WalletGetter<T extends ThemelioWallet> {
+  get_wallet(name: string): Promise<T>;
 }
 export interface MelwalletdProtocol {
   /// Returns a list of wallet names.

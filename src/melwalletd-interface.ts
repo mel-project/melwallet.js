@@ -11,7 +11,7 @@ import {
   ThemelioWallet,
 } from './types/melwalletd-types';
 import {
-  Header, 
+  Header,
   PoolKey,
   PoolState,
   CoinID,
@@ -22,7 +22,7 @@ import {
 import { JSONArray, JSONValue, ThemelioJson } from './utils/utils';
 import { poolkey_to_str } from './utils/wallet-utils';
 
-export class MelwalletdClient implements MelwalletdProtocol, WalletGetter {
+export class MelwalletdClient implements MelwalletdProtocol, WalletGetter<MelwalletdWallet> {
   readonly #base_url: string;
   constructor(url_or?: string, port_or?: number) {
     let url = url_or || 'http://127.0.0.1';
@@ -33,6 +33,7 @@ export class MelwalletdClient implements MelwalletdProtocol, WalletGetter {
   async get_wallet(name: string): Promise<MelwalletdWallet> {
     let client = this;
     let summary: WalletSummary = await this.wallet_summary(name);
+    console.log('got summary ')
     return new MelwalletdWallet(summary.address, name, summary.network, client)
   }
 
@@ -40,8 +41,10 @@ export class MelwalletdClient implements MelwalletdProtocol, WalletGetter {
     let maybe_list: unknown = await this.rpc_request("list_wallets", [])
     return assertType<string[]>(maybe_list)
   }
-  async wallet_summary(name: string): Promise<WalletSummary> {
+  async wallet_summary(name: string): Promise<any> {
+    console.log("getting summary")
     let res: unknown = await this.rpc_request("wallet_summary", [name])
+    console.log(res)
     return assertType<WalletSummary>(res)
   }
   async latest_header(): Promise<Header> {
@@ -134,6 +137,7 @@ export class MelwalletdClient implements MelwalletdProtocol, WalletGetter {
         body,
       });
       if (response.ok) {
+        // console.log(body)
         let res: any = ThemelioJson.parse(await response.text())
         assertType<JSONRPCResponse>(res)
         return JSONRPC.extract_result(res)
@@ -186,42 +190,47 @@ export class MelwalletdWallet implements ThemelioWallet {
     network: NetID,
     client: MelwalletdClient,
   ) {
+    console.log('creating new wallet')
     this.#address = address;
     this.#name = name;
     this.#client = client;
     this.#network = network;
   }
-  async get_name(): Promise<string> {
+  get_name(): Promise<string> {
     throw new Error('Method not implemented.');
   }
-  async get_address(): Promise<string> {
+  get_address(): Promise<string> {
     throw new Error('Method not implemented.');
   }
-  async get_network(): Promise<NetID> {
+  get_network(): Promise<NetID> {
     throw new Error('Method not implemented.');
   }
-  async lock(): Promise<boolean> {
+  lock(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  async unlock(password: string): Promise<boolean> {
+  unlock(password: string): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  async export_sk(password: string): Promise<string | null> {
+  export_sk(password: string): Promise<string | null> {
     throw new Error('Method not implemented.');
   }
-  async send_tx(tx: Transaction): Promise<string> {
+  send_tx(tx: Transaction): Promise<string> {
     throw new Error('Method not implemented.');
   }
-  async prepare_transaction(ptx: UnpreparedTransaction): Promise<Transaction> {
+  prepare_transaction(ptx: UnpreparedTransaction): Promise<Transaction> {
     throw new Error('Method not implemented.');
   }
-  async get_transaction(txhash: string): Promise<Transaction> {
+  get_transaction(txhash: string): Promise<Transaction> {
     throw new Error('Method not implemented.');
   }
-  async get_balances(): Promise<Map<Denom, bigint>> {
+  get_balances(): Promise<Record<'MEL' | 'SYM' | 'ERG' | '(NEWCOIN)' | `CUSTOM-${string}`, bigint>> {
     throw new Error('Method not implemented.');
   }
-  async get_summary(): Promise<WalletSummary> {
-    throw new Error('Method not implemented.');
+
+  /// MELWALLETD SPECIFICS 
+
+  async get_summary(): Promise<any> {
+    let res: WalletSummary = await this.#client.wallet_summary(await this.get_name())
+    return res
   }
 }

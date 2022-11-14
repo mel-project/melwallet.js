@@ -1,5 +1,5 @@
 import { Split } from '..';
-import type {Denom} from './denom';
+import {Denom, DenomNames} from './denom';
 import { Transaction, AnnCoinID, NetID, TxKind } from './themelio-types';
 import { CoinData, CoinID } from './themelio-types';
 
@@ -9,9 +9,11 @@ export interface TransactionStatus {
   outputs: AnnCoinID;
 }
 
+
+
 export interface WalletSummary {
   total_micromel: bigint;
-  detailed_balance: Map<Denom, bigint>;
+  detailed_balance: Partial<Record<Denom, bigint>>;
   staked_microsym: bigint;
   network: NetID;
   address: string;
@@ -37,7 +39,7 @@ export interface ThemelioWallet {
 
   get_transaction(txhash: string): Promise<Transaction>;
 
-  get_balances(): Promise<Map<Denom, bigint>>;
+  get_balances(): Promise<Record<Denom, bigint>>;
 }
 
 // #[serde(default)]
@@ -60,11 +62,11 @@ export interface UnpreparedTransaction {
   nobalance?: Denom[];
   fee_ballast?: bigint;
 }
-export type WalletList = Map<string, WalletSummary>;
+export type WalletList = Record<string, WalletSummary>;
 
 export type TransactionDump = [string, bigint | null][]; /// Vec<(TxHash, Option<BlockHeight>)
 
-export type TxBalance = [boolean, TxKind, Map<Denom, bigint>]; /// TxBalance(pub bool, pub TxKind, pub BTreeMap<String, i128>);
+export type TxBalance = [boolean, TxKind, Partial<Record<Denom, bigint>>]; /// TxBalance(pub bool, pub TxKind, pub BTreeRecord<String, i128>);
 
 export interface SwapInfo {
   result: bigint;

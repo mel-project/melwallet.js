@@ -13,18 +13,8 @@ import {
   UnpreparedTransaction,
 } from '../types/melwalletd-types';
 
-export function int_to_netid(int: bigint | number): NetID {
-  let num = Number(int);
-  if (num === NetID.Mainnet) return NetID.Mainnet;
-  if (num === NetID.Testnet) return NetID.Testnet;
-  throw 'Unsupported network: ' + num;
-}
 
-export function netid_to_string(netid: NetID): string {
-  if (netid === NetID.Mainnet) return 'Mainnet';
-  if (netid === NetID.Testnet) return 'Testnet';
-  throw 'Unsupported network: ' + netid;
-}
+
 export function number_to_txkind(num: number | bigint): TxKind {
   let txkind = Number(num);
   if (Object.values(TxKind).indexOf(txkind) >= 0) return txkind;
