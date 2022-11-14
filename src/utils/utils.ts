@@ -30,8 +30,8 @@ export type JSONValue =
 
 
 
-export type JSONObject = {};
-export type JSONArray = Array<JSONValue>;
+export type JSONObject = Record<any, any>;
+export type JSONArray = JSONValue[];
 
 export type NotPromise<T> = T extends Promise<unknown> ? never : T;
 
