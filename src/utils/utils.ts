@@ -9,11 +9,15 @@ if ((JSONBigPackage as any).default) {
 /// https://stackoverflow.com/questions/72515807/create-an-union-type-from-interface-properties
 export type Split<T> = keyof T extends infer Keys // turn on distributivity
   ? Keys extends PropertyKey
-    ? Keys extends keyof T
-      ? T[Keys] // apply to each keyfor readability
-      : never
-    : never
+  ? Keys extends keyof T
+  ? T[Keys] // apply to each keyfor readability
+  : never
+  : never
   : never;
+
+
+export type ExhaustiveTo<T extends string | number | symbol, K> = {[k in T]: K}
+export type Exhaustive<T extends string | number | symbol> = ExhaustiveTo<T, any>
 
 export type JSONValue =
   | string
@@ -21,9 +25,12 @@ export type JSONValue =
   | bigint
   | JSONObject
   | JSONArray
+  | null
   | JSONObject;
 
-export type JSONObject = { [key: string]: JSONValue };
+
+
+export type JSONObject = {};
 export type JSONArray = Array<JSONValue>;
 
 export type NotPromise<T> = T extends Promise<unknown> ? never : T;
@@ -86,13 +93,3 @@ export const ThemelioJson = {
   },
 };
 
-export function handle_jsonrpc (response: JSONRPCResponse): JSONValue{
-  if(response?.result){
-    return response.result
-  }
-  else if(response?.error){
-    let err = response.error;
-    throw Error(`RPC failed \ncode: ${err.code}\nmessage: ${err.message}\ndata:${err.data}`)
-  }
-  throw "Impossible JSONRPC Response without `result` or `error` field"
-}

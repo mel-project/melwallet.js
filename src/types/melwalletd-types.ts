@@ -1,5 +1,5 @@
 import { Split } from '..';
-import Denom from './denom';
+import type {Denom} from './denom';
 import { Transaction, AnnCoinID, NetID, TxKind } from './themelio-types';
 import { CoinData, CoinID } from './themelio-types';
 
