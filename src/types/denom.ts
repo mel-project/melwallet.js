@@ -1,12 +1,6 @@
-import { Exhaustive, Split } from '../utils/utils';
 
-// interface _DenomNum {
-//   MEL: 109; // b"m"
-//   SYM: 115; // b"s"
-//   ERG: 100; // b"d"
-//   CUSTOM: bigint; // txhash.to_vec
-//   NEWCOIN: 0; // b""
-// }
+import { Split } from "~/utils/type-utils";
+
 interface _Denom {
   MEL: 'MEL';
   SYM: 'SYM';

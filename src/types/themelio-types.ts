@@ -1,6 +1,6 @@
 // export type TXHash = string & { __brand: "Valid Transaction Hash" }
 
-import type {Denom} from './denom';
+import type { Denom } from './denom';
 
 export enum NetID {
   Testnet = "testnet",
@@ -29,13 +29,13 @@ export interface TransactionSummary {
 }
 
 export enum TxKind {
-  DoscMint = 0x50,
-  Faucet = 0xff,
-  LiqDeposit = 0x52,
-  LiqWithdraw = 0x53,
-  Normal = 0x00,
-  Stake = 0x10,
-  Swap = 0x51,
+  DoscMint = "DoscMint",
+  Faucet = "Faucet",
+  LiqDeposit = "LiqDeposit",
+  LiqWithdraw = "LiqWithdraw",
+  Normal = "Normal",
+  Stake = "Stake",
+  Swap = "Swap",
 }
 
 export interface PoolKey {

@@ -14,13 +14,6 @@ import {
 } from '../types/melwalletd-types';
 
 
-
-export function number_to_txkind(num: number | bigint): TxKind {
-  let txkind = Number(num);
-  if (Object.values(TxKind).indexOf(txkind) >= 0) return txkind;
-  throw 'Unknown Txkind';
-}
-
 export function prepare_faucet(address: string, amount: bigint): Transaction {
   let data = random_hex_string(32);
 

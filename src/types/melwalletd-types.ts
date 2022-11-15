@@ -1,4 +1,3 @@
-import { Split } from '..';
 import {Denom, DenomNames} from './denom';
 import { Transaction, AnnCoinID, NetID, TxKind } from './themelio-types';
 import { CoinData, CoinID } from './themelio-types';
@@ -8,8 +7,6 @@ export interface TransactionStatus {
   confirmed_height: bigint | null;
   outputs: AnnCoinID;
 }
-
-
 
 export interface WalletSummary {
   total_micromel: bigint;
@@ -39,7 +36,7 @@ export interface ThemelioWallet {
 
   get_transaction(txhash: string): Promise<Transaction>;
 
-  get_balances(): Promise<Record<Denom, bigint>>;
+  get_balances(): Promise<Partial<Record<Denom, bigint>>>;
 }
 
 // #[serde(default)]

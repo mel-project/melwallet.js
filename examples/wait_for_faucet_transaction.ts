@@ -33,11 +33,11 @@ import { send_faucet } from '../src/utils/wallet-utils';
 //   while (true) {
 //     // let height = await is_pending(client, wallet, txhash);
 //     let height = 1;
-//     console.log(height);
+
 //     if (!height) {
 //       await setTimeout(1000);
 //     } else {
-//       console.log(`Transaction confirmed at height: ${height}`);
+
 //       break;
 //     }
 //   }
