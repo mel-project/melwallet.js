@@ -151,25 +151,20 @@ export class MelwalletdClient implements MelwalletdProtocol, WalletGetter<Melwal
       method,
       params
     });
-    try {
-      let response = await fetch(url, {
-        method: 'POST',
-        body,
-      });
-      if (response.ok) {
+    let response = await fetch(url, {
+      method: 'POST',
+      body,
+    });
+    if (response.ok) {
 
-        let res: any = ThemelioJson.parse(await response.text())
-        assertType<JSONRPCResponse>(res)
-        return JSONRPC.extract_result(res)
-      } else {
-        console.debug(body);
-        throw Error(`HTTP Error fetching \`${body} with ${response}`);
-      }
+      let res: any = ThemelioJson.parse(await response.text())
+      assertType<JSONRPCResponse>(res)
+      return JSONRPC.extract_result(res)
+    } else {
+      console.debug(body);
+      throw Error(`HTTP Error fetching \`${body} with ${response}`);
     }
-    catch {
-      console.debug(body)
-      throw Error(`Fetch failed, melwalletd may be offline`)
-    }
+
 
 
   }
