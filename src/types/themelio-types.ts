@@ -4,7 +4,14 @@ import type { Denom } from './denom';
 
 export enum NetID {
   Testnet = "testnet",
-  Mainnet = "mainnet"
+  Mainnet = "mainnet",
+  Custom02 = "custom02",
+  Custom03 = "custom03",
+  Custom04 = "custom04",
+  Custom05 = "custom05",
+  Custom06 = "custom06",
+  Custom07 = "custom07",
+  Custom08 = "custom08"
 }
 
 export interface Header {

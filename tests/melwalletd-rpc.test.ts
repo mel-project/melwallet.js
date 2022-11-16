@@ -27,8 +27,8 @@ import {
   MelwalletdClient,
   MelwalletdWallet,
 } from '../src/melwalletd-interface';
-/// ONLY RUN TESTS ON TESTNET WALLETS UNLESS YOU KNOW WHAT YOU ARE DOING
-const TESTNET_ONLY = true;
+/// ONLY RUN TESTS ON NON-MAINNET UNLESS YOU KNOW WHAT YOU ARE DOING
+const NO_MAINNET = true;
 
 /// many of the tests simply run methods with known valid data
 /// The library was written using `typescript-is` `assertType` to verify type safety.
@@ -76,9 +76,9 @@ const get_store: () => Promise<Store> = (() => {
       expect(is<Header>(header)).toBeTruthy(); // melwalletd is running
 
 
-      if (TESTNET_ONLY)
+      if (NO_MAINNET)
         /// fail if not testnet and TESTNET_ONLY
-        expect(header.network === NetID.Testnet).toBeTruthy();
+        expect(header.network !== NetID.Mainnet).toBeTruthy();
 
       try {
         await client.create_wallet(wallet_info.name, wallet_info.password);
@@ -112,7 +112,7 @@ describe('Initialize Store, end tests otherwise', () => {
   });
 });
 
-describe('Client Features', () => {
+describe.only('Client Features', () => {
   const WALLET_NAMES = [...Array(10).keys()].map(() => random_hex_string(32));
 
   /// tests for failure of method

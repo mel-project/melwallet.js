@@ -67,6 +67,6 @@ export type TxBalance = [boolean, TxKind, Partial<Record<Denom, bigint>>]; /// T
 
 export interface SwapInfo {
   result: bigint;
-  price_impact: bigint;
+  slippage: bigint;
   poolkey: string;
 }
