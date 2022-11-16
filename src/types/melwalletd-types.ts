@@ -1,11 +1,11 @@
-import {Denom, DenomNames} from './denom';
+import { Denom, DenomNames } from './denom';
 import { Transaction, AnnCoinID, NetID, TxKind } from './themelio-types';
 import { CoinData, CoinID } from './themelio-types';
 
 export interface TransactionStatus {
   raw: Transaction;
   confirmed_height: bigint | null;
-  outputs: AnnCoinID;
+  outputs: AnnCoinID[];
 }
 
 export interface WalletSummary {

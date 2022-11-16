@@ -99,6 +99,7 @@ export class MelwalletdClient implements MelwalletdProtocol, WalletGetter<Melwal
     wallet_name: string,
     request: UnpreparedTransaction,
   ): Promise<Transaction> {
+    console.log(wallet_name, request)
     const res = await this.rpc_request("prepare_tx", [wallet_name, request]);
     return assertType<Transaction>(res)
 
@@ -156,7 +157,6 @@ export class MelwalletdClient implements MelwalletdProtocol, WalletGetter<Melwal
       body,
     });
     if (response.ok) {
-
       let res: any = ThemelioJson.parse(await response.text())
       assertType<JSONRPCResponse>(res)
       return JSONRPC.extract_result(res)
