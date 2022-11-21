@@ -11,3 +11,7 @@ compiled
 .rpt2_cache
 docs
 dev_utils/
+.yarnrc.yml
+yarn.lock
+pnpm-lock.yaml
+.yarn
