@@ -38,7 +38,7 @@ export const PrepareTxArgs = {
   liqwithdraw: () => Error("Unimplemented"),
   normal: () => Error("Unimplemented"),
   stake: () => Error("Unimplemented"),
-} as const satisfies ShapeOf<Lowercase<TxKind>>;
+} as const;
 
 export type WalletList = Record<string, WalletSummary>;
 

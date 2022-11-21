@@ -25,6 +25,6 @@ export const Denom = {
   CUSTOM,
   ERG,
   NEWCOIN
-} as const satisfies ShapeOf<DenomNames>;
+} as const;
 
 
