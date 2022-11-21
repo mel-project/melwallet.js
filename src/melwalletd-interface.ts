@@ -1,5 +1,5 @@
 import { assertType } from 'typescript-is';
-import { MelwalletdProtocol, WalletGetter } from './types/melwalletd-prot';
+import { MelwalletdProtocol, ThemelioWallet, WalletGetter } from './types/melwalletd-prot';
 import { JSONRPCResponse, JSONRPC } from './types/jsonrpc'
 import type { Denom } from './types/denom';
 import {
@@ -8,7 +8,6 @@ import {
   PrepareTxArgs,
   TxBalance,
   TransactionStatus,
-  ThemelioWallet,
 } from './types/melwalletd-types';
 import {
   Header,
