@@ -1,9 +1,9 @@
 import { describe as _describe, it as _it, expect } from '@jest/globals';
-import { assertType, is } from 'typescript-is';
+import { is } from 'typescript-is';
 // import { get_faucet_confirmation } from '../examples/wait_for_faucet_transaction';
 import {
   WalletList,
-  UnpreparedTransaction,
+  PrepareTxArgs,
   TransactionDump,
   TxBalance,
 } from '../src/types/melwalletd-types';
@@ -21,7 +21,7 @@ import {
   ThemelioJson,
   random_hex_string,
 } from '../src/utils/utils';
-import { send_faucet, unprepared_swap } from '../src/utils/wallet-utils';
+import { send_faucet, prepare_swap_to } from '../src/utils/wallet-utils';
 import { Denom, DenomNames } from '../src/types/denom';
 import {
   MelwalletdClient,
@@ -153,8 +153,8 @@ describe('Client Features', () => {
   it('tests get_pool', async () => {
     let { client } = await get_store();
     let pool: PoolState | null = await client.melswap_info({
-      left: DenomNames.MEL,
-      right: DenomNames.SYM,
+      left: Denom.MEL,
+      right: Denom.SYM,
     });
     expect(pool).toBeTruthy();
   });
@@ -214,9 +214,7 @@ describe('Themelio Wallet', () => {
   ///
   it('prepare swap transactions', async () => {
     let { wallet } = await get_store();
-
-
-    let ptx: UnpreparedTransaction = await unprepared_swap(wallet, Denom.MEL, Denom.SYM, 1000n)
+    let ptx: PrepareTxArgs = await prepare_swap_to(await wallet.get_address(), Denom.MEL, Denom.SYM, 1000n)
     let tx: Transaction = await wallet.prepare_transaction(ptx);
     expect(tx);
   });
@@ -242,8 +240,8 @@ describe('Themelio Wallet', () => {
 
     expect(await wallet.unlock(store.wallet_info.password)).toBeTruthy();
 
-    let untx: UnpreparedTransaction = await unprepared_swap(
-      wallet,
+    let untx: PrepareTxArgs = await prepare_swap_to(
+      await wallet.get_address(),
       Denom.MEL,
       Denom.SYM,
       100n,

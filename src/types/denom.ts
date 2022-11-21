@@ -1,5 +1,5 @@
 
-import { Split } from "~/utils/type-utils";
+import { ShapeOf, Split } from "~/utils/type-utils";
 
 interface _Denom {
   MEL: 'MEL';
@@ -11,17 +11,7 @@ interface _Denom {
 export type Denom = "MEL" | "SYM" | "ERG" | "(NEWCOIN)" | `CUSTOM-${string}`
 // export type DenomNum = Split<_DenomNum>;
 
-
-export namespace DenomNames {
-  export const MEL = "MEL";
-  export const SYM = "SYM";
-  export const ERG = "ERG";
-  export const CUSTOM: (str: string) => Denom = (str) => `CUSTOM-${str}`;
-  export const NEWCOIN = "(NEWCOIN)";
-}
-
 export type DenomNames = keyof _Denom
-
 
 const MEL = "MEL" as const
 const SYM: Denom = "SYM"
@@ -35,6 +25,6 @@ export const Denom = {
   CUSTOM,
   ERG,
   NEWCOIN
-} as const;
+} as const satisfies ShapeOf<DenomNames>;
 
 

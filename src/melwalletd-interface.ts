@@ -1,11 +1,11 @@
 import { assertType } from 'typescript-is';
-import { MelwalletdProtocol, WalletGetter } from './melwalletd-prot';
+import { MelwalletdProtocol, WalletGetter } from './types/melwalletd-prot';
 import { JSONRPCResponse, JSONRPC } from './types/jsonrpc'
 import type { Denom } from './types/denom';
 import {
   WalletSummary,
   SwapInfo,
-  UnpreparedTransaction,
+  PrepareTxArgs,
   TxBalance,
   TransactionStatus,
   ThemelioWallet,
@@ -97,7 +97,7 @@ export class MelwalletdClient implements MelwalletdProtocol, WalletGetter<Melwal
   }
   async prepare_tx(
     wallet_name: string,
-    request: UnpreparedTransaction,
+    request: PrepareTxArgs,
   ): Promise<Transaction> {
     console.log(wallet_name, request)
     const res = await this.rpc_request("prepare_tx", [wallet_name, request]);
@@ -234,7 +234,7 @@ export class MelwalletdWallet implements ThemelioWallet {
   async send_tx(tx: Transaction): Promise<string> {
     return this.#client.send_tx(await this.get_name(), tx)
   }
-  async prepare_transaction(ptx: UnpreparedTransaction): Promise<Transaction> {
+  async prepare_transaction(ptx: PrepareTxArgs): Promise<Transaction> {
     return this.#client.prepare_tx(await this.get_name(), ptx)
   }
   async get_transaction(txhash: string): Promise<Transaction> {

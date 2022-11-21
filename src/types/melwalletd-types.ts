@@ -1,3 +1,5 @@
+import { ShapeOf } from '~/utils/type-utils';
+import { prepare_faucet_args as prepare_faucet_args, prepare_swap_to as prepare_swap_to } from '..';
 import { Denom, DenomNames } from './denom';
 import { Transaction, AnnCoinID, NetID, TxKind } from './themelio-types';
 import { CoinData, CoinID } from './themelio-types';
@@ -17,39 +19,7 @@ export interface WalletSummary {
   locked: boolean;
 }
 
-export interface ThemelioWallet {
-  get_name(): Promise<string>;
-
-  get_address(): Promise<string>;
-
-  get_network(): Promise<NetID>;
-
-  lock(): Promise<boolean>;
-
-  unlock(password: string): Promise<boolean>;
-
-  export_sk(password: string): Promise<string | null>;
-
-  send_tx(tx: Transaction): Promise<string>;
-
-  prepare_transaction(ptx: UnpreparedTransaction): Promise<Transaction>;
-
-  get_transaction(txhash: string): Promise<Transaction>;
-
-  get_balances(): Promise<Partial<Record<Denom, bigint>>>;
-}
-
-// #[serde(default)]
-// inputs: Vec<CoinID>,
-// outputs: Vec<CoinData>,
-// signing_key: Option<String>,
-// kind: Option<TxKind>,
-// data: Option<String>,
-// #[serde(default, with = "stdcode::hexvec")]
-// covenants: Vec<Vec<u8>>,
-// #[serde(default)]
-// nobalance: Vec<Denom>,
-export interface UnpreparedTransaction {
+export interface PrepareTxArgs {
   inputs?: CoinID[];
   outputs: CoinData[];
   signing_key?: string;
@@ -59,6 +29,17 @@ export interface UnpreparedTransaction {
   nobalance?: Denom[];
   fee_ballast?: bigint;
 }
+
+export const PrepareTxArgs = {
+  swap: prepare_swap_to,
+  faucet: prepare_faucet_args,
+  doscmint: () => Error("Unimplemented"),
+  liqdeposit: () => Error("Unimplemented"),
+  liqwithdraw: () => Error("Unimplemented"),
+  normal: () => Error("Unimplemented"),
+  stake: () => Error("Unimplemented"),
+} as const satisfies ShapeOf<Lowercase<TxKind>>;
+
 export type WalletList = Record<string, WalletSummary>;
 
 export type TransactionDump = [string, bigint | null][]; /// Vec<(TxHash, Option<BlockHeight>)

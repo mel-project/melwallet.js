@@ -22,6 +22,10 @@ export type JSONValue =
   | JSONObject;
 
 
+/**
+ * Extra
+ */
+export type ShapeOf<T extends string | number | symbol> = {[key in T]: any}
 
 export type JSONObject = Record<any, any>;
 export type JSONArray = JSONValue[];
