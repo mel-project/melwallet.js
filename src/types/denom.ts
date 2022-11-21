@@ -7,8 +7,8 @@ interface _Denom {
   ERG: 'ERG';
   NEWCOIN: '(NEWCOIN)';
   CUSTOM: `CUSTOM-${string}`;
-}
-export type Denom = Split<_Denom>;
+} 
+export type Denom = "MEL" | "SYM" | "ERG" | "(NEWCOIN)" | `CUSTOM-${string}`
 // export type DenomNum = Split<_DenomNum>;
 
 

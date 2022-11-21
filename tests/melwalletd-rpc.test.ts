@@ -112,7 +112,7 @@ describe('Initialize Store, end tests otherwise', () => {
   });
 });
 
-describe.only('Client Features', () => {
+describe('Client Features', () => {
   const WALLET_NAMES = [...Array(10).keys()].map(() => random_hex_string(32));
 
   /// tests for failure of method
@@ -212,27 +212,11 @@ describe('Themelio Wallet', () => {
   });
 
   ///
-  it('prepare transactions', async () => {
+  it('prepare swap transactions', async () => {
     let { wallet } = await get_store();
-    let outputs: CoinData[] = [
-      {
-        covhash: await wallet.get_address(),
-        value: 1001000000n,
-        denom: Denom.MEL,
-        additional_data: '',
-      },
-    ];
 
-    let ptx: UnpreparedTransaction = {
-      kind: TxKind.Faucet,
-      inputs: [],
-      outputs: outputs,
-      covenants: [],
-      data: '',
-      nobalance: [],
-      fee_ballast: 0n,
-      signing_key: undefined,
-    };
+
+    let ptx: UnpreparedTransaction = await unprepared_swap(wallet, Denom.MEL, Denom.SYM, 1000n)
     let tx: Transaction = await wallet.prepare_transaction(ptx);
     expect(tx);
   });

@@ -46,6 +46,17 @@ export function map_from_entries<T, K>(entries: [T, K][]): Map<T, K> {
   return map;
 }
 
+export function bytesToHex(bytes: Uint8Array) {
+  return Array.from(
+    bytes,
+    byte => byte.toString(16).padStart(2, "0")
+  ).join("");
+}
+
+export function stringToUTF8Bytes(string: string) {
+  return new TextEncoder().encode(string);
+}
+
 const JSONAlwaysBig = JSONBig({
   useNativeBigInt: true,
   alwaysParseAsBig: true,

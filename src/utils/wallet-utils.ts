@@ -7,7 +7,7 @@ import {
   Transaction,
   TxKind,
 } from '../types/themelio-types';
-import {random_hex_string } from './utils';
+import {bytesToHex, random_hex_string, stringToUTF8Bytes } from './utils';
 import {
   ThemelioWallet,
   UnpreparedTransaction,
@@ -78,7 +78,7 @@ export async function unprepared_swap(
   let poolkey: PoolKey = { left: from, right: to };
   const unprepared: UnpreparedTransaction = {
     kind: TxKind.Swap,
-    data: poolkey_to_str(poolkey),
+    data: bytesToHex(stringToUTF8Bytes(poolkey_to_str(poolkey))),
     outputs,
   };
   return unprepared;
