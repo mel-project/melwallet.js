@@ -38,7 +38,7 @@ const wallet: MelwalletdWallet = client.get_wallet('wallet_name');
 
 These api's were designed with ease of use in mind without sacrificing the ability to perform in advanced usecases.
 
-Lastly, this library to provides a minimal interface, `ThemelioWallet`, to create wallets with other backends. This interface will serve as the foundation for wallet-generic tooling.
+Lastly, this library provides a minimal interface, `ThemelioWallet`, to create wallets with other backend implementation. This interface will serve as the foundation for wallet-generic tooling.
 
 ## Getting Started
 
