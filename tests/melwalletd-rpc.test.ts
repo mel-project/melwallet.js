@@ -15,6 +15,7 @@ import {
   TxKind,
   Transaction,
   PoolState,
+  Denom,
 } from '../src/types/themelio-types';
 import {
   promise_or_false,
@@ -23,7 +24,6 @@ import {
   random_hex_string,
 } from '../src/utils/utils';
 import { send_faucet, prepare_swap_to } from '../src/utils/wallet-utils';
-import { Denom, DenomName } from '../src/types/denom';
 import {
   MelwalletdClient,
   MelwalletdWallet,

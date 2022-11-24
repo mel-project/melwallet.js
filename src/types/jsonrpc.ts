@@ -2,7 +2,7 @@
 /// and isn't necessarily spec compliant
 
 import { createIs } from "typescript-is";
-import { JSONValue } from "~/utils/type-utils";
+import { JSONValue } from "../types/type-utils";
 
 
 export type JSONRPCID = string | number | null | bigint;

@@ -1,7 +1,6 @@
 import { assertType } from 'typescript-is';
 import { MelwalletdProtocol, ThemelioWallet, WalletGetter } from './types/melwalletd-prot';
 import { JSONRPCResponse, JSONRPC } from './types/jsonrpc'
-import type { Denom } from './types/denom';
 import {
   WalletSummary,
   SwapInfo,
@@ -11,14 +10,16 @@ import {
 } from './types/melwalletd-types';
 import {
   Header,
-  PoolKey,
+  PoolKeyHelpers,
   PoolState,
   CoinID,
   CoinData,
   Transaction,
   NetID,
+  Denom,
+  PoolKey,
 } from './types/themelio-types';
-import { JSONArray, JSONValue } from './utils/type-utils';
+import { JSONArray, JSONValue } from './types/type-utils';
 import { ThemelioJson } from './utils/utils';
 
 export class MelwalletdClient implements MelwalletdProtocol, WalletGetter<MelwalletdWallet> {
@@ -49,7 +50,7 @@ export class MelwalletdClient implements MelwalletdProtocol, WalletGetter<Melwal
     return assertType<Header>(res);
   }
   async melswap_info(pool_key: PoolKey): Promise<PoolState | null> {
-    let res = await this.rpc_request("melswap_info", [PoolKey.asString(pool_key)])
+    let res = await this.rpc_request("melswap_info", [PoolKeyHelpers.asString(pool_key)])
     return assertType<PoolState | null>(res)
   }
   async simulate_swap(

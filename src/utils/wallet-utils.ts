@@ -1,9 +1,10 @@
 
-import { Denom } from '../types/denom';
 import {
   CoinData,
+  Denom,
   NetID,
   PoolKey,
+  PoolKeyHelpers,
   Transaction,
   TxKind,
 } from '../types/themelio-types';
@@ -85,7 +86,7 @@ export async function prepare_swap_to(
   let poolkey: PoolKey = { left: from, right: to };
   const ptx: PrepareTxArgs = {
     kind: TxKind.Swap,
-    data: PoolKey.asBytes(poolkey),
+    data: PoolKeyHelpers.asBytes(poolkey),
     outputs,
   };
   return ptx;

@@ -1,4 +1,3 @@
-import type { Denom } from './denom';
 import {
   WalletSummary,
   SwapInfo,
@@ -8,12 +7,14 @@ import {
 } from './melwalletd-types';
 import {
   Header,
-  PoolKey,
+  PoolKeyHelpers,
   PoolState,
   CoinID,
   CoinData,
   Transaction,
   NetID,
+  PoolKey,
+  Denom,
 } from './themelio-types';
 
 export interface WalletGetter<T extends ThemelioWallet> {
