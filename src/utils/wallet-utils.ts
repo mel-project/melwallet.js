@@ -1,4 +1,3 @@
-
 import {
   CoinData,
   Denom,
@@ -9,13 +8,13 @@ import {
   TxKind,
 } from '../types/themelio-types';
 import { bytesToHex, random_hex_string, stringToUTF8Bytes } from './utils';
-import {
-  PrepareTxArgs,
-} from '../types/melwalletd-types';
+import { PrepareTxArgs, PrepareTxArgsHelpers } from '../types/melwalletd-types';
 import { ThemelioWallet } from '~/types/melwalletd-prot';
 
-
-export function prepare_faucet_args(address: string, amount: bigint): Transaction {
+export function prepare_faucet_args(
+  address: string,
+  amount: bigint,
+): Transaction {
   let data = random_hex_string(32);
 
   let outputs: CoinData[] = [
@@ -57,9 +56,9 @@ export async function send_faucet(
   return await wallet.send_tx(tx);
 }
 /**
- * 
- * 
- * @param  {string} address the address to send the result of the swap 
+ *
+ *
+ * @param  {string} address the address to send the result of the swap
  * @param  {Denom} from the kind of denom to convert `from`
  * @param  {Denom} to the denom to conver `to`
  * @param  {bigint} value the amount of `from` to convert into `to`
@@ -91,9 +90,6 @@ export async function prepare_swap_to(
   };
   return ptx;
 }
-
-
-
 
 // Compute total value flowing out of wallet from a list of coins
 export function net_spent(tx: Transaction, self_covhash: string): bigint {

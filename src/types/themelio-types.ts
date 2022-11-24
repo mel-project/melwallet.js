@@ -1,15 +1,15 @@
 import { bytesToHex, stringToUTF8Bytes } from '../utils/utils';
 
 export enum NetID {
-  Testnet = "testnet",
-  Mainnet = "mainnet",
-  Custom02 = "custom02",
-  Custom03 = "custom03",
-  Custom04 = "custom04",
-  Custom05 = "custom05",
-  Custom06 = "custom06",
-  Custom07 = "custom07",
-  Custom08 = "custom08"
+  Testnet = 'testnet',
+  Mainnet = 'mainnet',
+  Custom02 = 'custom02',
+  Custom03 = 'custom03',
+  Custom04 = 'custom04',
+  Custom05 = 'custom05',
+  Custom06 = 'custom06',
+  Custom07 = 'custom07',
+  Custom08 = 'custom08',
 }
 
 export interface Header {
@@ -34,15 +34,14 @@ export interface TransactionSummary {
 }
 
 export enum TxKind {
-  DoscMint = "DoscMint",
-  Faucet = "Faucet",
-  LiqDeposit = "LiqDeposit",
-  LiqWithdraw = "LiqWithdraw",
-  Normal = "Normal",
-  Stake = "Stake",
-  Swap = "Swap",
+  DoscMint = 'DoscMint',
+  Faucet = 'Faucet',
+  LiqDeposit = 'LiqDeposit',
+  LiqWithdraw = 'LiqWithdraw',
+  Normal = 'Normal',
+  Stake = 'Stake',
+  Swap = 'Swap',
 }
-
 
 //****** DENOM ******/
 interface _DenomNum {
@@ -53,8 +52,8 @@ interface _DenomNum {
   NEWCOIN: 0; // b""
 }
 
-type CUSTOM_DENOM = `CUSTOM-${string}`
-export type Denom = 'MEL' | 'SYM' | 'ERG' | CUSTOM_DENOM | '(NEWCOIN)'
+type CUSTOM_DENOM = `CUSTOM-${string}`;
+export type Denom = 'MEL' | 'SYM' | 'ERG' | CUSTOM_DENOM | '(NEWCOIN)';
 export const Denom = {
   MEL: 'MEL',
   SYM: 'SYM',
@@ -63,36 +62,37 @@ export const Denom = {
   CUSTOM: (s: string): CUSTOM_DENOM => `CUSTOM-${s}`,
 } as const;
 
-
-export type DenomName = keyof typeof Denom
+export type DenomName = keyof typeof Denom;
 
 export function denom_to_name(value: Denom): DenomName {
   if (value.startsWith('CUSTOM-')) {
-    return 'CUSTOM'
+    return 'CUSTOM';
   }
   if (value === Denom.NEWCOIN) {
-    return 'NEWCOIN'
+    return 'NEWCOIN';
   }
-  console.log(value)
-  return value as any //this is a forced cast since TS doesn't narrow and exclude `CUSTOM-${string}` 
+  console.log(value);
+  return value as any; //this is a forced cast since TS doesn't narrow and exclude `CUSTOM-${string}`
 }
 
 export const DenomHelpers = {
   toName: denom_to_name,
   asString: (denom: Denom): string => denom,
   asBytes: (denom: Denom): string => {
-    console.log(denom)
+    console.log(denom);
     let denom_name = denom_to_name(denom);
-    if (denom_name === "MEL") return "6D";
-    if (denom_name === "SYM") return "73";
-    if (denom_name === "ERG") return "64";
-    if (denom_name === "CUSTOM") return bytesToHex(stringToUTF8Bytes((denom_name as CUSTOM_DENOM).split('-')[1])); // txhash.to_vec
-    if (denom_name === "NEWCOIN") return "0";
-    throw "Impossible Denom"
-  }
-}
+    if (denom_name === 'MEL') return '6D';
+    if (denom_name === 'SYM') return '73';
+    if (denom_name === 'ERG') return '64';
+    if (denom_name === 'CUSTOM')
+      return bytesToHex(
+        stringToUTF8Bytes((denom_name as CUSTOM_DENOM).split('-')[1]),
+      ); // txhash.to_vec
+    if (denom_name === 'NEWCOIN') return '0';
+    throw 'Impossible Denom';
+  },
+};
 /** ---------------------- */
-
 
 export interface PoolKey {
   left: Denom;
@@ -101,27 +101,24 @@ export interface PoolKey {
 
 export const PoolKeyHelpers = {
   asString(poolkey: PoolKey): string {
-    return `${poolkey.left}/${poolkey.right}`
+    return `${poolkey.left}/${poolkey.right}`;
   },
   asBytes(poolkey: PoolKey): string {
     let a = () => {
       if (poolkey.left == Denom.MEL) {
-        console.log(PoolKeyHelpers.asString(poolkey))
-        console.log(DenomHelpers.asBytes(poolkey.right))
-        return DenomHelpers.asBytes(poolkey.right)
+        console.log(PoolKeyHelpers.asString(poolkey));
+        console.log(DenomHelpers.asBytes(poolkey.right));
+        return DenomHelpers.asBytes(poolkey.right);
+      } else if (poolkey.right == Denom.MEL) {
+        return DenomHelpers.asBytes(poolkey.left);
       }
-      else if (poolkey.right == Denom.MEL) {
-        return DenomHelpers.asBytes(poolkey.left)
-      }
-      return bytesToHex(stringToUTF8Bytes(PoolKeyHelpers.asString(poolkey)))
-    }
-    let b = a()
-    console.log(b)
-    return b
-
-  }
-} as const
-
+      return bytesToHex(stringToUTF8Bytes(PoolKeyHelpers.asString(poolkey)));
+    };
+    let b = a();
+    console.log(b);
+    return b;
+  },
+} as const;
 
 // 2 million cached pooldataitems is 64 mb
 // 1 item is 256 bits

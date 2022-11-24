@@ -3,10 +3,11 @@ import { is } from 'typescript-is';
 // import { get_faucet_confirmation } from '../examples/wait_for_faucet_transaction';
 import {
   WalletList,
-  PrepareTxArgs,
+  PrepareTxArgsHelpers,
   TransactionDump,
   TxBalance,
   TransactionStatus,
+  PrepareTxArgs,
 } from '../src/types/melwalletd-types';
 import {
   Header,
@@ -76,7 +77,6 @@ const get_store: () => Promise<Store> = (() => {
 
       expect(is<Header>(header)).toBeTruthy(); // melwalletd is running
 
-
       if (NO_MAINNET)
         /// fail if not testnet and TESTNET_ONLY
         expect(header.network !== NetID.Mainnet).toBeTruthy();
@@ -84,11 +84,12 @@ const get_store: () => Promise<Store> = (() => {
       try {
         await client.create_wallet(wallet_info.name, wallet_info.password);
       } catch { }
-      const wallet: MelwalletdWallet = await unwrap_nullable_promise(client.get_wallet(wallet_info.name));
+      const wallet: MelwalletdWallet = await unwrap_nullable_promise(
+        client.get_wallet(wallet_info.name),
+      );
       expect(wallet).toBeTruthy();
       expect(client).toBeTruthy();
       store = { wallet_info, client, wallet: wallet as MelwalletdWallet };
-
     }
     return store;
   };
@@ -222,16 +223,20 @@ describe('Themelio Wallet', () => {
   ///
   it('get all transactions from this wallet', async () => {
     let { wallet, client } = await get_store();
-    let dump: TransactionDump = await client.dump_transactions(await wallet.get_name());
+    let dump: TransactionDump = await client.dump_transactions(
+      await wallet.get_name(),
+    );
   });
 
   ///
   it('send a transaction and get its txbalance', async () => {
     let { wallet, client } = await get_store();
     let txhash: string = await send_faucet(wallet);
-    let tx: TxBalance | null = await client.tx_balance(await wallet.get_name(), txhash);
+    let tx: TxBalance | null = await client.tx_balance(
+      await wallet.get_name(),
+      txhash,
+    );
   });
-
 
   ///
   ///
@@ -241,7 +246,7 @@ describe('Themelio Wallet', () => {
     expect(await wallet.unlock(store.wallet_info.password)).toBeTruthy();
     let summary = await wallet.get_summary();
     let decimal_balance = summary.total_micromel % 1_000_000n;
-    let untx: PrepareTxArgs = await PrepareTxArgs.swap(
+    let untx: PrepareTxArgs = await PrepareTxArgsHelpers.swap(
       await wallet.get_address(),
       Denom.MEL,
       Denom.SYM,

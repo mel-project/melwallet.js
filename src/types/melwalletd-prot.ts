@@ -3,6 +3,7 @@ import {
   SwapInfo,
   TxBalance,
   TransactionStatus as TxStatus,
+  PrepareTxArgsHelpers,
   PrepareTxArgs,
 } from './melwalletd-types';
 import {
@@ -48,7 +49,6 @@ export interface MelwalletdProtocol {
    */
   melswap_info(pool_key: PoolKey): Promise<PoolState | null>;
 
-
   /**
    * @param  {Denom} to
    * @param  {Denom} from
@@ -76,7 +76,7 @@ export interface MelwalletdProtocol {
   ): Promise<void>;
 
   /**
-   * @param wallet_name 
+   * @param wallet_name
    * @returns Promise<[CoinId, CoinData][]>
    * Dump all the coins of a given wallet.
    */
@@ -119,10 +119,7 @@ export interface MelwalletdProtocol {
    *
    * This method does not change the internal state of the wallet or send any transactions. Once you're sure you want to send the transaction returned, simply pass it to [MelwalletdProtocol::send_tx].
    */
-  prepare_tx(
-    wallet_name: string,
-    request: PrepareTxArgs,
-  ): Promise<Transaction>;
+  prepare_tx(wallet_name: string, request: PrepareTxArgs): Promise<Transaction>;
 
   /**
    * @param  {string} wallet_name
@@ -146,10 +143,7 @@ export interface MelwalletdProtocol {
    * @returns Promise
    * Returns the status ([TxStatus]) of a transaction, which includes its full contents as well as where, if anywhere, was it confirmed. If no such transaction can be found, or if the wallet has given up on the transaction already, returns `null`.
    */
-  tx_status(
-    wallet_name: string,
-    txhash: string,
-  ): Promise<TxStatus | null>;
+  tx_status(wallet_name: string, txhash: string): Promise<TxStatus | null>;
 
   /**
    * @param  {string} wallet_name
@@ -159,9 +153,7 @@ export interface MelwalletdProtocol {
   send_faucet(wallet_name: string): Promise<string>;
 }
 
-
 export interface ThemelioWallet {
-
   /**
    * @returns Promise<string>
    * Returns the name of a wallet
@@ -196,7 +188,7 @@ export interface ThemelioWallet {
   /**
    * @param  {string} password
    * @returns Promise<string | null>
-   * exports the SECRET key of this wallet. 
+   * exports the SECRET key of this wallet.
    * WARNING: anyone with the secret key can use your wallet and spend any coins within it. Use with caution
    */
   export_sk(password: string): Promise<string | null>;
@@ -207,7 +199,7 @@ export interface ThemelioWallet {
    * Send a tx. Check prepare_transaction
    * @example
    *  let address = await this.get_address()
-   *  let ptx_args: PrepareTxArgs = await PrepareTxArgs.swap(address, Denom.MEL, Denom.SYM, 100n)
+   *  let ptx_args: PrepareTxArgs = await PrepareTxArgsHelpers.swap(address, Denom.MEL, Denom.SYM, 100n)
    *  let tx: Transaction = await this.prepare_transaction(ptx_args)
    *  let tx_hash: string = await this.send_tx(tx)
    */
@@ -216,12 +208,12 @@ export interface ThemelioWallet {
   /**
    * @param  {PrepareTxArgs} ptx
    * @returns Promise<Transaction>
-   * Constructing a transaction involves specific formatting and precomputation that can be difficult to do by hand. 
-   * To bridge the difficulty gap, `prepare_transaction` exists to abstract away the computing. 
-   * Still, formatting a `PrepareTxArgs` by hand is complex and prone to mistakes, so there are helpe functions like `PrepareTxArgs.faucet`
+   * Constructing a transaction involves specific formatting and precomputation that can be difficult to do by hand.
+   * To bridge the difficulty gap, `prepare_transaction` exists to abstract away the computing.
+   * Still, formatting a `PrepareTxArgs` by hand is complex and prone to mistakes, so there are helpe functions like `PrepareTxArgsHelpers.faucet`
    * that automatically generate the args for transactions based on only a few, necessary, inputs
-   * @example 
-   * let ptx_args: PrepareTxArgs = await PrepareTxArgs.faucet(this, Denom.MEL, Denom.SYM, 100n)
+   * @example
+   * let ptx_args: PrepareTxArgs = await PrepareTxArgsHelpers.faucet(this, Denom.MEL, Denom.SYM, 100n)
    * let tx: Transaction = await this.prepare_transaction(ptx_args)
    */
   prepare_tx(ptx: PrepareTxArgs): Promise<Transaction>;
@@ -240,4 +232,3 @@ export interface ThemelioWallet {
    */
   get_balances(): Promise<Partial<Record<Denom, bigint>>>;
 }
-

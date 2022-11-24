@@ -1,11 +1,10 @@
 import * as JSONBigPackage from 'json-bigint';
-import { JSONValue, NotPromise } from '../types/type-utils'
+import { JSONValue, NotPromise } from '../types/type-utils';
 
 var JSONBig = JSONBigPackage;
 if ((JSONBigPackage as any).default) {
   JSONBig = (JSONBigPackage as any).default;
 }
-
 
 export function random_hex_string(arg0: number): string {
   let char_codes: number[] = [...Array(arg0).keys()].map(() =>
@@ -47,10 +46,7 @@ export function map_from_entries<T, K>(entries: [T, K][]): Map<T, K> {
 }
 
 export function bytesToHex(bytes: Uint8Array) {
-  return Array.from(
-    bytes,
-    byte => byte.toString(16).padStart(2, "0")
-  ).join("");
+  return Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
 export function stringToUTF8Bytes(string: string) {
@@ -75,4 +71,3 @@ export const ThemelioJson = {
     return JSONAlwaysBig.parse(text) as JSONValue;
   },
 };
-

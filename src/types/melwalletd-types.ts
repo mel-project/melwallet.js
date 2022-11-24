@@ -1,4 +1,7 @@
-import { prepare_faucet_args as prepare_faucet_args, prepare_swap_to as prepare_swap_to } from '..';
+import {
+  prepare_faucet_args as prepare_faucet_args,
+  prepare_swap_to as prepare_swap_to,
+} from '..';
 import { Transaction, AnnCoinID, NetID, TxKind, Denom } from './themelio-types';
 import { CoinData, CoinID } from './themelio-types';
 
@@ -28,14 +31,14 @@ export interface PrepareTxArgs {
   fee_ballast?: bigint;
 }
 
-export const PrepareTxArgs = {
+export const PrepareTxArgsHelpers = {
   swap: prepare_swap_to,
   faucet: prepare_faucet_args,
-  doscmint: () => Error("Unimplemented"),
-  liqdeposit: () => Error("Unimplemented"),
-  liqwithdraw: () => Error("Unimplemented"),
-  normal: () => Error("Unimplemented"),
-  stake: () => Error("Unimplemented"),
+  doscmint: () => Error('Unimplemented'),
+  liqdeposit: () => Error('Unimplemented'),
+  liqwithdraw: () => Error('Unimplemented'),
+  normal: () => Error('Unimplemented'),
+  stake: () => Error('Unimplemented'),
 } as const;
 
 export type WalletList = Record<string, WalletSummary>;
