@@ -55,7 +55,16 @@ export async function send_faucet(
   let tx: Transaction = prepare_faucet_args(await wallet.get_address(), amount);
   return await wallet.send_tx(tx);
 }
-
+/**
+ * 
+ * 
+ * @param  {string} address the address to send the result of the swap 
+ * @param  {Denom} from the kind of denom to convert `from`
+ * @param  {Denom} to the denom to conver `to`
+ * @param  {bigint} value the amount of `from` to convert into `to`
+ * @param  {string=''} additional_data
+ * @returns Promise<PrepareTxArgs>
+ */
 
 export async function prepare_swap_to(
   address: string,
@@ -76,7 +85,7 @@ export async function prepare_swap_to(
   let poolkey: PoolKey = { left: from, right: to };
   const ptx: PrepareTxArgs = {
     kind: TxKind.Swap,
-    data: bytesToHex(stringToUTF8Bytes(PoolKey.asString(poolkey))),
+    data: PoolKey.asBytes(poolkey),
     outputs,
   };
   return ptx;

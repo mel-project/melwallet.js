@@ -30,6 +30,7 @@ export function denom_to_name(value: Denom): DenomName {
   if (value === Denom.NEWCOIN) {
     return 'NEWCOIN'
   }
+  console.log(value)
   return value as any //this is a forced cast since TS doesn't narrow and exclude `CUSTOM-${string}` 
 }
 
@@ -39,10 +40,11 @@ export const DenomHelpers = {
   toName: denom_to_name,
   asString: (denom: Denom): string => denom,
   asBytes: (denom: Denom): string => {
+    console.log(denom)
     let denom_name = denom_to_name(denom);
-    if (denom_name = "MEL") return "109";
-    if (denom_name === "SYM") return "115";
-    if (denom_name === "ERG") return "100";
+    if (denom_name === "MEL") return "6D";
+    if (denom_name === "SYM") return "73";
+    if (denom_name === "ERG") return "64";
     if (denom_name === "CUSTOM") return bytesToHex(stringToUTF8Bytes((denom_name as CUSTOM_DENOM).split('-')[1])); // txhash.to_vec
     if (denom_name === "NEWCOIN") return "0";
     throw "Impossible Denom"

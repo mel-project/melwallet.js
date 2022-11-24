@@ -218,31 +218,42 @@ describe('Themelio Wallet', () => {
     let txhash: string = await send_faucet(wallet);
     let _tx: TransactionStatus | null = await wallet.tx_status(txhash);
   });
+
+  ///
   it('get all transactions from this wallet', async () => {
     let { wallet, client } = await get_store();
     let dump: TransactionDump = await client.dump_transactions(await wallet.get_name());
   });
+
+  ///
   it('send a transaction and get its txbalance', async () => {
     let { wallet, client } = await get_store();
     let txhash: string = await send_faucet(wallet);
     let tx: TxBalance | null = await client.tx_balance(await wallet.get_name(), txhash);
   });
+
+
+  ///
+  ///
   it('send a swap transaction', async () => {
     let store = await get_store();
     let { wallet } = store;
-
     expect(await wallet.unlock(store.wallet_info.password)).toBeTruthy();
-
-    let untx: PrepareTxArgs = await prepare_swap_to(
+    let summary = await wallet.get_summary();
+    let decimal_balance = summary.total_micromel % 1_000_000n;
+    let untx: PrepareTxArgs = await PrepareTxArgs.swap(
       await wallet.get_address(),
       Denom.MEL,
       Denom.SYM,
-      100n,
+      decimal_balance,
     );
     let tx: Transaction = await wallet.prepare_transaction(untx);
     let txhash = await wallet.send_tx(tx);
     expect(txhash).toBeTruthy();
   });
+
+  ///
+  ///
   it('simulate a swap transaction', async () => {
     let { client } = await get_store();
     let nfo = await client.simulate_swap(Denom.MEL, Denom.SYM, 1000n);

@@ -55,13 +55,21 @@ export const PoolKey = {
     return `${poolkey.left}/${poolkey.right}`
   },
   asBytes(poolkey: PoolKey): string{
-    if(poolkey.left == Denom.MEL){
-      return DenomHelpers.asBytes(poolkey.right)
+    let a = ()=>{
+      if(poolkey.left == Denom.MEL){
+        console.log(PoolKey.asString(poolkey))
+        console.log(DenomHelpers.asBytes(poolkey.right))
+        return DenomHelpers.asBytes(poolkey.right)
+      }
+      else if(poolkey.right == Denom.MEL){
+        return DenomHelpers.asBytes(poolkey.left)
+      }
+      return  bytesToHex(stringToUTF8Bytes(PoolKey.asString(poolkey)))
     }
-    else if(poolkey.right == Denom.MEL){
-      return DenomHelpers.asBytes(poolkey.left)
-    }
-    return  bytesToHex(stringToUTF8Bytes(PoolKey.asString(poolkey)))
+    let b = a()
+    console.log(b)
+    return b
+
   }
 } as const
 
