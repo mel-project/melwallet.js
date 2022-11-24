@@ -4,6 +4,8 @@
 The reference implementation of a wallet client in typescript.
 
 
+`melwallet.js` is a client library for interacting with melwalletd. It exposes all melwalletd methods through `MelwalletdClient`, an rpc interface, and nicely wraps wallet-specific endpoints in `MelwalletdWallet`. If you are familiar with our cli tool [`melwallet-cli`](https://github.com/themeliolabs/melwallet-client), that is starting point for the functionality to expect. 
+
 ## Quick start
 
 First install the library and melwalletd
@@ -13,7 +15,7 @@ cargo install --locked melwalletd
 melwalletd --wallet-dir /tmp/themelio-wallet-test --network testnet
 ```
 
-then you can start using it in your project
+then you can start using `melwallet.js` in your project
 
 ```ts
 import {MelwalletdClient, MelwalletdWallet} from 'melwallet.js'
@@ -27,7 +29,6 @@ const wallet: MelwalletdWallet = client.get_wallet('wallet_name');
 
 ## Library Priorities
 
-`melwallet.js` is a client library for interacting with melwalletd. It exposes all melwalletd methods through `MelwalletdClient`, an rpc interface, and nicely wraps wallet-specific endpoints in `MelwalletdWallet`. If you are familiar with our cli tool [`melwallet-cli`](https://github.com/themeliolabs/melwallet-client), that is starting point for the functionality to expect.
 
 - type safety
 - ease of use
