@@ -41,11 +41,6 @@
     }
   },
   "include": [
-    "src/*",
-    "src/types/raw-response-types.ts",
-    "src/types/themelio-types.ts",
-    "src/types/melwalletd-types.ts",
-    "src/utils/utils.ts",
-    "src/types/melwalletd-prot.ts"
+    "src/**/**/*"
   ]
 }
