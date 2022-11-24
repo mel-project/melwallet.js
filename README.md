@@ -5,9 +5,14 @@ The reference implementation of a wallet client in typescript.
 
 ## Quick start
 
+First install the library and melwalletd
 ```bash
 npm install melwallet.js
+cargo install --locked melwalletd
+melwalletd --wallet-dir /tmp/themelio-wallet-test --network testnet
 ```
+
+then you can start using it in your project
 
 ```ts
 import {MelwalletdClient, MelwalletdWallet} from 'melwallet.js'
