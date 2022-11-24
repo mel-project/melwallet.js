@@ -26,6 +26,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.5.1
       - name: Run pnpm Install
         run: pnpm install --prefer-offline
 
@@ -44,7 +47,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
+        
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7.5.1
       - name: Run pnpm Install
         run: pnpm install --prefer-offline
 
