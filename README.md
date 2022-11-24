@@ -1,4 +1,5 @@
 # Melwallet.js
+[![melwallet.js](https://img.shields.io/badge/melwallet.js-docs-grey?labelColor=green&style=flat&link=https://themeliolabs.github.io/melwallet.js/)](https://themeliolabs.github.io/melwallet.js/)
 
 The reference implementation of a wallet client in typescript.
 
@@ -23,7 +24,6 @@ await client.create_wallet('wallet_name', 'password');
 // try to get the wallet
 const wallet: MelwalletdWallet = client.get_wallet('wallet_name');
 ```
-
 
 ## Library Priorities
 
