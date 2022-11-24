@@ -1,5 +1,5 @@
 import * as JSONBigPackage from 'json-bigint';
-import { JSONValue, NotPromise } from '../types/type-utils';
+import { JSONValue, NotPromise } from './type-utils';
 
 var JSONBig = JSONBigPackage;
 if ((JSONBigPackage as any).default) {

@@ -8,7 +8,7 @@ import {
   TxBalance,
   TransactionStatus,
   PrepareTxArgs,
-} from '../src/types/melwalletd-types';
+} from '../src/types/melwalletd';
 import {
   Header,
   NetID,
@@ -17,7 +17,7 @@ import {
   Transaction,
   PoolState,
   Denom,
-} from '../src/types/themelio-types';
+} from '../src/types/themelio-structs';
 import {
   promise_or_false,
   unwrap_nullable_promise,

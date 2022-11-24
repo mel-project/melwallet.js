@@ -5,7 +5,7 @@ import {
   TransactionStatus as TxStatus,
   PrepareTxArgsHelpers,
   PrepareTxArgs,
-} from './melwalletd-types';
+} from './melwalletd';
 import {
   Header,
   PoolKeyHelpers,
@@ -16,7 +16,7 @@ import {
   NetID,
   PoolKey,
   Denom,
-} from './themelio-types';
+} from './themelio-structs';
 
 export interface WalletGetter<T extends ThemelioWallet> {
   get_wallet(name: string): Promise<T>;

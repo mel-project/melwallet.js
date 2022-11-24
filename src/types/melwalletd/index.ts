@@ -1,9 +1,5 @@
-import {
-  prepare_faucet_args as prepare_faucet_args,
-  prepare_swap_to as prepare_swap_to,
-} from '..';
-import { Transaction, AnnCoinID, NetID, TxKind, Denom } from './themelio-types';
-import { CoinData, CoinID } from './themelio-types';
+import { prepare_swap_to, prepare_faucet_args } from "../../utils/wallet-utils";
+import { Transaction, AnnCoinID, Denom, NetID, CoinID, CoinData, TxKind } from "../themelio-structs";
 
 export interface TransactionStatus {
   raw: Transaction;

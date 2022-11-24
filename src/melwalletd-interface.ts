@@ -4,7 +4,7 @@ import {
   ThemelioWallet,
   WalletGetter,
 } from './types/melwalletd-prot';
-import { JSONRPCResponse, JSONRPC } from './types/jsonrpc';
+import { JSONRPCResponse, JSONRPC } from './types/nanorpc';
 import {
   WalletSummary,
   SwapInfo,
@@ -12,7 +12,7 @@ import {
   TxBalance,
   TransactionStatus,
   PrepareTxArgs,
-} from './types/melwalletd-types';
+} from './types/melwalletd';
 import {
   Header,
   PoolKeyHelpers,
@@ -23,8 +23,8 @@ import {
   NetID,
   Denom,
   PoolKey,
-} from './types/themelio-types';
-import { JSONArray, JSONValue } from './types/type-utils';
+} from './types/themelio-structs';
+import { JSONArray, JSONValue } from './utils/type-utils';
 import { ThemelioJson } from './utils/utils';
 
 export class MelwalletdClient

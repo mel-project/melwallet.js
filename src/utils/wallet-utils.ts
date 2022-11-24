@@ -6,10 +6,10 @@ import {
   PoolKeyHelpers,
   Transaction,
   TxKind,
-} from '../types/themelio-types';
-import { bytesToHex, random_hex_string, stringToUTF8Bytes } from './utils';
-import { PrepareTxArgs, PrepareTxArgsHelpers } from '../types/melwalletd-types';
-import { ThemelioWallet } from '~/types/melwalletd-prot';
+} from '../types/themelio-structs';
+import { random_hex_string } from './utils';
+import { PrepareTxArgs } from '../types/melwalletd';
+import { ThemelioWallet } from '../types/melwalletd-prot';
 
 export function prepare_faucet_args(
   address: string,
