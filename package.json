@@ -4,9 +4,9 @@
   "type": "module",
   "description": "",
   "keywords": [],
-  "main": "dist/index.umd.js",
-  "module": "dist/index.es5.js",
-  "typings": "dist/index.d.ts",
+  "main": "index.umd.js",
+  "module": "index.es5.js",
+  "typings": "melwalletd-interfaces.d.ts",
   "files": [
     "dist"
   ],

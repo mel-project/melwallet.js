@@ -1,4 +1,4 @@
-import { bytesToHex, stringToUTF8Bytes } from "../../utils/utils";
+import { bytesToHex, stringToUTF8Bytes } from '../../utils/utils';
 
 export enum NetID {
   Testnet = 'testnet',

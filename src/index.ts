@@ -1,1 +1,1 @@
-export * from './melwalletd-interface';
+export * from './melwalletd-interfaces';

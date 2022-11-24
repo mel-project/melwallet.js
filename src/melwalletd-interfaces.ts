@@ -8,7 +8,6 @@ import { JSONRPCResponse, JSONRPC } from './types/nanorpc';
 import {
   WalletSummary,
   SwapInfo,
-  PrepareTxArgsHelpers,
   TxBalance,
   TransactionStatus,
   PrepareTxArgs,

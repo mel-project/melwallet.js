@@ -28,7 +28,7 @@ import { send_faucet, prepare_swap_to } from '../src/utils/wallet-utils';
 import {
   MelwalletdClient,
   MelwalletdWallet,
-} from '../src/melwalletd-interface';
+} from '../src/melwalletd-interfaces';
 /// ONLY RUN TESTS ON NON-MAINNET UNLESS YOU KNOW WHAT YOU ARE DOING
 const NO_MAINNET = true;
 

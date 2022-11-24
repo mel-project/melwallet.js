@@ -1,7 +1,6 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import sourceMaps from 'rollup-plugin-sourcemaps';
-import json from '@rollup/plugin-json';
 import ttypescript from 'ttypescript';
 import tsPlugin from 'rollup-plugin-typescript2';
 
@@ -13,7 +12,7 @@ export default {
   input: `src/${libraryName}.ts`,
   output: [
     {
-      file: pkg.main,
+      file: 'dist/'+pkg.main,
       name: 'index.js',
       format: 'umd',
       sourcemap: true,
@@ -21,7 +20,7 @@ export default {
         fetch: 'node-fetch',
       },
     },
-    { file: pkg.module, format: 'es', sourcemap: true },
+    { file: 'dist/'+pkg.module, format: 'es', sourcemap: true },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: ['node-fetch'],
@@ -33,8 +32,6 @@ export default {
   },
   inlineDynamicImports: true,
   plugins: [
-    // Allow json resolution
-    json(),
     // Compile TypeScript files
     tsPlugin({
       typescript: ttypescript,
