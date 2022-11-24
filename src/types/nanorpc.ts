@@ -25,7 +25,7 @@ export interface JSONRPCErrorResponse {
   error: any;
 }
 
-export type JSONRPCResponse = JSONRCSucessResponse | JSONRPCErrorResponse
+export type JSONRPCResponse = JSONRCSucessResponse | JSONRPCErrorResponse;
 
 export interface JSONRPCError {
   code: number;

@@ -79,7 +79,6 @@ export const DenomHelpers = {
   toName: denom_to_name,
   asString: (denom: Denom): string => denom,
   asBytes: (denom: Denom): string => {
-
     let denom_name = denom_to_name(denom);
     if (denom_name === 'MEL') return '6D';
     if (denom_name === 'SYM') return '73';
@@ -104,15 +103,12 @@ export const PoolKeyHelpers = {
     return `${poolkey.left}/${poolkey.right}`;
   },
   asBytes(poolkey: PoolKey): string {
-      if (poolkey.left == Denom.MEL) {
-
-
-        return DenomHelpers.asBytes(poolkey.right);
-      } else if (poolkey.right == Denom.MEL) {
-        return DenomHelpers.asBytes(poolkey.left);
-      }
-      return bytesToHex(stringToUTF8Bytes(PoolKeyHelpers.asString(poolkey)));
-
+    if (poolkey.left == Denom.MEL) {
+      return DenomHelpers.asBytes(poolkey.right);
+    } else if (poolkey.right == Denom.MEL) {
+      return DenomHelpers.asBytes(poolkey.left);
+    }
+    return bytesToHex(stringToUTF8Bytes(PoolKeyHelpers.asString(poolkey)));
   },
 } as const;
 
