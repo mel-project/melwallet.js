@@ -1,10 +1,28 @@
 # Melwallet.js
 
-The reference implementation of a wallet client in javascript.
+The reference implementation of a wallet client in typescript.
 
-`melwallet.js` is a client library for interacting with melwalletd. It exposes all endpoints through `MelwalletdClient` and nicely wraps wallet-specific endpoints in `MelwalletdWallet`. If you are familiar with our cli tool [`melwallet-cli`](https://github.com/themeliolabs/melwallet-client), that is starting point for the functionality to expect.
+
+## Quick start
+
+```bash
+npm install melwallet.js
+```
+
+```ts
+import {MelwalletdClient, MelwalletdWallet} from 'melwallet.js'
+/// create a melwalletd client at the default location `http://127.0.0.1:11773`
+const client: MelwalletdClient = new MelwalletdClient();
+// create your first wallet, `wallet_name`
+await client.create_wallet('wallet_name', 'password');
+// try to get the wallet
+const wallet: MelwalletdWallet = client.get_wallet('wallet_name');
+```
+
 
 ## Library Priorities
+
+`melwallet.js` is a client library for interacting with melwalletd. It exposes all melwalletd methods through `MelwalletdClient`, an rpc interface, and nicely wraps wallet-specific endpoints in `MelwalletdWallet`. If you are familiar with our cli tool [`melwallet-cli`](https://github.com/themeliolabs/melwallet-client), that is starting point for the functionality to expect.
 
 - type safety
 - ease of use
@@ -25,48 +43,54 @@ cargo install --locked melwalletd
 melwalletd --wallet-dir /tmp/themelio-wallet-test --network testnet
 ```
 
-For more information, including a list of endpoints, visit the melwalletd [readme](https://github.com/themeliolabs/melwalletd)
+
+For more information, including a list of rpc methods, visit the melwalletd [readme](https://github.com/themeliolabs/melwalletd)
 
 ## Basic Usage
 
+Keep in mind, these api's are wrapping network and database protocols, so there is always a chance for http server errors. The aim of `MelwalletdClient` and `MelwalletdWallet` is to only ever either 
+
+1. return the appropriate type or 
+2. throw an error.
+
+Here is an example of creating a wallet and then sending a faucet transaction based on user input, then waiting for the transaction to be confirmed
 ```ts
+import {MelwalletdClient, MelwalletdWallet} from 'melwallet.js'
+import {PrepareTxArgsHelpers} from 'melwallet.js/types'
 /// create a melwalletd client at the default location `http://127.0.0.1:11773`
-const client: MelwalletdClient = new MelwalletdClient();
-// create your first wallet, `wallet_name`
-await client.create_wallet('wallet_name', 'password');
+const client: MelwalletdClient = await new MelwalletdClient();
+// create a first wallet, `faucet_wallet`
+await client.create_wallet('faucet_wallet', '123');
 // try to get the wallet
-const wallet: MelwalletdWallet = client.get_wallet('wallet_name');
+const wallet: MelwalletdWallet = await client.get_wallet('wallet_name');
+// be sure to unlock the wallet before trying to send transactions 
+await wallet.unlock('123')
+// tapping the faucet, aka printing fake MEL, only works when not on the mainnet
+// prepare the args for a faucet transaction sending a user defined amount of fake coins to send to this wallet
+const ptx: PrepareTxArgs = await PrepareTxArgsHelpers.faucet(wallet, get_user_input_about_how_much_fake_money_they_want());
+// prepare a faucet transaction 
+const tx: Transaction = await wallet.prepare_tx(ptx);
+// at this point it's possible to inspect the transaction to make the fields are to your users liking
+get_user_input_about_transaction_fields(tx) // it could throw an error if the user doesn't like what they see
+// send the transaction, this hash can then be used to check on the status of the transaction
+const tx_hash = await wallet.send_tx(tx); 
+// check if transaction has been confirmed, in a loop, waiting 1 second between checks
+while(true){
+    if(await wallet.tx_status(tx_hash)){
+        break
+    }
+    setTimeout(1000)
+}
+console.log("sent faucet tx to: ", await wallet.get_name())
 ```
+Another note, the Themelio blockchain doesn't have rollbacks! Once a transaction is confirmed it has become a part of the state forever. Unlike other blockchains, you can immediately trust the validity of a transaction without having to wait for far after a transaction has been added to the chain.
 
-Keep in mind, these api's are wrapping network and database protocols, so there is always a chance for http server errors. The aim of `MelwalletdClient` and `MelwalletdWallet` is to only ever either 1. return the appropriate type or 2. throw an error.
 
-## MelwalletdClient functions
 
-| Name                   | Return type                             | Description                                                                                  |
-| ---------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------- |
-| get_name               | Promise&lt;string&gt;                   | Get the name of this wallet                                                                  |
-| get_address            | Promise&lt;string&gt;                   | Get the wallet&#x27;s public key                                                             |
-| get_summary            | Promise&lt;WalletSummary&gt;            | Get the associated WalletSummary                                                             |
-| get_network            | Promise&lt;NetID&gt;                    | Get the NetID of the network to which this wallet belongs                                    |
-| lock                   | Promise&lt;boolean&gt;                  | locks this wallet returns true if the request completes successfully                         |
-| unlock                 | Promise&lt;boolean&gt;                  | unlocks this wallet given a password returns true if the request completes successfully      |
-| export_sk              | Promise&lt;string&gt;                   | exports the wallets secret key this needs the wallet password even if the wallet is unlocked |
-| get_balances           | Promise&lt;Map&lt;Denom, bigint&gt;&gt; | returns a map between a Denom and the amount of that denom in this wallet                    |
-| prepare_transaction    | Promise&lt;Transaction&gt;              |
-| send_faucet            | Promise&lt;string&gt;                   | send a faucet transaction throws an error if attempting this on the mainnet                  |
-| send_tx                | Promise&lt;string&gt;                   | send a transaction                                                                           |
-| get_transaction        | Promise&lt;Transaction&gt;              | request transaction information                                                              |
-| melwalletd_request     | Promise&lt;JSONValue \| Object&gt;      | submits a request to melwalletd and parses the request as a json object                      |
-| melwalletd_request_raw | Promise&lt;Response&gt;                 | submits a request to melwalletd                                                              |
+## Give us feedback
 
-### Dev Install
+We are in the process of creating a platform to build the next generate of decentralized, off-chain, web3 protocols. To do that we need to be as user friendly as possible. If you have any ideas about how we can make this better, or you're interested in knowing more, please reach out to us on [discord](https://discord.gg/themelio) or [element](https://matrix.to/#/#community:matrix.themelio.org)!
 
-To install with npm
-
-```
-git clone https://github.com/themeliolabs/melwallet.js.git &&
-npm install
-```
 
 ### Tests
 

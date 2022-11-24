@@ -107,7 +107,6 @@ export class MelwalletdClient
     wallet_name: string,
     request: PrepareTxArgs,
   ): Promise<Transaction> {
-    console.log(wallet_name, request);
     const res = await this.rpc_request('prepare_tx', [wallet_name, request]);
     return assertType<Transaction>(res);
   }

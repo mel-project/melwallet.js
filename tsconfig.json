@@ -27,7 +27,7 @@
       }
     ],
     "importHelpers": true,
-    "baseUrl": "src",
+    "baseUrl": "./src",
     "paths": {
       "~/*": [
         "*"

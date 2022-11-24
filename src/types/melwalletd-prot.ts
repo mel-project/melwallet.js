@@ -3,12 +3,10 @@ import {
   SwapInfo,
   TxBalance,
   TransactionStatus as TxStatus,
-  PrepareTxArgsHelpers,
   PrepareTxArgs,
 } from './melwalletd';
 import {
   Header,
-  PoolKeyHelpers,
   PoolState,
   CoinID,
   CoinData,

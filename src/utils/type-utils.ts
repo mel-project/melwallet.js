@@ -31,13 +31,11 @@ export type JSONValue =
 export type ShapeOf<T extends PropertyKey, K = any> = { [key in T]: K };
 export type Match<T extends PropertyKey, K = any> = ShapeOf<T, K>;
 
-type Default_Match<K> = { _: K };
+export type Default_Match<K> = { _: K };
 // match_denom(match_map: PartialMatchWithDefault<Denom, string>)
 export type PartialMatchWithDefault<T extends PropertyKey, K> = Partial<
   Match<T, K>
 > &
-  Default_Match<K>;
-export type MatchWithDefault<T extends PropertyKey, K> = Match<T, K> &
   Default_Match<K>;
 
 export type JSONObject = Record<any, any>;

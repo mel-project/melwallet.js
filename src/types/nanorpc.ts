@@ -14,15 +14,18 @@ export interface JSONRPCRequest {
   id?: JSONRPCID;
 }
 
-interface _J {
+export interface JSONRCSucessResponse {
   jsonrpc: '2.0';
   id: JSONRPCID;
   result: any;
+}
+export interface JSONRPCErrorResponse {
+  jsonrpc: '2.0';
+  id: JSONRPCID;
   error: any;
 }
 
-export type JSONRPCSuccess = Omit<_J, 'error'>;
-export type JSONRPCResponse = JSONRPCSuccess | Omit<_J, 'result'>;
+export type JSONRPCResponse = JSONRCSucessResponse | JSONRPCErrorResponse
 
 export interface JSONRPCError {
   code: number;

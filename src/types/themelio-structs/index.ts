@@ -71,7 +71,7 @@ export function denom_to_name(value: Denom): DenomName {
   if (value === Denom.NEWCOIN) {
     return 'NEWCOIN';
   }
-  console.log(value);
+
   return value as any; //this is a forced cast since TS doesn't narrow and exclude `CUSTOM-${string}`
 }
 
@@ -79,7 +79,7 @@ export const DenomHelpers = {
   toName: denom_to_name,
   asString: (denom: Denom): string => denom,
   asBytes: (denom: Denom): string => {
-    console.log(denom);
+
     let denom_name = denom_to_name(denom);
     if (denom_name === 'MEL') return '6D';
     if (denom_name === 'SYM') return '73';
@@ -104,19 +104,15 @@ export const PoolKeyHelpers = {
     return `${poolkey.left}/${poolkey.right}`;
   },
   asBytes(poolkey: PoolKey): string {
-    let a = () => {
       if (poolkey.left == Denom.MEL) {
-        console.log(PoolKeyHelpers.asString(poolkey));
-        console.log(DenomHelpers.asBytes(poolkey.right));
+
+
         return DenomHelpers.asBytes(poolkey.right);
       } else if (poolkey.right == Denom.MEL) {
         return DenomHelpers.asBytes(poolkey.left);
       }
       return bytesToHex(stringToUTF8Bytes(PoolKeyHelpers.asString(poolkey)));
-    };
-    let b = a();
-    console.log(b);
-    return b;
+
   },
 } as const;
 
