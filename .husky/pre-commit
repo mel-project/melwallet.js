@@ -3,3 +3,6 @@
 
 npx prettier ./src --write
 npm test
+rm -rf docs
+npx typedoc src/index.ts src/types/index.ts src/types/melwalletd-prot.ts src/utils/type-utils.ts --readme `pwd`/README.md
+
