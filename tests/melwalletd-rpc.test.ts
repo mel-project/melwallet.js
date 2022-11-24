@@ -247,7 +247,7 @@ describe('Themelio Wallet', () => {
       Denom.SYM,
       decimal_balance,
     );
-    let tx: Transaction = await wallet.prepare_transaction(untx);
+    let tx: Transaction = await wallet.prepare_tx(untx);
     let txhash = await wallet.send_tx(tx);
     expect(txhash).toBeTruthy();
   });

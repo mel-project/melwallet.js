@@ -231,7 +231,7 @@ export class MelwalletdWallet implements ThemelioWallet {
     let txhash = await this.#client.send_tx(await this.get_name(), tx)
     return assertType<string>(txhash)
   }
-  async prepare_transaction(ptx: PrepareTxArgs): Promise<Transaction> {
+  async prepare_tx(ptx: PrepareTxArgs): Promise<Transaction> {
     return this.#client.prepare_tx(await this.get_name(), ptx)
   }
   async tx_status(txhash: string): Promise<TransactionStatus | null> {
