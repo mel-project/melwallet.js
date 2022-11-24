@@ -1,6 +1,6 @@
 // export type TXHash = string & { __brand: "Valid Transaction Hash" }
 
-import type { Denom } from './denom';
+import { bytesToHex, Denom, DenomHelpers, stringToUTF8Bytes } from '..';
 
 export enum NetID {
   Testnet = "testnet",
@@ -49,6 +49,22 @@ export interface PoolKey {
   left: Denom;
   right: Denom;
 }
+
+export const PoolKey = {
+  asString(poolkey: PoolKey): string {
+    return `${poolkey.left}/${poolkey.right}`
+  },
+  asBytes(poolkey: PoolKey): string{
+    if(poolkey.left == Denom.MEL){
+      return DenomHelpers.asBytes(poolkey.right)
+    }
+    else if(poolkey.right == Denom.MEL){
+      return DenomHelpers.asBytes(poolkey.left)
+    }
+    return  bytesToHex(stringToUTF8Bytes(PoolKey.asString(poolkey)))
+  }
+} as const
+
 
 // 2 million cached pooldataitems is 64 mb
 // 1 item is 256 bits

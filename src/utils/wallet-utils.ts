@@ -56,9 +56,7 @@ export async function send_faucet(
   return await wallet.send_tx(tx);
 }
 
-export function poolkey_to_str(poolkey: PoolKey): string {
-  return `${poolkey.left}/${poolkey.right}`;
-}
+
 export async function prepare_swap_to(
   address: string,
   from: Denom,
@@ -78,7 +76,7 @@ export async function prepare_swap_to(
   let poolkey: PoolKey = { left: from, right: to };
   const ptx: PrepareTxArgs = {
     kind: TxKind.Swap,
-    data: bytesToHex(stringToUTF8Bytes(poolkey_to_str(poolkey))),
+    data: bytesToHex(stringToUTF8Bytes(PoolKey.asString(poolkey))),
     outputs,
   };
   return ptx;

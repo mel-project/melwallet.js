@@ -1,30 +1,50 @@
 
-import { ShapeOf, Split } from "~/utils/type-utils";
+import { Match } from "~/utils/type-utils";
+import { bytesToHex, stringToUTF8Bytes } from "..";
 
-interface _Denom {
-  MEL: 'MEL';
-  SYM: 'SYM';
-  ERG: 'ERG';
-  NEWCOIN: '(NEWCOIN)';
-  CUSTOM: `CUSTOM-${string}`;
-} 
-export type Denom = "MEL" | "SYM" | "ERG" | "(NEWCOIN)" | `CUSTOM-${string}`
-// export type DenomNum = Split<_DenomNum>;
+interface _DenomNum {
+  MEL: 109; // b"m"
+  SYM: 115; // b"s"
+  ERG: 100; // b"d"
+  CUSTOM: bigint; // txhash.to_vec
+  NEWCOIN: 0; // b""
+}
 
-export type DenomNames = keyof _Denom
-
-const MEL = "MEL" as const
-const SYM: Denom = "SYM"
-const ERG: Denom = "ERG"
-const NEWCOIN: Denom = "(NEWCOIN)"
-const CUSTOM: (s: string) => `CUSTOM-${string}` = (s: string) => `CUSTOM-${s}`
-
+type CUSTOM_DENOM = `CUSTOM-${string}`
+export type Denom = 'MEL' | 'SYM' | 'ERG' | CUSTOM_DENOM | '(NEWCOIN)'
 export const Denom = {
-  MEL,
-  SYM,
-  CUSTOM,
-  ERG,
-  NEWCOIN
+  MEL: 'MEL',
+  SYM: 'SYM',
+  ERG: 'ERG',
+  NEWCOIN: '(NEWCOIN)',
+  CUSTOM: (s: string): CUSTOM_DENOM => `CUSTOM-${s}`,
 } as const;
 
 
+export type DenomName = keyof typeof Denom
+
+export function denom_to_name(value: Denom): DenomName {
+  if (value.startsWith('CUSTOM-')) {
+    return 'CUSTOM'
+  }
+  if (value === Denom.NEWCOIN) {
+    return 'NEWCOIN'
+  }
+  return value as any //this is a forced cast since TS doesn't narrow and exclude `CUSTOM-${string}` 
+}
+
+
+
+export const DenomHelpers = {
+  toName: denom_to_name,
+  asString: (denom: Denom): string => denom,
+  asBytes: (denom: Denom): string => {
+    let denom_name = denom_to_name(denom);
+    if (denom_name = "MEL") return "109";
+    if (denom_name === "SYM") return "115";
+    if (denom_name === "ERG") return "100";
+    if (denom_name === "CUSTOM") return bytesToHex(stringToUTF8Bytes((denom_name as CUSTOM_DENOM).split('-')[1])); // txhash.to_vec
+    if (denom_name === "NEWCOIN") return "0";
+    throw "Impossible Denom"
+  }
+}

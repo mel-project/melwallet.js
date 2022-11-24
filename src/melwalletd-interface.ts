@@ -18,11 +18,8 @@ import {
   Transaction,
   NetID,
 } from './types/themelio-types';
-import { poolkey_to_str } from './utils/wallet-utils';
 import { JSONArray, JSONValue } from './utils/type-utils';
-import { ThemelioJson, unwrap_nullable_promise } from './utils/utils';
-import { assert } from 'console';
-import { stat } from 'fs';
+import { ThemelioJson } from './utils/utils';
 
 export class MelwalletdClient implements MelwalletdProtocol, WalletGetter<MelwalletdWallet> {
   readonly #base_url: string;
@@ -52,7 +49,7 @@ export class MelwalletdClient implements MelwalletdProtocol, WalletGetter<Melwal
     return assertType<Header>(res);
   }
   async melswap_info(pool_key: PoolKey): Promise<PoolState | null> {
-    let res = await this.rpc_request("melswap_info", [poolkey_to_str(pool_key)])
+    let res = await this.rpc_request("melswap_info", [PoolKey.asString(pool_key)])
     return assertType<PoolState | null>(res)
   }
   async simulate_swap(
@@ -119,7 +116,7 @@ export class MelwalletdClient implements MelwalletdProtocol, WalletGetter<Melwal
     txhash: string,
   ): Promise<TransactionStatus | null> {
     const res = await this.rpc_request("tx_status", [wallet_name, txhash]);
-    return assertType<TransactionStatus>(res)
+    return assertType<TransactionStatus | null>(res)
 
   }
   async send_faucet(wallet_name: string): Promise<string> {
@@ -231,14 +228,15 @@ export class MelwalletdWallet implements ThemelioWallet {
     return this.#client.export_sk(await this.get_name(), password);
   }
   async send_tx(tx: Transaction): Promise<string> {
-    return this.#client.send_tx(await this.get_name(), tx)
+    let txhash = await this.#client.send_tx(await this.get_name(), tx)
+    return assertType<string>(txhash)
   }
   async prepare_transaction(ptx: PrepareTxArgs): Promise<Transaction> {
     return this.#client.prepare_tx(await this.get_name(), ptx)
   }
-  async get_transaction(txhash: string): Promise<Transaction> {
+  async tx_status(txhash: string): Promise<TransactionStatus | null> {
     const status = this.#client.tx_status(await this.get_name(), txhash)
-    return await (await unwrap_nullable_promise(status)).raw
+    return status
   }
   async get_balances(): Promise<Partial<Record<Denom, bigint>>> {
     return (await this.get_summary()).detailed_balance

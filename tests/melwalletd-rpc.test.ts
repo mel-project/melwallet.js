@@ -6,6 +6,7 @@ import {
   PrepareTxArgs,
   TransactionDump,
   TxBalance,
+  TransactionStatus,
 } from '../src/types/melwalletd-types';
 import {
   Header,
@@ -22,7 +23,7 @@ import {
   random_hex_string,
 } from '../src/utils/utils';
 import { send_faucet, prepare_swap_to } from '../src/utils/wallet-utils';
-import { Denom, DenomNames } from '../src/types/denom';
+import { Denom, DenomName } from '../src/types/denom';
 import {
   MelwalletdClient,
   MelwalletdWallet,
@@ -211,19 +212,11 @@ describe('Themelio Wallet', () => {
     });
   });
 
-  ///
-  it('prepare swap transactions', async () => {
-    let { wallet } = await get_store();
-    let ptx: PrepareTxArgs = await prepare_swap_to(await wallet.get_address(), Denom.MEL, Denom.SYM, 1000n)
-    let tx: Transaction = await wallet.prepare_transaction(ptx);
-    expect(tx);
-  });
-
   /// it gets a transaction based on hash
   it('send a transaction and fetch it by hash', async () => {
     let { wallet } = await get_store();
     let txhash: string = await send_faucet(wallet);
-    let tx: Transaction = await wallet.get_transaction(txhash);
+    let _tx: TransactionStatus | null = await wallet.tx_status(txhash);
   });
   it('get all transactions from this wallet', async () => {
     let { wallet, client } = await get_store();
@@ -246,10 +239,9 @@ describe('Themelio Wallet', () => {
       Denom.SYM,
       100n,
     );
-    (ThemelioJson.stringify(untx, null, 2));
     let tx: Transaction = await wallet.prepare_transaction(untx);
     let txhash = await wallet.send_tx(tx);
-    expect(tx);
+    expect(txhash).toBeTruthy();
   });
   it('simulate a swap transaction', async () => {
     let { client } = await get_store();

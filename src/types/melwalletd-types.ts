@@ -1,6 +1,6 @@
 import { ShapeOf } from '~/utils/type-utils';
 import { prepare_faucet_args as prepare_faucet_args, prepare_swap_to as prepare_swap_to } from '..';
-import { Denom, DenomNames } from './denom';
+import { Denom, DenomName } from './denom';
 import { Transaction, AnnCoinID, NetID, TxKind } from './themelio-types';
 import { CoinData, CoinID } from './themelio-types';
 
