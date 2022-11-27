@@ -65,18 +65,19 @@ import {MelwalletdClient, MelwalletdWallet} from 'melwallet.js'
 import {PrepareTxArgsHelpers} from 'melwallet.js/types'
 /// create a melwalletd client at the default location `http://127.0.0.1:11773`
 const client: MelwalletdClient = await new MelwalletdClient();
-// create a first wallet, `faucet_wallet`
+// create a wallet, `faucet_wallet`
 await client.create_wallet('faucet_wallet', '123');
 // try to get the wallet
-const wallet: MelwalletdWallet = await client.get_wallet('wallet_name');
+const wallet: MelwalletdWallet = await client.get_wallet('faucet_wallet');
 // be sure to unlock the wallet before trying to send transactions 
 await wallet.unlock('123')
 // tapping the faucet, aka printing fake MEL, only works when not on the mainnet
-// prepare the args for a faucet transaction sending a user defined amount of fake coins to send to this wallet
-const ptx: PrepareTxArgs = await PrepareTxArgsHelpers.faucet(wallet, get_user_input_about_how_much_fake_money_they_want());
+// prepare the args for a faucet transaction to send a user-defined amount of fake coins to send to this wallet
+const how_many_coins: bigint = get_user_input_about_how_much_fake_money_they_want();
+const ptx: PrepareTxArgs = await PrepareTxArgsHelpers.faucet(wallet, how_many_coins);
 // prepare a faucet transaction 
 const tx: Transaction = await wallet.prepare_tx(ptx);
-// at this point it's possible to inspect the transaction to make the fields are to your users liking
+// ask the user if the transaction is correct
 get_user_input_about_transaction_fields(tx) // it could throw an error if the user doesn't like what they see
 // send the transaction, this hash can then be used to check on the status of the transaction
 const tx_hash = await wallet.send_tx(tx); 
@@ -89,13 +90,13 @@ while(true){
 }
 console.log("sent faucet tx to: ", await wallet.get_name())
 ```
-Another note, the Themelio blockchain doesn't have rollbacks! Once a transaction is confirmed it has become a part of the state forever. Unlike other blockchains, you can immediately trust the validity of a transaction without having to wait for far after a transaction has been added to the chain.
+Another note, the Themelio blockchain doesn't have rollbacks! Once a transaction is confirmed it has become a part of the state forever. Unlike other blockchains, you can immediately trust the permanence of a transaction without having to wait for long after a block has been validated.
 
 
 
 ## Give us feedback
 
-We are in the process of creating a platform to build the next generate of decentralized, off-chain, web3 protocols. To do that we need to be as user friendly as possible. If you have any ideas about how we can make this better, or you're interested in knowing more, please reach out to us on [discord](https://discord.gg/themelio) or [element](https://matrix.to/#/#community:matrix.themelio.org)!
+We are in the process of creating a platform for the next generation of decentralized, off-chain, web3 protocols. To do that we need to be as user friendly as possible. If you have any ideas about how we can make this better, or if you're interested in knowing more, please reach out to us on [discord](https://discord.gg/themelio) or [matrix](https://matrix.to/#/#community:matrix.themelio.org)!
 
 
 ### Tests
