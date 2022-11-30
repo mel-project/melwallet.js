@@ -1,12 +1,12 @@
 {
   "name": "melwallet.js",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "type": "module",
   "description": "",
   "keywords": [],
   "main": "index.umd.js",
   "module": "index.es5.js",
-  "typings": "melwalletd-interfaces.d.ts",
+  "typings": "index.d.ts",
   "files": [
     "dist"
   ],
