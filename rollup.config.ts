@@ -12,7 +12,7 @@ export default {
   input: `src/${libraryName}.ts`,
   output: [
     {
-      file: 'dist/'+pkg.main,
+      file: pkg.main,
       name: 'index.js',
       format: 'umd',
       sourcemap: true,
@@ -20,7 +20,7 @@ export default {
         fetch: 'node-fetch',
       },
     },
-    { file: 'dist/'+pkg.module, format: 'es', sourcemap: true },
+    { file: pkg.module, format: 'es', sourcemap: true },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: ['node-fetch'],
